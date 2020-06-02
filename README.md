@@ -2,6 +2,24 @@
 
 Figma : https://www.figma.com/file/Z8zXzJePxaCViBKFMkycgA/7-Wonders?node-id=0%3A1
 
+## Tech Stack
+- Server: Express
+- Frontend: React
+- Node v.14.3.0
+- AWS EC2
+- AWS DynamoDB, S3
+
+## Setup
+
+### Server
+1. Navigate to /server
+2. Run `Yarn`
+3. Run `Yarn dev`
+
+### Client
+1. Navigate to /client
+2. Run `Yarn`
+3. Run `Yarn start`
 
 ## Collaborators
 [@vinielk](https://github.com/vinielk)
