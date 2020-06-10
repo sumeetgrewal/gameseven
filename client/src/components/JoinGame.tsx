@@ -6,19 +6,22 @@ interface JoinGameProps {
 
 interface JoinGameState {
   connectionPending: boolean,
+  username: string,
+  password: string,
 }
 class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   constructor(props: JoinGameProps) {
     super(props);
     this.state = {
       connectionPending: false,
+      username: "",
+      password: "",
     }
   }
 
   joinGame(event: any) {
     event.preventDefault();
     console.log("Send Game Connection Request")
-    console.log(event.target);
     this.setState({connectionPending: true},
       () => {
         this.sendConnectionRequest()
@@ -34,12 +37,24 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     return new Promise((resolve) => {
       // TODO Send Request
       console.log("Waiting for connection")
-      setTimeout(() => resolve(), 2000)
+      setTimeout(() => {
+        this.setState({password: ""}, () => resolve())
+      }, 2000)
     })
   }
 
+  handleInputChange = (event: any) => {
+    const fieldName: string = event.target.name;
+    const value = event.target.value;
+    if (fieldName === 'username') {
+      this.setState({username: value})
+    } else if (fieldName === 'password') {
+      this.setState({password: value})
+    }
+  }
+
   render() {
-    const connectionPending = this.state.connectionPending
+    const { connectionPending, username, password } = this.state;
     return (
       <div className="container d-flex align-items-center text-center justify-content-center" style={{height: '100vh'}}>
           <div style={{display: (connectionPending ? "none" : "initial")}}>
@@ -47,17 +62,22 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
               <div className="dialog"> 
                 <label>
                   <h5 className="dialog-label">ENTER YOUR NAME</h5>
-                  <input id="name-prompt" />
+                  <input type="text" autoComplete="off" autoFocus={true} name="username" id="name-prompt" onChange={this.handleInputChange}/>
                 </label>
                 <label> 
                   <h5 className="dialog-label">ENTER PASSWORD</h5>
-                  <input type="password" id="password-prompt" />
+                  <input type="password" name="password" id="password-prompt" onChange={this.handleInputChange}/>
                 </label>
               </div>
-              <button type="submit" className="btn submit-btn">JOIN GAME</button>
+              <button 
+                type="submit" 
+                disabled={(username === "") || (password === "") ? true : false}
+                className="btn submit-btn">
+                JOIN GAME
+              </button>
             </form>
           </div>
-        {connectionPending && 
+        {connectionPending &&
           <div>
             <h3> CONNECTING TO GAME . . . </h3>
           </div>
