@@ -1,3 +1,54 @@
+/* FONTS
+font-family: 'Cinzel', serif; weight: 400, 700
+font-family: 'Raleway', sans-serif; weight: 300, 400, 700
+ */
+
+/* =======================
+GLOBAL 
+======================= */ 
+
 body {
     margin: 50;
+    font-family: 'Cinzel', serif;
+    background: #D6D6D6;
+}
+
+input {
+    background-color: #D6D6D6;
+    border: none;
+    margin: 20px 0px 40px;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: solid;
+}
+
+/* =======================
+JOINGAME 
+======================= */ 
+
+.dialog {
+    background-color: white;
+    width: 500px;
+    padding: 40px;
+}
+
+.dialog-label {
+    margin: 15px 0px;
+    font-weight: 700;
+}
+
+.submit-btn {
+    margin: 40px;
+    padding: 10px 30px;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #d6d6d6;
+    background-color: #585555;
+    border-radius: 0;
+}
+
+.submit-btn:hover {
+    color: white;
+    background: #302e2e;
+    transition: 0.1s ease-in-out;
 }
