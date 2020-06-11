@@ -2,6 +2,7 @@ import React from 'react';
 
 interface JoinGameProps {
   gameConnected: boolean,
+  setGameConnected: () => Promise<void>,
 }
 
 interface JoinGameState {
@@ -27,7 +28,9 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
         this.sendConnectionRequest()
         .then(() => {
           console.log("Connected");
-          this.setState({connectionPending: false});
+          this.setState({connectionPending: false}, () => {
+            this.props.setGameConnected();
+          });
         }
       )}
     )
@@ -72,16 +75,14 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
               <button 
                 type="submit" 
                 disabled={(username === "") || (password === "") ? true : false}
-                className="btn submit-btn">
+                className="btn join-btn">
                 JOIN GAME
               </button>
             </form>
           </div>
-        {connectionPending &&
-          <div>
-            <h3> CONNECTING TO GAME . . . </h3>
-          </div>
-        }
+        {connectionPending && <div>
+          <h3 className=""> CONNECTING TO GAME . . . </h3>
+        </div>}
       </div>
     );
   } 

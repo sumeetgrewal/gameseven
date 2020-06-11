@@ -22,6 +22,10 @@ input {
     text-decoration: solid;
 }
 
+ol li {
+    font-family: 'Raleway', sans-serif;
+}
+
 /* =======================
 JOINGAME 
 ======================= */ 
@@ -30,6 +34,9 @@ JOINGAME
     background-color: white;
     width: 500px;
     padding: 40px;
+    margin-top: 40px;
+    overflow-y: scroll;
+    max-height: 80vh;
 }
 
 .dialog-label {
@@ -37,8 +44,9 @@ JOINGAME
     font-weight: 700;
 }
 
-.submit-btn {
+.join-btn {
     margin: 40px;
+    min-width: 200px;
     padding: 10px 30px;
     font-weight: bold;
     font-size: 1.2em;
@@ -47,8 +55,34 @@ JOINGAME
     border-radius: 0;
 }
 
-.submit-btn:hover {
+.join-btn:hover, .join-btn:focus {
     color: white;
     background: #302e2e;
     transition: 0.1s ease-in-out;
+}
+
+/* =======================
+GAMELOBBY
+======================= */ 
+
+.player-box {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0px;
+    padding: 20px 10px;
+    color: #302e2e;
+    border-top: 4px solid rgb(3, 43, 44);
+    border-bottom: 4px solid rgb(240, 201, 74);
+    border-left: 4px solid white;
+    border-right: 4px solid white;
+    align-items: center;
+}
+
+.player-box:hover {
+    border-left: 4px solid rgb(240, 201, 74);
+    border-right: 4px solid rgb(3, 43, 44);
+    border-top: 4px solid white;
+    border-bottom: 4px solid white;
+    font-weight: bold;
+    transition: 0.25s ease-in-out;
 }
