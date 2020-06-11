@@ -67,6 +67,7 @@ GAMELOBBY
 
 .player-box {
     display: flex;
+    /* font-family: 'Raleway', sans-serif; */
     justify-content: center;
     margin: 20px 0px;
     padding: 20px 10px;
@@ -85,4 +86,15 @@ GAMELOBBY
     border-bottom: 4px solid white;
     font-weight: bold;
     transition: 0.25s ease-in-out;
+}
+
+/* =======================
+BOARDSELECTOR
+======================= */ 
+
+.board-card {
+    height: 245px;
+    width: 175px; 
+    margin: 10px;
+    border: 2px solid #585555;
 }

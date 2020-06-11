@@ -2,6 +2,7 @@ import React from 'react';
 
 interface GameLobbyProps {
   setGameDisconnected: () => Promise<void>,
+  setGameStarted: () => Promise<void>,
 }
 
 interface GameLobbyState {
@@ -44,6 +45,8 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
 
   startGame() {
     // TODO begin game
+    console.log("Starting Game");
+    this.props.setGameStarted();
   }
 
   render() {
