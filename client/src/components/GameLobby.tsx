@@ -1,19 +1,21 @@
 import React from 'react';
+import BoardSelector from './BoardSelector';
 
 interface GameLobbyProps {
   setGameDisconnected: () => Promise<void>,
-  setGameStarted: () => Promise<void>,
 }
 
 interface GameLobbyState {
   players: Array<any>,
+  gameStarted: boolean,
 }
 
 class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
   constructor(props: GameLobbyProps) {
     super(props);
     this.state = {
-      players: ["Sumeet", "Rishav", "Viniel", "PLAYER 4", "PLAYER WITH LONG NAME", "player 6", "Player 7"]
+      players: ["Sumeet", "Rishav", "Viniel", "PLAYER 4", "PLAYER WITH LONG NAME", "player 6", "Player 7"],
+      gameStarted: false,
     }
   }
 
@@ -46,21 +48,27 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
   startGame() {
     // TODO begin game
     console.log("Starting Game");
-    this.props.setGameStarted();
+    this.setState({gameStarted: true});
   }
 
   render() {
     return (
-      <div className="container d-flex align-items-center justify-content-center" style={{height: '100vh'}}>
-        <div className="row">
-          <div className="col-12 dialog"> 
+      <div className="container d-flex align-items-center justify-content-center full-height">
+        {!this.state.gameStarted ? 
+          <div className="row">
+            <div className="col-12 dialog"> 
               {this.renderPlayers()}
+            </div>
+            <div className="col-12 d-flex justify-content-center">
+              <button className="btn join-btn" onClick={() => this.props.setGameDisconnected()}>CANCEL</button> 
+              <button className="btn join-btn" onClick={() => this.startGame()} autoFocus={true}>START</button> 
+            </div>
           </div>
-          <div className="col-12 d-flex justify-content-center">
-            <button className="btn join-btn" onClick={() => this.props.setGameDisconnected()}>CANCEL</button> 
-            <button className="btn join-btn" onClick={() => this.startGame()} autoFocus={true}>START</button> 
-          </div>
-        </div>
+        :
+          <BoardSelector 
+            players={this.state.players}
+          />
+        }
       </div>
     );
   } 

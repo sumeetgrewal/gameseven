@@ -11,6 +11,7 @@ body {
     margin: 50;
     font-family: 'Cinzel', serif;
     background: #D6D6D6;
+    background-image: url(../images/background.jpg);
 }
 
 input {
@@ -26,17 +27,34 @@ ol li {
     font-family: 'Raleway', sans-serif;
 }
 
+.full-height {
+    min-height: 100vh;
+}
+
+.small-btn {
+    margin: 20px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1em;
+    color: #d6d6d6;
+    background-color: #585555;
+    border-radius: 0;
+}
+
+.small-btn:hover, .join-btn:focus {
+    color: white;
+    background: #302e2e;
+    transition: 0.1s ease-in-out;
+}
+
 /* =======================
 JOINGAME 
 ======================= */ 
 
 .dialog {
-    background-color: white;
-    width: 500px;
+    background-color: #ffffffe0;
     padding: 40px;
-    margin-top: 40px;
-    overflow-y: scroll;
-    max-height: 80vh;
+    margin: 40px 0;
 }
 
 .dialog-label {
@@ -61,6 +79,10 @@ JOINGAME
     transition: 0.1s ease-in-out;
 }
 
+.join-dialog {
+    width: 500px;
+}
+
 /* =======================
 GAMELOBBY
 ======================= */ 
@@ -72,29 +94,39 @@ GAMELOBBY
     margin: 20px 0px;
     padding: 20px 10px;
     color: #302e2e;
-    border-top: 4px solid rgb(3, 43, 44);
+    border-top: 4px solid rgb(58, 58, 58);
     border-bottom: 4px solid rgb(240, 201, 74);
-    border-left: 4px solid white;
-    border-right: 4px solid white;
+    border-left: 4px solid #ffffff00;
+    border-right: 4px solid #ffffff00;
     align-items: center;
+    transition: 0.15s ease-in-out;
 }
 
 .player-box:hover {
-    border-left: 4px solid rgb(240, 201, 74);
-    border-right: 4px solid rgb(3, 43, 44);
-    border-top: 4px solid white;
-    border-bottom: 4px solid white;
+    border-left: 4px solid rgb(58, 58, 58);
+    border-right: 4px solid rgb(240, 201, 74);
+    border-top: 4px solid #ffffff00;
+    border-bottom: 4px solid #ffffff00;
     font-weight: bold;
-    transition: 0.25s ease-in-out;
+    transition: 0.15s ease-in-out;
 }
 
 /* =======================
 BOARDSELECTOR
 ======================= */ 
 
-.board-card {
-    height: 245px;
-    width: 175px; 
+.board {
+    display: inline-block;
+    width: 125px; 
     margin: 10px;
-    border: 2px solid #585555;
+}
+
+.board-card, .card-img {
+    height: 175px;
+    width: 125px;
+}
+
+.card-img {
+    border: 8px solid black;
+    border-radius: 4px;
 }

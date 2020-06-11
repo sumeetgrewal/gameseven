@@ -59,10 +59,10 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   render() {
     const { connectionPending, username, password } = this.state;
     return (
-      <div className="container d-flex align-items-center text-center justify-content-center" style={{height: '100vh'}}>
+      <div className="container d-flex align-items-center text-center justify-content-center full-height">
           <div style={{display: (connectionPending ? "none" : "initial")}}>
             <form onSubmit={(e) => this.joinGame(e)}>
-              <div className="dialog"> 
+              <div className="dialog join-dialog"> 
                 <label>
                   <h5 className="dialog-label">ENTER YOUR NAME</h5>
                   <input type="text" autoComplete="off" autoFocus={true} name="username" id="name-prompt" onChange={this.handleInputChange}/>
@@ -81,7 +81,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
             </form>
           </div>
         {connectionPending && <div>
-          <h3 className=""> CONNECTING TO GAME . . . </h3>
+          <h3 className="text-white"> CONNECTING TO GAME . . . </h3>
         </div>}
       </div>
     );
