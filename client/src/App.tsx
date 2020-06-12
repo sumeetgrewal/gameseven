@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
+import JoinGame from './components/JoinGame';
+import GameLobby from './components/GameLobby';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface MyState {
+  gameConnected: boolean,
+} 
+
+interface MyProps {
+
+}
+class App extends React.Component<MyProps, MyState> {
+  constructor(props: MyProps) {
+    super(props);
+    this.state = {
+        gameConnected: false,
+    }
+    this.setGameConnected = this.setGameConnected.bind(this);
+    this.setGameDisconnected = this.setGameDisconnected.bind(this);
+  }
+
+  setGameConnected(): Promise<void> {
+    return new Promise((resolve) => {
+      this.setState({gameConnected: true}, () => resolve());
+    })
+  }
+  setGameDisconnected(): Promise<void> {
+    return new Promise((resolve) => {
+      this.setState({gameConnected: false}, () => resolve());
+    })
+  }
+
+  render() {
+    const {gameConnected} = this.state;
+    return (
+      <div className="App">
+        {(!gameConnected) ? 
+          <JoinGame 
+            gameConnected={gameConnected}
+            setGameConnected={this.setGameConnected}
+          />
+          : 
+          <GameLobby
+            setGameDisconnected={this.setGameDisconnected}
+          />
+        }
+      </div>
+    );
+  } 
 }
 
 export default App;
