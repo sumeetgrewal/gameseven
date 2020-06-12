@@ -45,10 +45,22 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
       </>)
   }
 
-  startGame() {
+  setReady() {
     // TODO begin game
+    // PUT /game/player/ status=ready
+
+  }
+
+  startGame() {
+    // TODO listener
     console.log("Starting Game");
     this.setState({gameStarted: true});
+  }
+
+  getPlayers() {
+    // TODO listener
+    console.log("Updating Players");
+    // this.setState({players: ??})
   }
 
   render() {
@@ -60,8 +72,8 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
               {this.renderPlayers()}
             </div>
             <div className="col-12 d-flex justify-content-center">
-              <button className="btn join-btn" onClick={() => this.props.setGameDisconnected()}>CANCEL</button> 
-              <button className="btn join-btn" onClick={() => this.startGame()} autoFocus={true}>START</button> 
+              <button className="btn join-btn" onClick={() => this.props.setGameDisconnected()}>EXIT</button> 
+              <button className="btn join-btn" onClick={() => this.startGame()} autoFocus={true}>I'M READY</button> 
             </div>
           </div>
         :

@@ -20,6 +20,26 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         }
     }
 
+    getPlayerSelections() {
+        // TODO listener for updated board state
+        console.log("Updating boards");
+        // this.setState({boards: ?? });
+        console.log("Checking if it is my turn");
+        // if (res === true) {
+            // this.setState({myTurn: true})
+        // }
+    }
+
+    putSelectedBoard() {
+        // TODO 
+        // PUT /game/player username="" board=""
+    }
+
+    getRevealedBoards() {
+        // TODO listener for selected board names
+        console.log("Getting ")
+    }
+
     renderCards() {
         const cards: any = [];
         const testBoards =  this.state.boards.slice();

@@ -38,7 +38,19 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
 
   sendConnectionRequest(): Promise<void> {
     return new Promise((resolve) => {
-      // TODO Send Request
+      // const {username, password} = this.state;
+      // TODO Send Post request to fetch("/game/player")
+      // Success 200, Reject 403, Server Error 500
+      // fetch("/game/join", {
+      //   method: "POST",
+      //   body: {
+      //     "username": username, 
+      //     "password": password,
+      //   },
+      // })
+      // .then((res: any) => {
+      //   console.log(res);
+      // })
       console.log("Waiting for connection")
       setTimeout(() => {
         this.setState({password: ""}, () => resolve())
