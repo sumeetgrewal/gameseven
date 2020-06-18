@@ -35,26 +35,37 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
       )}
     )
   }
-
+  
+  // TODO Send Post request to fetch("/game/player")
+  // Success 200, Reject 403, Server Error 500
   sendConnectionRequest(): Promise<void> {
-    return new Promise((resolve) => {
-      // const {username, password} = this.state;
-      // TODO Send Post request to fetch("/game/player")
-      // Success 200, Reject 403, Server Error 500
-      // fetch("/game/join", {
-      //   method: "POST",
-      //   body: {
-      //     "username": username, 
-      //     "password": password,
-      //   },
-      // })
-      // .then((res: any) => {
-      //   console.log(res);
-      // })
+    return new Promise((resolve, reject) => {
       console.log("Waiting for connection")
+      const {username, password} = this.state;
+      console.log(username, password)
       setTimeout(() => {
-        this.setState({password: ""}, () => resolve())
-      }, 2000)
+        resolve()
+      }, 1000);
+      // fetch("/game/player", {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     username: username,
+      //     password: password,
+      //     status: "pending",
+      //   })
+      // })
+      // .then((res: any) => res.json())
+      // .then(
+      //   (result: JSON) => {
+      //     console.log(result);
+      //     this.setState({password: ""}, () => resolve())
+      //   },
+      //   (error: Error) => {
+      //     console.log(error)
+      //     this.setState({password: ""}, () => reject(error))
+      //   }
+      // )
     })
   }
 

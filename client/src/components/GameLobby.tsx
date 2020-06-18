@@ -19,16 +19,29 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
     }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
     // TODO request current players from server and update players state 
     console.log("Getting Players");
+    fetch("/game/join", {
+        method: 'GET',
+      })
+      .then((res: any) => res.json())
+      .then(
+        (result: any) => {
+          console.log(result);
+          this.setState({players: result.players});
+        },
+        (error: Error) => {
+          console.log(error)
+        }
+      )
   }
 
   renderPlayers() {
     const players = this.state.players;
     const playersList =  players.map((player: any, index: number) => {
       return (
-        <div className="col-6 col-md-4">
+        <div className="col-6 col-md-4" key={index}>
           <div className="mx-1 player-box" key={index}>
             {player}
           </div>
@@ -48,7 +61,18 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
   setReady() {
     // TODO begin game
     // PUT /game/player/ status=ready
-
+    fetch("/game/player", {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: "ready",
+        })
+      })
+      .then((res: any) => res.json())
+      .then(
+        (result: any) => console.log(result),
+        (error: Error) => console.log(error)
+      )
   }
 
   startGame() {
