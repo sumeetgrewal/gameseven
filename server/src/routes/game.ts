@@ -26,7 +26,7 @@ router.route('/player').get((req: any, res: any) => {
 
 router.route('/player/').post((req: any, res: any) => {
   console.log(req.body);
-  if (req.body.password !== 'password') throw new Error();
+  if (req.body.password !== 'password') throw new Error('Invalid password');
   else if (req.body.username in game.players) throw new Error('Username taken')
   else if (game.players.length === 7) throw new Error('Game full')
   else {
