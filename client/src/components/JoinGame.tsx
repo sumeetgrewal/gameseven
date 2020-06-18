@@ -56,9 +56,6 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
         })
       })
       .then((res: any) => {
-        if (!res.status.ok) {
-          throw new Error(res);
-        }
         res.json()
       .then(
         (result: JSON) => {
