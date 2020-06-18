@@ -3,37 +3,39 @@ let game = require('../models/game.model');
 let clients: any = [];
 
 router.route('/player').get((req: any, res: any) => {
-  res.send("player endpoint")
+  const username = req.body.username
+  const headers = {
+    'Content-Type': 'text/event-stream',
+    'Connection': 'keep-alive',
+    'Cache-Control': 'no-cache'
+  };
+  res.writeHead(200, headers);
+  res.write(JSON.stringify(game.players) + '\n\n');
+
+  const newClient = {
+    id: username,
+    res
+  }
+  clients.push(newClient);
+
+  req.on('close', () => {
+    console.log(req.body.username + ' Connection closed');
+    clients = clients.filter( (client: any) => client.id !== username);
+  });
 });
 
 router.route('/player/').post((req: any, res: any) => {
+  console.log(req.body);
   if (req.body.password !== 'password') res.status(401).json('Invalid password')
-  else if (req.body.username in game.players) res.status(400).json('Username is taken')
+  else if (req.body.username in game.players) res.status(400).json('Username taken')
   else if (game.players.length === 7) res.status(400).json('Game full')
   else {
     const username = req.body.username
-    const headers = {
-      'Content-Type': 'text/event-stream',
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache'
-    };
-    res.writeHead(200, headers);
     game.players[username] = {status: 'not ready', board: null};
-    res.write(JSON.stringify(game.players) + '\n\n');
 
     clients.forEach( (client: any) => client.res.write(JSON.stringify(game.players) + '\n\n') );
 
-    const newClient = {
-      id: username,
-      res
-    }
-    clients.push(newClient);
-
-    req.on('close', () => {
-      console.log(req.body.username + ' Connection closed');
-      clients = clients.filter( (client: any) => client.id !== username);
-      delete game.players[username];
-    });
+    res.json('success');
   }
 });
 
@@ -58,7 +60,7 @@ router.route('/player').put((req: any, res: any) => {
 
     clients.forEach( (client: any) => client.res.write(JSON.stringify(game.players) + '\n\n') ); 
 
-    res.status(200).json('success');
+    res.json('success');
   }
 });
 
