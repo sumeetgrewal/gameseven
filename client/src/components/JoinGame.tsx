@@ -43,29 +43,33 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
       console.log("Waiting for connection")
       const {username, password} = this.state;
       console.log(username, password)
-      setTimeout(() => {
-        resolve()
-      }, 1000);
-      // fetch("/game/player", {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     username: username,
-      //     password: password,
-      //     status: "pending",
-      //   })
-      // })
-      // .then((res: any) => res.json())
-      // .then(
-      //   (result: JSON) => {
-      //     console.log(result);
-      //     this.setState({password: ""}, () => resolve())
-      //   },
-      //   (error: Error) => {
-      //     console.log(error)
-      //     this.setState({password: ""}, () => reject(error))
-      //   }
-      // )
+      // setTimeout(() => {
+      //   resolve()
+      // }, 1000);
+      fetch("/game/player", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          status: "pending",
+        })
+      })
+      .then((res: any) => {
+        if (!res.status.ok) {
+          throw new Error(res);
+        }
+        res.json()
+      .then(
+        (result: JSON) => {
+          console.log(result);
+          this.setState({password: ""}, () => resolve())
+        },
+        (error: Error) => {
+          console.log(error)
+          this.setState({password: ""}, () => reject(error))
+        })
+      }).catch((err: Error) => console.log("Catch ", err));
     })
   }
 
