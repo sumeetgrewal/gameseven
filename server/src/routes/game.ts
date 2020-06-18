@@ -26,9 +26,9 @@ router.route('/player').get((req: any, res: any) => {
 
 router.route('/player/').post((req: any, res: any) => {
   console.log(req.body);
-  if (req.body.password !== 'password') res.status(401).json('Invalid password')
-  else if (req.body.username in game.players) res.status(400).json('Username taken')
-  else if (game.players.length === 7) res.status(400).json('Game full')
+  if (req.body.password !== 'password') throw new Error();
+  else if (req.body.username in game.players) throw new Error('Username taken')
+  else if (game.players.length === 7) throw new Error('Game full')
   else {
     const username = req.body.username
     game.players[username] = {status: 'not ready', board: null};
