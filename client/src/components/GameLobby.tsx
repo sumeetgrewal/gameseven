@@ -22,19 +22,19 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
   componentDidMount() {
     // TODO request current players from server and update players state 
     console.log("Getting Players");
-    fetch("/game/join", {
-        method: 'GET',
-      })
-      .then((res: any) => res.json())
-      .then(
-        (result: any) => {
-          console.log(result);
-          this.setState({players: result.players});
-        },
-        (error: Error) => {
-          console.log(error)
-        }
-      )
+    // fetch("/game/join", {
+    //     method: 'GET',
+    //   })
+    //   .then((res: any) => res.json())
+    //   .then(
+    //     (result: any) => {
+    //       console.log(result);
+    //       this.setState({players: result.players});
+    //     },
+    //     (error: Error) => {
+    //       console.log(error)
+    //     }
+    //   )
   }
 
   renderPlayers() {
@@ -68,11 +68,15 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState> {
           status: "ready",
         })
       })
-      .then((res: any) => res.json())
-      .then(
-        (result: any) => console.log(result),
-        (error: Error) => console.log(error)
-      )
+      .then((res: any) => {
+        if (res.status.ok) {
+          res.json()
+          .then(
+            (result: any) => console.log(result),
+            (error: Error) => console.log(error)
+          )
+        }
+      })
   }
 
   startGame() {
