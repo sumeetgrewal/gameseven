@@ -9,6 +9,7 @@ interface JoinGameState {
   connectionPending: boolean,
   username: string,
   password: string,
+  error: string,
 }
 class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   constructor(props: JoinGameProps) {
@@ -17,6 +18,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
       connectionPending: false,
       username: "",
       password: "",
+      error: "", 
     }
   }
 
@@ -24,16 +26,21 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     event.preventDefault();
     console.log("Send Game Connection Request")
     this.setState({connectionPending: true},
-      () => {
-        this.sendConnectionRequest()
-        .then(() => {
-          console.log("Connected");
-          this.setState({connectionPending: false}, () => {
-            this.props.setGameConnected();
-          });
-        }
-      )}
-    )
+    () => {
+      this.sendConnectionRequest()
+      .then(() => {
+        console.log("Connected");
+        this.setState({connectionPending: false}, () => {
+          this.props.setGameConnected();
+        });
+      })
+      .catch(() => {
+        this.setState({
+          error: "",
+          connectionPending: false,
+        });
+      })
+    })
   }
   
   // TODO Send Post request to fetch("/game/player")
@@ -42,34 +49,28 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     return new Promise((resolve, reject) => {
       console.log("Waiting for connection")
       const {username, password} = this.state;
-      console.log(username, password)
-      // setTimeout(() => {
-      //   resolve()
-      // }, 1000);
       fetch("/game/player", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: username,
           password: password,
-          status: "pending",
         })
       })
       .then((res: any) => {
-        if (!res.status.ok) {
-          throw new Error(res);
-        }
         res.json()
-      .then(
-        (result: JSON) => {
-          console.log(result);
-          this.setState({password: ""}, () => resolve())
-        },
-        (error: Error) => {
-          console.log(error)
-          this.setState({password: ""}, () => reject(error))
+        .then(
+          (result: JSON) => {
+            console.log(result);
+            this.setState({password: ""}, () => resolve())
+          },
+          (error: Error) => {
+            this.setState({
+              password: "",
+              error: error.message
+            }, () => reject())
         })
-      }).catch((err: Error) => console.log("Catch ", err));
+      })
     })
   }
 
@@ -84,7 +85,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   }
 
   render() {
-    const { connectionPending, username, password } = this.state;
+    const { connectionPending, username, password, error } = this.state;
     return (
       <div className="container d-flex align-items-center text-center justify-content-center full-height">
           <div style={{display: (connectionPending ? "none" : "initial")}}>
@@ -92,11 +93,11 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
               <div className="dialog join-dialog"> 
                 <label>
                   <h5 className="dialog-label">ENTER YOUR NAME</h5>
-                  <input type="text" autoComplete="off" autoFocus={true} name="username" id="name-prompt" onChange={this.handleInputChange}/>
+                  <input type="text" value={username} autoComplete="off" autoFocus={true} name="username" id="name-prompt" onChange={this.handleInputChange}/>
                 </label>
                 <label> 
                   <h5 className="dialog-label">ENTER PASSWORD</h5>
-                  <input type="password" name="password" id="password-prompt" onChange={this.handleInputChange}/>
+                  <input type="password" value={password} name="password" id="password-prompt" onChange={this.handleInputChange}/>
                 </label>
               </div>
               <button 
@@ -107,7 +108,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
               </button>
             </form>
           </div>
-        {connectionPending && <div>
+        {(connectionPending && (error === "")) && <div>
           <h3 className="text-white"> CONNECTING TO GAME . . . </h3>
         </div>}
       </div>
