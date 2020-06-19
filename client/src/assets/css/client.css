@@ -83,6 +83,12 @@ JOINGAME
     width: 500px;
 }
 
+.error {
+    font-weight: lighter;
+    width: 100%;
+    background-color: rgba(128, 12, 12, 0.55);
+    padding: 10px 100px;
+}
 /* =======================
 GAMELOBBY
 ======================= */ 

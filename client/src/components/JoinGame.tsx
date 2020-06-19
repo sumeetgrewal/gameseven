@@ -42,7 +42,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     })
   }
   
-  // TODO Send Post request to fetch("/game/player")
+
   // Success 200, Reject 403, Server Error 500
   sendConnectionRequest(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -61,12 +61,15 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
         .then(
           (result: any) => {
             if (res.status === 200) {
-              console.log(result);
               this.setState({password: ""}, () => resolve())
             } else {
-              alert("ERROR! " +  result)
-              reject();
+              console.log(res.status + " : " + result);
+              this.setState({error: result}, reject);
             }
+          })
+          .catch((error: Error) => {
+            console.log(error);
+            this.setState({error: "Network Error"}, reject);
         })
       })
     })
@@ -87,6 +90,11 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     return (
       <div className="container d-flex align-items-center text-center justify-content-center full-height">
           <div style={{display: (connectionPending ? "none" : "initial")}}>
+          {(error !== "") && 
+          <div className="error text-white">
+              {error}
+          </div>
+        }
             <form onSubmit={(e) => this.joinGame(e)}>
               <div className="dialog join-dialog"> 
                 <label>
