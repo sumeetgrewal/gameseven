@@ -57,20 +57,21 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
         })
       })
       .then((res: any) => {
+        if (res.status >= 500) {
+          throw new Error(res.status + " " + res.statusText);
+        }
         res.json()
         .then(
           (result: any) => {
             if (res.status === 200) {
               this.setState({password: ""}, () => resolve())
             } else {
-              console.log(res.status + " : " + result);
-              this.setState({error: result}, reject);
+              this.setState({error: res.status + " " + result}, reject);
             }
           })
-          .catch((error: Error) => {
-            console.log(error);
-            this.setState({error: "Network Error"}, reject);
         })
+          .catch((error: Error) => {
+            this.setState({error: error.message}, reject);
       })
     })
   }
