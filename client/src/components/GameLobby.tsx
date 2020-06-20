@@ -13,7 +13,7 @@ function GameLobby(props: GameLobbyProps) {
 
   useEffect( () => {
     if (!listening) {
-      const source = new EventSource('/game');
+      const source = new EventSource('/game/setup');
 
       source.addEventListener('joined', function(event: any) {
         const parsedData = JSON.parse(event.data);
@@ -48,7 +48,7 @@ function GameLobby(props: GameLobbyProps) {
 
   const exitGame = async () => {
     try {
-      let response = await fetch('/game/player', {
+      let response = await fetch('/game/setup', {
         credentials: 'include',
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
@@ -67,7 +67,7 @@ function GameLobby(props: GameLobbyProps) {
 
   const setReady = async () => {
     try {
-      let response = await fetch('/game/player', {
+      let response = await fetch('/game/setup', {
         credentials: 'include',
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

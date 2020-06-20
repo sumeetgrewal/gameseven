@@ -42,7 +42,7 @@ function cleanupGame() {
   console.log("game reset")
 }
 
-router.route('/').get((req: any, res: any) => {
+router.route('/setup').get((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     res.status(400).json({status: 'Error', message: 'Invalid token'});
@@ -84,7 +84,7 @@ router.route('/').get((req: any, res: any) => {
   }
 });
 
-router.route('/player/').post((req: any, res: any) => {
+router.route('/setup/').post((req: any, res: any) => {
   if (req.body.password !== 'p') {
     res.status(401).json({status: 'Error', message: 'Invalid password'});
   } else if (req.body.username in game.players) {
@@ -102,7 +102,7 @@ router.route('/player/').post((req: any, res: any) => {
   }
 });
 
-router.route('/player').put((req: any, res: any) => {
+router.route('/setup').put((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     res.status(400).json({status: 'Error', message: 'Invalid token'});
@@ -148,7 +148,7 @@ router.route('/player').put((req: any, res: any) => {
   }
 });
 
-router.route('/player').delete((req: any, res: any) => {
+router.route('/setup').delete((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     res.status(400).json({status: 'Error', message: 'Invalid token'});

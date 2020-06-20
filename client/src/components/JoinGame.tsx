@@ -30,6 +30,9 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
       console.log("Connected");
       this.props.setGameConnected();
     })
+    .catch((error: string) => {
+      this.setState({error});
+    })
   }
   
 
@@ -38,7 +41,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     return new Promise((resolve, reject) => {
       console.log("Waiting for connection")
       const {username, password} = this.state;
-      fetch("/game/player", {
+      fetch("/game/setup", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -59,13 +62,11 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
                 resolve()
               });
             } else {
-              this.setState({error: res.status + " " + result.message}, reject);
+              reject(res.status + " " + result.message);
             }
           })
         })
-          .catch((error: Error) => {
-            this.setState({error: error.message}, reject);
-      })
+        .catch((error: Error) => reject(error.message))
     })
   }
 

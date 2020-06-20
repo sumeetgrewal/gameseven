@@ -32,7 +32,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
 
     putSelectedBoard() {
         // TODO 
-        // PUT /game/player username="" board=""
+        // PUT /game/setup username="" board=""
     }
 
     getRevealedBoards() {
