@@ -117,6 +117,13 @@ GAMELOBBY
     transition: 0.15s ease-in-out;
 }
 
+.player-ready {
+    border-bottom-color: rgb(15, 184, 0);
+}
+
+.player-ready:hover {
+    border-right-color: rgb(15, 184, 0);
+}
 /* =======================
 BOARDSELECTOR
 ======================= */ 

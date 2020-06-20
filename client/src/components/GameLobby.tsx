@@ -94,9 +94,11 @@ function GameLobby(props: GameLobbyProps) {
 
   const renderPlayers = () => {
     const playersList = Object.keys(players).map((player: any, index: number) => {
+      const status = players[player]["status"];
+      const customClass =  "mx-1 player-box " + ((status==="ready") ? "mx-1 player-box player-ready" : "" )
       return (
         <div className="col-6 col-md-4" key={index}>
-          <div className="mx-1 player-box" key={index}>
+          <div className={customClass} key={index}>
             {player}
           </div>
         </div>
