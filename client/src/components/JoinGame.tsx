@@ -1,4 +1,6 @@
 import React from 'react';
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
 interface JoinGameProps {
   gameConnected: boolean,
@@ -6,7 +8,6 @@ interface JoinGameProps {
 }
 
 interface JoinGameState {
-  connectionPending: boolean,
   username: string,
   password: string,
   error: string,
@@ -15,7 +16,6 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   constructor(props: JoinGameProps) {
     super(props);
     this.state = {
-      connectionPending: false,
       username: "",
       password: "",
       error: "", 
@@ -25,20 +25,10 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   joinGame(event: any) {
     event.preventDefault();
     console.log("Send Game Connection Request")
-    this.setState({connectionPending: true},
-    () => {
-      this.sendConnectionRequest()
-      .then(() => {
-        console.log("Connected");
-        this.setState({connectionPending: false}, () => {
-          this.props.setGameConnected();
-        });
-      })
-      .catch(() => {
-        this.setState({
-          connectionPending: false,
-        });
-      })
+    this.sendConnectionRequest()
+    .then(() => {
+      console.log("Connected");
+      this.props.setGameConnected();
     })
   }
   
@@ -64,9 +54,12 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
         .then(
           (result: any) => {
             if (res.status === 200) {
-              this.setState({password: ""}, () => resolve())
+              this.setState({password: ""}, () => {
+                cookies.set('token', result.token);
+                resolve()
+              });
             } else {
-              this.setState({error: res.status + " " + result}, reject);
+              this.setState({error: res.status + " " + result.message}, reject);
             }
           })
         })
@@ -87,10 +80,10 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   }
 
   render() {
-    const { connectionPending, username, password, error } = this.state;
+    const { username, password, error } = this.state;
     return (
       <div className="container d-flex align-items-center text-center justify-content-center full-height">
-          <div style={{display: (connectionPending ? "none" : "initial")}}>
+          <div>
           {(error !== "") && 
           <div className="error text-white">
               {error}
@@ -115,9 +108,6 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
               </button>
             </form>
           </div>
-        {(connectionPending && (error === "")) && <div>
-          <h3 className="text-white"> CONNECTING TO GAME . . . </h3>
-        </div>}
       </div>
     );
   } 
