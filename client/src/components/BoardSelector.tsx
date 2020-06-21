@@ -2,7 +2,10 @@ import React from 'react';
 import boardCard from '../assets/images/board-card.jpg';
 
 interface BoardSelectorProps {
-    players: Array<string>,
+    players: Array<any>,
+    playerOrder: Array<string>,
+    username: string,
+    turnToChoose: number,
 }
 
 interface BoardSelectorState {
@@ -13,11 +16,28 @@ interface BoardSelectorState {
 class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorState> {
     constructor(props: BoardSelectorProps) {
         super(props);
-
         this.state = {
             boards: Array(7).fill(""),
             myTurn: false,
         }
+    }
+
+    componentDidMount() {
+        this.updateMyTurn();
+    }
+
+    componentDidUpdate(oldProps: BoardSelectorProps) {
+        if (oldProps.turnToChoose !== this.props.turnToChoose) {
+            this.updateMyTurn();
+        }
+        // if (oldProps.players !== this.props.players) {
+        //     // reset game state? 
+        // }
+    }
+
+    updateMyTurn() {
+        const {playerOrder, turnToChoose, username} = this.props;
+        this.setState({myTurn: (playerOrder[turnToChoose] === username)});
     }
 
     getPlayerSelections() {
@@ -25,14 +45,33 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         console.log("Updating boards");
         // this.setState({boards: ?? });
         console.log("Checking if it is my turn");
-        // if (res === true) {
-            // this.setState({myTurn: true})
-        // }
     }
 
-    putSelectedBoard() {
-        // TODO 
-        // PUT /game/setup username="" board=""
+    putSelectedBoard(i: number) {
+        console.log("Selected board " + i)
+        return new Promise((resolve) => {
+            fetch('/game/setup', {
+                credentials: 'include',
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({board: i + 1})
+            })
+            .then((res) => {
+                if (res.status >= 500) {
+                    throw new Error(res.status + " " + res.statusText);
+                }
+                res.json()
+                .then((result: any) => {
+                    if (res.status === 200) {
+                        console.log(result);
+                        resolve()
+                    } else {
+                        console.log(res.status + " " + result.message);
+                    }
+                })
+            })
+            .catch((error: Error) => console.log(error.message))
+        })
     }
 
     getRevealedBoards() {
@@ -42,12 +81,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
 
     renderCards() {
         const cards: any = [];
-        const testBoards =  this.state.boards.slice();
-        testBoards[2] = "Sumeet";
-        testBoards[4] = "Viniel";
-        testBoards[6] = "Rishav Jasrotia";
-        // const boards = this.state.boards;
-        const boards = testBoards;
+        const boards = this.state.boards;
         for (let i = 0; i< 7; i++) {
             cards.push(
                 <div className="board" key={'board-' + i}> 
@@ -55,7 +89,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
                         <img alt="card-back" className="card-img" src={boardCard}></img>
                     </div>
                     {(boards[i] === "") ? 
-                        <button className="mx-1 btn small-btn" onClick={() => console.log("Selected card " + i)} key={'board-label-' + i}>
+                        <button className="mx-1 btn small-btn" onClick={() => this.putSelectedBoard(i)} key={'board-label-' + i}>
                             CHOOSE
                         </button>
                     :

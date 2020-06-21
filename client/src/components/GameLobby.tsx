@@ -8,6 +8,9 @@ interface GameLobbyProps {
 
 function GameLobby(props: GameLobbyProps) {
   const [players, setPlayers] = useState([]);
+  const [username, setUsername] = useState("");
+  const [playerOrder, setPlayerOrder] = useState([]);
+  const [turnToChoose, setTurnToChoose] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [listening, setListening] = useState(false);
 
@@ -18,6 +21,7 @@ function GameLobby(props: GameLobbyProps) {
       source.addEventListener('joined', function(event: any) {
         const parsedData = JSON.parse(event.data);
         console.log('joined', parsedData);
+        setUsername(parsedData.username);
         setPlayers(parsedData.players);
         props.setGameStatus(parsedData.gameStatus);
         setLoading(false);
@@ -31,8 +35,15 @@ function GameLobby(props: GameLobbyProps) {
 
       source.addEventListener('gameupdate', function(event: any) {
         const parsedData = JSON.parse(event.data);
+        const {metadata} = parsedData;
         console.log('gameupdate', parsedData);
-        props.setGameStatus(parsedData.metadata.gameStatus);
+        props.setGameStatus(metadata.gameStatus);
+        if (metadata.turnToChoose === 0) {
+          setPlayerOrder(metadata.playerOrder);
+        };
+        if (metadata.turnToChoose >= 0) {
+          setTurnToChoose(metadata.turnToChoose);
+        }
       });
 
       source.addEventListener('error', function(error: any) {
@@ -40,7 +51,7 @@ function GameLobby(props: GameLobbyProps) {
       });
       setListening(true);
     }
-  }, [listening, players, props]);
+  }, [listening, players, username, props, playerOrder, turnToChoose]);
 
   const exitGame = async () => {
     try {
@@ -134,6 +145,9 @@ function GameLobby(props: GameLobbyProps) {
         :
           <BoardSelector 
             players={players}
+            playerOrder={playerOrder}
+            username={username}
+            turnToChoose={turnToChoose}
           />
         }
       </div>

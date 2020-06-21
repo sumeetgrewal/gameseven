@@ -56,7 +56,7 @@ router.route('/setup').get((req: any, res: any) => {
     res.writeHead(200, headers);
     res.write(`id: ${sseId++}\n`);
     res.write(`event: joined\n`);
-    res.write(`data: ${JSON.stringify({players: game.players, gameStatus: game.metadata.gameStatus})}\n\n`);
+    res.write(`data: ${JSON.stringify({username, players: game.players, gameStatus: game.metadata.gameStatus})}\n\n`);
     res.flush();
     
     const newClient: any = {
@@ -85,14 +85,14 @@ router.route('/setup').get((req: any, res: any) => {
 });
 
 router.route('/setup/').post((req: any, res: any) => {
-  if (req.body.password !== 'p') {
-    res.status(401).json({status: 'Error', message: 'Invalid password'});
-  } else if (req.body.username in game.players) {
-    res.status(400).json({status: 'Error', message: 'Username taken'});
-  } else if (game.players.length === 7){
+  if (game.players.length === 7){
     res.status(400).json({status: 'Error', message: 'Game full'});
   } else if (game.metadata.gameStatus !== 'lobby') {
     res.status(400).json({status: 'Error', message: 'Game unavailable'});
+  } else if (req.body.username in game.players) {
+    res.status(400).json({status: 'Error', message: 'Username taken'});
+  } else if (req.body.password !== 'p') {
+    res.status(401).json({status: 'Error', message: 'Invalid password'});
   } else {
     const username: string = req.body.username
     game.players[username] = {status: 'pending'};
@@ -105,9 +105,9 @@ router.route('/setup/').post((req: any, res: any) => {
 router.route('/setup').put((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
-    res.status(400).json({status: 'Error', message: 'Invalid token'});
+    return res.status(400).json({status: 'Error', message: 'Invalid token'});
   } else if (!(decodedToken.username in game.players)) {
-    res.status(400).json({status: 'Error', message: 'Player not found'});
+    return res.status(400).json({status: 'Error', message: 'Player not found'});
   } else {
     const username: string = decodedToken.username;
     
@@ -123,29 +123,29 @@ router.route('/setup').put((req: any, res: any) => {
 
     if (req.body.board) {
       const metadata: any = game.metadata;
-      if (metadata.playerOrder && metadata.turnToChoose) {
+      console.log(metadata);
+      if (metadata.playerOrder && (metadata.turnToChoose + 1)) {
         if (metadata.playerOrder[metadata.turnToChoose] !== username) {
-          res.status(400).json({status: 'Error', message: 'Not your turn!'});
+          return res.status(400).json({status: 'Error', message: 'Not your turn!'});
         } else {
-          const board: string = req.body.board;
+          const board: number = req.body.board - 1;
           game.players[username].board = board;
           game.metadata.turnToChoose++;
           pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
           pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
-          const allSelected = game.metadata.turnToChoose + 1 === clients.length;
+          const allSelected = game.metadata.turnToChoose === clients.length;
           if (allSelected) {
             game.metadata.gameStatus = 'game'
-            pushUpdateToPlayers ( JSON.stringify({metadata: metadata}), 'gameudpate' )
             // TODO: send boards to players
-            // TODO: change game status to 'playing'
-            // TODO: delete game.metadata.turnToChoose and game.metadata.playerOrder
+            delete game.metadata.turnToChoose;
+            delete game.metadata.playerOrder;
+            pushUpdateToPlayers ( JSON.stringify({metadata: metadata}), 'gameupdate' )
           }
         }
       } else {
-        res.status(400).json({status: 'Error', message: 'Cannot choose board'});
+        return res.status(400).json({status: 'Error', message: 'Cannot choose board'});
       }
     }
-
     res.json({status: 'success'});
   }
 });
