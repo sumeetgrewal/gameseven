@@ -3,8 +3,7 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
 interface JoinGameProps {
-  gameConnected: boolean,
-  setGameConnected: () => Promise<void>,
+  setGameStatus: (gameStatus: string) => Promise<void>,
 }
 
 interface JoinGameState {
@@ -28,7 +27,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
     this.sendConnectionRequest()
     .then(() => {
       console.log("Connected");
-      this.props.setGameConnected();
+      this.props.setGameStatus("lobby");
     })
     .catch((error: string) => {
       this.setState({error});

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import BoardSelector from './BoardSelector';
 
 interface GameLobbyProps {
-  setGameDisconnected: () => Promise<void>,
+  gameStatus: string,
+  setGameStatus: (gameStatus: string) => Promise<void>,
 }
 
 function GameLobby(props: GameLobbyProps) {
   const [players, setPlayers] = useState([]);
-  const [gameStatus, setGameStatus] = useState();
   const [loading, setLoading] = useState(true);
   const [listening, setListening] = useState(false);
 
@@ -20,7 +20,7 @@ function GameLobby(props: GameLobbyProps) {
         console.log('joined');
         console.log(parsedData);
         setPlayers(parsedData.players);
-        setGameStatus(parsedData.gameStatus);
+        props.setGameStatus(parsedData.gameStatus);
         setLoading(false);
       });
 
@@ -35,7 +35,7 @@ function GameLobby(props: GameLobbyProps) {
         const parsedData = JSON.parse(event.data);
         console.log('gameupdate');
         console.log(parsedData);
-        setGameStatus(parsedData.metadata.gameStatus);
+        props.setGameStatus(parsedData.metadata.gameStatus);
       });
 
       source.addEventListener('error', function(error: any) {
@@ -44,7 +44,7 @@ function GameLobby(props: GameLobbyProps) {
 
       setListening(true);
     }
-  }, [listening, players]);
+  }, [listening, players, props]);
 
   const exitGame = async () => {
     try {
@@ -58,7 +58,7 @@ function GameLobby(props: GameLobbyProps) {
         throw new Error(result.message);
       } else {
         console.log(result);
-        props.setGameDisconnected();
+        props.setGameStatus("join");
       }
     } catch (err) {
       console.log(err);
@@ -86,11 +86,11 @@ function GameLobby(props: GameLobbyProps) {
     }
   }
 
-  const startGame = () => {
-    // TODO listener
-    console.log("Starting Game");
-    // setGameStarted(true);
-  }
+  // const startGame = () => {
+  //   // TODO listener
+  //   console.log("Starting Game");
+  //   // setGameStarted(true);
+  // }
 
   const renderPlayers = () => {
     const playersList = Object.keys(players).map((player: any, index: number) => {
@@ -126,7 +126,7 @@ function GameLobby(props: GameLobbyProps) {
   } else {
     return (
       <div className="container d-flex align-items-center justify-content-center full-height">
-        {gameStatus === 'lobby' ? 
+        {props.gameStatus === 'lobby' ? 
           <div className="row">
             <div className="col-12 dialog"> 
               {renderPlayers()}
