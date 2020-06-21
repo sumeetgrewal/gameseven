@@ -17,8 +17,7 @@ function GameLobby(props: GameLobbyProps) {
 
       source.addEventListener('joined', function(event: any) {
         const parsedData = JSON.parse(event.data);
-        console.log('joined');
-        console.log(parsedData);
+        console.log('joined', parsedData);
         setPlayers(parsedData.players);
         props.setGameStatus(parsedData.gameStatus);
         setLoading(false);
@@ -26,22 +25,19 @@ function GameLobby(props: GameLobbyProps) {
 
       source.addEventListener('playerupdate', function(event: any) {
         const parsedData = JSON.parse(event.data);
-        console.log('playerupdate');
-        console.log(parsedData);
+        console.log('playerupdate', parsedData);
         setPlayers(parsedData.players);
       });
 
       source.addEventListener('gameupdate', function(event: any) {
         const parsedData = JSON.parse(event.data);
-        console.log('gameupdate');
-        console.log(parsedData);
+        console.log('gameupdate', parsedData);
         props.setGameStatus(parsedData.metadata.gameStatus);
       });
 
       source.addEventListener('error', function(error: any) {
         console.log(error);
       });
-
       setListening(true);
     }
   }, [listening, players, props]);
@@ -104,7 +100,6 @@ function GameLobby(props: GameLobbyProps) {
         </div>
       )
     });
-
     return (
       <> 
         <h4 className="my-4 font-weight-bold text-center">PLAYERS</h4>

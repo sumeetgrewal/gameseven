@@ -134,6 +134,8 @@ router.route('/setup').put((req: any, res: any) => {
           pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
           const allSelected = game.metadata.turnToChoose + 1 === clients.length;
           if (allSelected) {
+            game.metadata.gameStatus = 'game'
+            pushUpdateToPlayers ( JSON.stringify({metadata: metadata}), 'gameudpate' )
             // TODO: send boards to players
             // TODO: change game status to 'playing'
             // TODO: delete game.metadata.turnToChoose and game.metadata.playerOrder
