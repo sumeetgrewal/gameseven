@@ -2,6 +2,7 @@ import React from 'react';
 import boardCard from '../assets/images/board-card.jpg';
 
 interface BoardSelectorProps {
+    boards: Array<any>,
     players: Array<any>,
     playerOrder: Array<string>,
     username: string,
@@ -11,6 +12,7 @@ interface BoardSelectorProps {
 interface BoardSelectorState {
     boards: Array<string>,
     myTurn: boolean,
+    myBoard: string,
 }
 
 class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorState> {
@@ -19,6 +21,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         this.state = {
             boards: Array(7).fill(""),
             myTurn: false,
+            myBoard: "",
         }
     }
 
@@ -40,13 +43,6 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         this.setState({myTurn: (playerOrder[turnToChoose] === username)});
     }
 
-    getPlayerSelections() {
-        // TODO listener for updated board state
-        console.log("Updating boards");
-        // this.setState({boards: ?? });
-        console.log("Checking if it is my turn");
-    }
-
     putSelectedBoard(i: number) {
         console.log("Selected board " + i)
         return new Promise((resolve) => {
@@ -64,6 +60,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
                 .then((result: any) => {
                     if (res.status === 200) {
                         console.log(result);
+                        this.setState({myBoard: i.toString()})
                         resolve()
                     } else {
                         console.log(res.status + " " + result.message);
@@ -81,15 +78,19 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
 
     renderCards() {
         const cards: any = [];
-        const boards = this.state.boards;
+        const {boards} = this.props;
+        const {myTurn, myBoard} = this.state;
         for (let i = 0; i< 7; i++) {
             cards.push(
                 <div className="board" key={'board-' + i}> 
                     <div className="board-card" key={'board-card-' + i}> 
                         <img alt="card-back" className="card-img" src={boardCard}></img>
                     </div>
-                    {(boards[i] === "") ? 
-                        <button className="mx-1 btn small-btn" onClick={() => this.putSelectedBoard(i)} key={'board-label-' + i}>
+                    {!(boards[i]) ? 
+                        <button className="mx-1 btn small-btn" 
+                        onClick={() => this.putSelectedBoard(i)} 
+                        key={'board-label-' + i}
+                        disabled={!(myTurn && !myBoard)}>
                             CHOOSE
                         </button>
                     :
@@ -110,9 +111,12 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
                 <div className="col-12 dialog">
                     <h4 className="font-weight-bold text-center my-4">CHOOSE A WONDER</h4>
                     {this.renderCards()}
-                    <h5 className="text-center my-4">{this.state.myTurn? "It's your turn, pick a card" : "Waiting for your turn . . ."}</h5> 
+                    <h5 className="text-center my-4">
+                        {(this.state.myBoard) ? "Waiting for others. . ." 
+                        :((this.state.myTurn) ? "It's your turn, pick a card"
+                        : "Waiting for game")}
+                    </h5> 
                 </div>
-
             </div>
         );
     } 

@@ -8,6 +8,7 @@ interface GameLobbyProps {
 
 function GameLobby(props: GameLobbyProps) {
   const [players, setPlayers] = useState([]);
+  const [boards, setBoards] = useState([]);
   const [username, setUsername] = useState("");
   const [playerOrder, setPlayerOrder] = useState([]);
   const [turnToChoose, setTurnToChoose] = useState(-1);
@@ -44,6 +45,9 @@ function GameLobby(props: GameLobbyProps) {
         if (metadata.turnToChoose >= 0) {
           setTurnToChoose(metadata.turnToChoose);
         }
+        if (metadata.boards) {
+          setBoards(metadata.boards)
+        }
       });
 
       source.addEventListener('error', function(error: any) {
@@ -51,7 +55,7 @@ function GameLobby(props: GameLobbyProps) {
       });
       setListening(true);
     }
-  }, [listening, players, username, props, playerOrder, turnToChoose]);
+  }, [listening, players, username, props, playerOrder, turnToChoose, boards]);
 
   const exitGame = async () => {
     try {
@@ -144,6 +148,7 @@ function GameLobby(props: GameLobbyProps) {
           </div>
         :
           <BoardSelector 
+            boards={boards}
             players={players}
             playerOrder={playerOrder}
             username={username}

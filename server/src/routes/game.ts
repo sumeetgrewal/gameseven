@@ -4,12 +4,33 @@ let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
 let sseId: number = 1;
 
+const testBoards = ["Rhodos", "Alexandria", "Ephesus", "Babylon", "Olympia", "Halikarnissus",  "Giza" ]
+
 function shuffle(a: number[]) {
   for (let i: number = a.length - 1; i > 0; i--) {
       const j: number = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+function startPlay(){
+  delete game.metadata.playerOrder;
+  delete game.metadata.turnToChoose;
+  delete game.metadata.boards;
+  game.metadata.gameStatus = 'game';
+  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
+}
+
+function assignBoards() {
+  const boardIndices = shuffle(Array.from(Array(7).keys()))
+  let assignedBoards: any = [];
+  for (let i = 0; i < 7; i++) {
+    assignedBoards[i] = testBoards[boardIndices[i]]
+    const username = game.metadata.boards[i];
+    if (game.players[username]) game.players[username].board = assignedBoards[i];
+  }
+  return assignedBoards;
 }
 
 function pushUpdateToPlayers(data: string, event: string = 'message') {
@@ -123,24 +144,24 @@ router.route('/setup').put((req: any, res: any) => {
 
     if (req.body.board) {
       const metadata: any = game.metadata;
-      console.log(metadata);
       if (metadata.playerOrder && (metadata.turnToChoose + 1)) {
         if (metadata.playerOrder[metadata.turnToChoose] !== username) {
           return res.status(400).json({status: 'Error', message: 'Not your turn!'});
         } else {
           const board: number = req.body.board - 1;
+          if (!metadata.boards) game.metadata.boards = Array(7);
           game.players[username].board = board;
+          game.metadata.boards[board] = username;
           game.metadata.turnToChoose++;
-          pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
-          pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
+          console.log("New board : " , game.metadata.boards)
+          
           const allSelected = game.metadata.turnToChoose === clients.length;
           if (allSelected) {
-            game.metadata.gameStatus = 'game'
-            // TODO: send boards to players
-            delete game.metadata.turnToChoose;
-            delete game.metadata.playerOrder;
-            pushUpdateToPlayers ( JSON.stringify({metadata: metadata}), 'gameupdate' )
-          }
+            game.metadata.boards = assignBoards();
+            setTimeout(() => startPlay(), 3000)
+          } 
+          pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
+          pushUpdateToPlayers( JSON.stringify({metadata: metadata}), 'gameupdate' );
         }
       } else {
         return res.status(400).json({status: 'Error', message: 'Cannot choose board'});
