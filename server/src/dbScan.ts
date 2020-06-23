@@ -15,17 +15,20 @@ let ddb = new AWS.DynamoDB();
 //     }
 //   });
 
-function tableScan(tableName: string): void {
-    let params = {
-        TableName: tableName
-    };
-    ddb.scan(params, function(err: Error, data: any) {
-        if (err) {
-            console.log("Error", err);
-        } else {
-            console.log("Success: Retrieved " + data.Items.length + " entries from " + tableName);
-        }
-    });
+function tableScan(tableName: string): Promise<any> {
+    return new Promise((resolve) => {
+        let params = {
+            TableName: tableName
+        };
+        ddb.scan(params, function(err: Error, data: any) {
+            if (err) {
+                console.log("Error", err);
+            } else {
+                console.log("Success: Retrieved " + data.Items.length + " entries from " + tableName);
+                resolve(data.Items);
+            }
+        });
+    })
 }
 
 exports.tableScan = tableScan;

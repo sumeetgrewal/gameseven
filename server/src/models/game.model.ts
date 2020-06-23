@@ -2,5 +2,7 @@ module.exports = {
   metadata: {
     gameStatus: "lobby",
   },
-  players: {}
+  players: {},
+  boards: {},
+  cards: {},
 }

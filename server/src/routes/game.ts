@@ -1,7 +1,8 @@
 const router = require('express').Router();
-let clients: any[] = [];
+const dbScan = require('../dbScan')
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
+let clients: any[] = [];
 let sseId: number = 1;
 let gameCountdown: any;
 
@@ -15,6 +16,15 @@ function shuffle(a: number[]) {
   return a;
 }
 
+function loadBoards(): Promise<void> {
+  return new Promise((resolve) => {
+    dbScan.tableScan('BOARDS')
+    .then((response: any) => {
+      game.boards = response;
+      resolve()
+    })
+  })
+}
 
 function startGame(){
   delete game.metadata.playerOrder;
@@ -26,10 +36,15 @@ function startGame(){
 }
 
 function assignBoards() {
+  let boardNames = [];
+  for (let i = 0; i<7; i++) {
+    boardNames[i] = game.boards[i].SHORT_NAME.S;
+  }
+  console.log(boardNames);
   const boardIndices = shuffle(Array.from(Array(7).keys()))
   let assignedBoards: any = [];
   for (let i = 0; i < 7; i++) {
-    assignedBoards[i] = testBoards[boardIndices[i]]
+    assignedBoards[i] = boardNames[boardIndices[i]]
     const username = game.metadata.boards[i];
     if (game.players[username]) game.players[username].board = assignedBoards[i];
   }
@@ -57,10 +72,11 @@ function resetToLobby() {
     turnToChoose: -1,
   }
 }
-function startBoardSelection() {
+async function startBoardSelection() {
   const numPlayers:  number = clients.length;
   const randomOrder: number[] = shuffle( [...Array(numPlayers).keys()] );
   let index: number = 0;
+  await loadBoards();
   game.metadata.playerOrder = new Array<string>(numPlayers);
   for (const username in game.players) {
     game.metadata.playerOrder[randomOrder[index]] = username;
@@ -134,7 +150,7 @@ router.route('/setup/').post((req: any, res: any) => {
   } else if (req.body.password !== 'p') {
     res.status(401).json({status: 'Error', message: 'Invalid password'});
   } else {
-    const username: string = req.body.username
+    const username: string = req.body.username    
     game.players[username] = {status: 'pending'};
     pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
     const token: string = JWTHandlers.createToken(username);
@@ -172,8 +188,6 @@ router.route('/setup').put((req: any, res: any) => {
           game.players[username].board = board;
           game.metadata.boards[board] = username;
           game.metadata.turnToChoose++;
-          console.log("New board : " , game.metadata.boards)
-          
           const allSelected = game.metadata.turnToChoose === clients.length;
           if (allSelected) {
             game.metadata.assignedBoards = assignBoards();

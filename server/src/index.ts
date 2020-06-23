@@ -1,7 +1,6 @@
 const compression = require('compression');
 const morgan = require('morgan');
 import express from 'express';
-const dbScan = require('./dbScan')
 
 const app = express();
 const port = process.env.PORT || '8000';
