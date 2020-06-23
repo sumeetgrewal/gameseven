@@ -3,6 +3,7 @@ let clients: any[] = [];
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
 let sseId: number = 1;
+let gameCountdown: any;
 
 const testBoards = ["Rhodos", "Alexandria", "Ephesus", "Babylon", "Olympia", "Halikarnissus",  "Giza" ]
 
@@ -14,10 +15,12 @@ function shuffle(a: number[]) {
   return a;
 }
 
-function startPlay(){
+
+function startGame(){
   delete game.metadata.playerOrder;
   delete game.metadata.turnToChoose;
   delete game.metadata.boards;
+  delete game.metadata.assignedBoards;
   game.metadata.gameStatus = 'game';
   pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
 }
@@ -42,7 +45,19 @@ function pushUpdateToPlayers(data: string, event: string = 'message') {
   });
 }
 
-function startGame() {
+function resetToLobby() {
+  for (const username in game.players) {
+    game.players[username] = {status: 'pending'};
+  }
+  game.metadata = {
+    gameStatus: 'lobby',
+    boards: [],
+    assignedBoards: [],
+    playerOrder: [],
+    turnToChoose: -1,
+  }
+}
+function startBoardSelection() {
   const numPlayers:  number = clients.length;
   const randomOrder: number[] = shuffle( [...Array(numPlayers).keys()] );
   let index: number = 0;
@@ -56,9 +71,11 @@ function startGame() {
 }
 
 function cleanupGame() {
-  game.metadata.gameStatus = "lobby";
+  game.metadata.gameStatus = 'lobby';
   delete game.metadata.playerOrder;
   delete game.metadata.turnToChoose;
+  delete game.metadata.boards;
+  delete game.metadata.assignedBoards;
   game.players = {};
   console.log("game reset")
 }
@@ -95,10 +112,12 @@ router.route('/setup').get((req: any, res: any) => {
         delete game.players[username];
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
       } else {
-        // TODO: handle case where player leaves while choosing a board (depends on how we handle it on the frontend)
-        // do we want 1 listener for the whole game or 1 for lobby/choosing board and 1 for actual game
+        clearTimeout(gameCountdown);
         delete game.players[username];
+        resetToLobby();
+        // do we want 1 listener for the whole game or 1 for lobby/choosing board and 1 for actual game
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
+        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
       }
       console.log(username + ' Connection closed');
     });
@@ -138,7 +157,7 @@ router.route('/setup').put((req: any, res: any) => {
       pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
       game.metadata.gameStatus = ( Object.values(game.players).every( (player: any) => player.status === 'ready' ) && 'boardSelection' ) || 'lobby';
       if (game.metadata.gameStatus === 'boardSelection') {
-        startGame();
+        startBoardSelection();
       }
     }
 
@@ -157,8 +176,10 @@ router.route('/setup').put((req: any, res: any) => {
           
           const allSelected = game.metadata.turnToChoose === clients.length;
           if (allSelected) {
-            game.metadata.boards = assignBoards();
-            setTimeout(() => startPlay(), 3000)
+            game.metadata.assignedBoards = assignBoards();
+            gameCountdown = setTimeout(() => {
+              startGame()
+            }, 5000)
           } 
           pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
           pushUpdateToPlayers( JSON.stringify({metadata: metadata}), 'gameupdate' );
