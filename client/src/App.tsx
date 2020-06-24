@@ -1,9 +1,12 @@
 import * as React from 'react';
 import JoinGame from './components/JoinGame';
 import GameLobby from './components/GameLobby';
+import Game from './components/Game';
+
 
 interface MyState {
-  gameConnected: boolean,
+  gameStatus: string,
+  username: string,
 } 
 
 interface MyProps {
@@ -13,37 +16,45 @@ class App extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props);
     this.state = {
-        gameConnected: false,
+        gameStatus: "join", // join / lobby / boardSelection / game
+        username: ""
     }
-    this.setGameConnected = this.setGameConnected.bind(this);
-    this.setGameDisconnected = this.setGameDisconnected.bind(this);
+    this.setGameStatus = this.setGameStatus.bind(this);
+    this.setUsername = this.setUsername.bind(this);
   }
 
-  setGameConnected(): Promise<void> {
+  setGameStatus(gameStatus: string) : Promise<void> {
     return new Promise((resolve) => {
-      this.setState({gameConnected: true}, () => resolve());
+      this.setState({gameStatus}, resolve);
     })
   }
-  setGameDisconnected(): Promise<void> {
+
+  setUsername(username: string) : Promise<void> {
     return new Promise((resolve) => {
-      this.setState({gameConnected: false}, () => resolve());
+      this.setState({username}, resolve);
     })
+  }
+
+  renderGameStage() {
+    const {gameStatus, username} = this.state;
+    if (gameStatus === "join") return (
+      <JoinGame setGameStatus={this.setGameStatus} />
+    ); 
+    else if (gameStatus === "lobby" || gameStatus === "boardSelection") return (
+      <GameLobby 
+        gameStatus={gameStatus} setGameStatus={this.setGameStatus} 
+        username={username} setUsername={this.setUsername} 
+      />
+    );
+    else return (
+      <Game />
+    )
   }
 
   render() {
-    const {gameConnected} = this.state;
     return (
       <div className="App">
-        {(!gameConnected) ? 
-          <JoinGame 
-            gameConnected={gameConnected}
-            setGameConnected={this.setGameConnected}
-          />
-          : 
-          <GameLobby
-            setGameDisconnected={this.setGameDisconnected}
-          />
-        }
+        {this.renderGameStage()}
       </div>
     );
   } 
