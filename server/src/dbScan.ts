@@ -15,17 +15,23 @@ let ddb = new AWS.DynamoDB();
 //     }
 //   });
 
-function tableScan(tableName: string): Promise<any> {
+function tableScan(tableName: string, tableID: string, addParams: {}): Promise<any> {
     return new Promise((resolve) => {
-        let params = {
-            TableName: tableName
-        };
+        let params: any = {
+            ...addParams,
+            TableName: tableName,
+        }
         ddb.scan(params, function(err: Error, data: any) {
             if (err) {
                 console.log("Error", err);
             } else {
-                console.log("Success: Retrieved " + data.Items.length + " entries from " + tableName);
-                resolve(data.Items);
+                console.log("Success: Retrieved " + data.Count + " entries from " + tableName);
+                let convertedData: any = {};
+                data.Items.forEach((record: object) => {
+                    const newRecord = AWS.DynamoDB.Converter.unmarshall(record)
+                    convertedData[newRecord[tableID]] = newRecord;
+                });
+                resolve(convertedData);
             }
         });
     })

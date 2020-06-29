@@ -5,8 +5,7 @@ let JWTHandlers = require('../middleware/jwt.authorization');
 let clients: any[] = [];
 let sseId: number = 1;
 let gameCountdown: any;
-
-const testBoards = ["Rhodos", "Alexandria", "Ephesus", "Babylon", "Olympia", "Halikarnissus",  "Giza" ]
+let gameAssetsReady: boolean = false;
 
 function shuffle(a: number[]) {
   for (let i: number = a.length - 1; i > 0; i--) {
@@ -16,11 +15,11 @@ function shuffle(a: number[]) {
   return a;
 }
 
-function loadBoards(): Promise<void> {
+function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
   return new Promise((resolve) => {
-    dbScan.tableScan('BOARDS')
+    dbScan.tableScan(tableName, id, params)
     .then((response: any) => {
-      game.boards = response;
+      game[tableName.toLowerCase()] = response;
       resolve()
     })
   })
@@ -36,17 +35,17 @@ function startGame(){
 }
 
 function assignBoards() {
-  let boardNames = [];
-  for (let i = 0; i<7; i++) {
-    boardNames[i] = game.boards[i].SHORT_NAME.S;
-  }
-  console.log(boardNames);
+  let assignedBoards: any[] = [];
   const boardIndices = shuffle(Array.from(Array(7).keys()))
-  let assignedBoards: any = [];
   for (let i = 0; i < 7; i++) {
-    assignedBoards[i] = boardNames[boardIndices[i]]
+    let index: string = (boardIndices[i] + 1).toString();
+    assignedBoards[i] = game.boards[index].SHORT_NAME;
     const username = game.metadata.boards[i];
-    if (game.players[username]) game.players[username].board = assignedBoards[i];
+    if (game.players[username]) {
+      game.players[username].board = assignedBoards[i]
+    } else {
+      delete game.boards[index];
+    };
   }
   return assignedBoards;
 }
@@ -72,11 +71,10 @@ function resetToLobby() {
     turnToChoose: -1,
   }
 }
-async function startBoardSelection() {
+function startBoardSelection() {
   const numPlayers:  number = clients.length;
   const randomOrder: number[] = shuffle( [...Array(numPlayers).keys()] );
   let index: number = 0;
-  await loadBoards();
   game.metadata.playerOrder = new Array<string>(numPlayers);
   for (const username in game.players) {
     game.metadata.playerOrder[randomOrder[index]] = username;
@@ -86,12 +84,29 @@ async function startBoardSelection() {
   pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
 }
 
+function prepareGameAssets() {
+  let numPlayers: string = clients.length.toString()
+  numPlayers = "4"
+  loadTable('BOARDS', 'BOARD_ID');
+  const cardFilter = {
+    FilterExpression: "#np <= :np",
+    ExpressionAttributeNames:{
+      "#np": "NUM_PLAYERS"
+    },
+    ExpressionAttributeValues: {
+      ":np": {N : numPlayers},
+    }
+  }
+  loadTable('CARDS', 'CARD_ID', cardFilter);
+}
+
 function cleanupGame() {
   game.metadata.gameStatus = 'lobby';
   delete game.metadata.playerOrder;
   delete game.metadata.turnToChoose;
   delete game.metadata.boards;
   delete game.metadata.assignedBoards;
+  clearTimeout(gameCountdown);
   game.players = {};
   console.log("game reset")
 }
@@ -131,7 +146,6 @@ router.route('/setup').get((req: any, res: any) => {
         clearTimeout(gameCountdown);
         delete game.players[username];
         resetToLobby();
-        // do we want 1 listener for the whole game or 1 for lobby/choosing board and 1 for actual game
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
         pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
       }
@@ -174,6 +188,7 @@ router.route('/setup').put((req: any, res: any) => {
       game.metadata.gameStatus = ( Object.values(game.players).every( (player: any) => player.status === 'ready' ) && 'boardSelection' ) || 'lobby';
       if (game.metadata.gameStatus === 'boardSelection') {
         startBoardSelection();
+        prepareGameAssets();
       }
     }
 
