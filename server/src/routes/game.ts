@@ -111,6 +111,36 @@ function cleanupGame() {
   console.log("game reset")
 }
 
+function updateBoard(req: any, username: string) {
+  const metadata: any = game.metadata;
+  const board: number = req.body.board - 1;
+  if (!metadata.boards)
+    game.metadata.boards = Array(7);
+  game.players[username].board = board;
+  game.metadata.boards[board] = username;
+  game.metadata.turnToChoose++;
+  const allSelected = game.metadata.turnToChoose === clients.length;
+  if (allSelected) {
+    game.metadata.assignedBoards = assignBoards();
+    gameCountdown = setTimeout(() => {
+      startGame();
+    }, 5000);
+  }
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate');
+  pushUpdateToPlayers(JSON.stringify({ metadata: metadata }), 'gameupdate');
+}
+
+function updateStatus(req: any, username: string) {
+  const status: string = req.body.status;
+  game.players[username].status = status;
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate');
+  game.metadata.gameStatus = (Object.values(game.players).every((player: any) => player.status === 'ready') && 'boardSelection') || 'lobby';
+  if (game.metadata.gameStatus === 'boardSelection') {
+    startBoardSelection();
+    prepareGameAssets();
+  }
+}
+
 router.route('/setup').get((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
@@ -182,14 +212,7 @@ router.route('/setup').put((req: any, res: any) => {
     const username: string = decodedToken.username;
     
     if (req.body.status) {
-      const status: string = req.body.status;
-      game.players[username].status = status;
-      pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
-      game.metadata.gameStatus = ( Object.values(game.players).every( (player: any) => player.status === 'ready' ) && 'boardSelection' ) || 'lobby';
-      if (game.metadata.gameStatus === 'boardSelection') {
-        startBoardSelection();
-        prepareGameAssets();
-      }
+      updateStatus(req, username);
     }
 
     if (req.body.board) {
@@ -198,20 +221,7 @@ router.route('/setup').put((req: any, res: any) => {
         if (metadata.playerOrder[metadata.turnToChoose] !== username) {
           return res.status(400).json({status: 'Error', message: 'Not your turn!'});
         } else {
-          const board: number = req.body.board - 1;
-          if (!metadata.boards) game.metadata.boards = Array(7);
-          game.players[username].board = board;
-          game.metadata.boards[board] = username;
-          game.metadata.turnToChoose++;
-          const allSelected = game.metadata.turnToChoose === clients.length;
-          if (allSelected) {
-            game.metadata.assignedBoards = assignBoards();
-            gameCountdown = setTimeout(() => {
-              startGame()
-            }, 5000)
-          } 
-          pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
-          pushUpdateToPlayers( JSON.stringify({metadata: metadata}), 'gameupdate' );
+          updateBoard(req, username);
         }
       } else {
         return res.status(400).json({status: 'Error', message: 'Cannot choose board'});
@@ -233,6 +243,19 @@ router.route('/setup').delete((req: any, res: any) => {
     delete game.players[username];
     pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
     res.json({status: 'success'});
+  }
+});
+
+// Need to refactor 
+router.route('/assets').get((req: any, res: any) => {
+  const decodedToken: any = JWTHandlers.checkToken(req);
+  if(!decodedToken) {
+    res.status(400).json({status: 'Error', message: 'Invalid token'});
+  } else if (!(decodedToken.username in game.players)) {
+    res.status(400).json({status:'Error', message: 'Player not found'});
+  } else {
+    console.log(game.boards)
+    res.status(200).json({boards: game.boards, cards: game.cards})
   }
 });
 
