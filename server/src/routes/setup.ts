@@ -46,8 +46,8 @@ function startGame(){
   delete game.metadata.assignedBoards;
   game.metadata.gameStatus = 'game';
   while (!gameAssetsReady) {
-    pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
   }
+  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
 }
 
 function assignBoards() {

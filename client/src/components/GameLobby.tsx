@@ -103,12 +103,6 @@ function GameLobby(props: GameLobbyProps) {
     }
   }
 
-  // const startGame = () => {
-  //   // TODO listener
-  //   console.log("Starting Game");
-  //   // setGameStarted(true);
-  // }
-
   const renderPlayers = () => {
     const playersList = Object.keys(players).map((player: any, index: number) => {
       const status = players[player]["status"];
