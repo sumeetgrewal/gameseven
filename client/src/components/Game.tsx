@@ -5,11 +5,14 @@ interface GameState {
     boards: [],
     cards: []
   },
+  listening: boolean,
+  loading: boolean,
 } 
 
 interface GameProps {
 
 }
+
 class Game extends React.Component<GameProps, GameState> {
   constructor(props: GameProps) {
     super(props)
@@ -19,6 +22,8 @@ class Game extends React.Component<GameProps, GameState> {
         boards: [],
         cards: []
       },
+      listening: false,
+      loading: false,
     }
   }
 
@@ -29,29 +34,42 @@ class Game extends React.Component<GameProps, GameState> {
         headers: { 'Content-Type': 'application/json' },
       })
       .then((res: any) => {
-        if (res.status >= 500) {
-          throw new Error(res.status + " " + res.statusText);
-        }
+        if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            if (res.status === 200) {
-              this.setState({cache: result})
-              resolve()
-            } else {
-              reject(res.status + " " + result.message);
-            }
+            (res.status === 200) ? 
+            this.setState({cache: result}, resolve)
+            : reject(res.status + " " + result.message);
           })
         })
       .catch((error: Error) => reject(error.message))
     })
   }
+
   componentDidMount() {
-    this.cacheData()
+    this.registerSSEListeners()
     .then(() => {
-      console.log(this.state.cache);
-    })
-    .catch((error) => {
+    this.cacheData()
+      .then(() => {
+        this.setState({loading: true});
+        console.log(this.state.cache);
+      })
+    }).catch((error) => {
       console.log(error);
+    })
+  }
+
+  registerSSEListeners() : Promise<void> {
+    return new Promise((resolve) => {
+      if (this.state.listening) resolve();
+
+      const source = new EventSource('/game/play');
+      source.addEventListener('joined', (event: any) =>  {
+          const parsedData = JSON.parse(event.data);
+          console.log('joined', parsedData);
+      });
+
+      this.setState({listening: true}, resolve);
     })
   }
 

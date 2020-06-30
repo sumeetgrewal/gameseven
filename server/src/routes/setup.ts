@@ -1,18 +1,32 @@
+import { pushUpdateToPlayers, cleanupGame, resetToLobby } from "../middleware/util";
+
 const router = require('express').Router();
 const dbScan = require('../dbScan')
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
-let clients: any[] = [];
-let sseId: number = 1;
-let gameCountdown: any;
+export let clients: any[] = [];
+export let gameCountdown: any;
 let gameAssetsReady: boolean = false;
 
-function shuffle(a: number[]) {
+export function shuffle(a: number[]) {
   for (let i: number = a.length - 1; i > 0; i--) {
       const j: number = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+function startBoardSelection() {
+  const numPlayers: number = clients.length;
+  const randomOrder: number[] = shuffle([...Array(numPlayers).keys()]);
+  let index: number = 0;
+  game.metadata.playerOrder = new Array<string>(numPlayers);
+  for (const username in game.players) {
+    game.metadata.playerOrder[randomOrder[index]] = username;
+    index++;
+  }
+  game.metadata.turnToChoose = 0;
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate');
 }
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
@@ -31,7 +45,9 @@ function startGame(){
   delete game.metadata.boards;
   delete game.metadata.assignedBoards;
   game.metadata.gameStatus = 'game';
-  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
+  while (!gameAssetsReady) {
+    pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
+  }
 }
 
 function assignBoards() {
@@ -50,44 +66,9 @@ function assignBoards() {
   return assignedBoards;
 }
 
-function pushUpdateToPlayers(data: string, event: string = 'message') {
-  clients.forEach( (client: any) => {
-    client.res.write(`id: ${sseId++}\n`);
-    client.res.write(`event: ${event}\n`);
-    client.res.write(`data: ${data}\n\n`);
-    client.res.flush();
-  });
-}
-
-function resetToLobby() {
-  for (const username in game.players) {
-    game.players[username] = {status: 'pending'};
-  }
-  game.metadata = {
-    gameStatus: 'lobby',
-    boards: [],
-    assignedBoards: [],
-    playerOrder: [],
-    turnToChoose: -1,
-  }
-}
-function startBoardSelection() {
-  const numPlayers:  number = clients.length;
-  const randomOrder: number[] = shuffle( [...Array(numPlayers).keys()] );
-  let index: number = 0;
-  game.metadata.playerOrder = new Array<string>(numPlayers);
-  for (const username in game.players) {
-    game.metadata.playerOrder[randomOrder[index]] = username;
-    index++;
-  }
-  game.metadata.turnToChoose = 0;
-  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
-}
-
 function prepareGameAssets() {
   let numPlayers: string = clients.length.toString()
   numPlayers = "4"
-  loadTable('BOARDS', 'BOARD_ID');
   const cardFilter = {
     FilterExpression: "#np <= :np",
     ExpressionAttributeNames:{
@@ -97,18 +78,11 @@ function prepareGameAssets() {
       ":np": {N : numPlayers},
     }
   }
-  loadTable('CARDS', 'CARD_ID', cardFilter);
-}
-
-function cleanupGame() {
-  game.metadata.gameStatus = 'lobby';
-  delete game.metadata.playerOrder;
-  delete game.metadata.turnToChoose;
-  delete game.metadata.boards;
-  delete game.metadata.assignedBoards;
-  clearTimeout(gameCountdown);
-  game.players = {};
-  console.log("game reset")
+  loadTable('BOARDS', 'BOARD_ID')
+  .then(() => {
+    loadTable('CARDS', 'CARD_ID', cardFilter)
+    .then(() => gameAssetsReady = true)
+  })
 }
 
 function updateBoard(req: any, username: string) {
@@ -153,7 +127,7 @@ router.route('/setup').get((req: any, res: any) => {
       'Cache-Control': 'no-cache'
     };
     res.writeHead(200, headers);
-    res.write(`id: ${sseId++}\n`);
+    res.write(`id: ${1}\n`);
     res.write(`event: joined\n`);
     res.write(`data: ${JSON.stringify({username, players: game.players, gameStatus: game.metadata.gameStatus})}\n\n`);
     res.flush();
@@ -184,7 +158,7 @@ router.route('/setup').get((req: any, res: any) => {
   }
 });
 
-router.route('/setup/').post((req: any, res: any) => {
+router.route('/setup').post((req: any, res: any) => {
   if (game.players.length === 7){
     res.status(400).json({status: 'Error', message: 'Game full'});
   } else if (game.metadata.gameStatus !== 'lobby') {
@@ -246,7 +220,6 @@ router.route('/setup').delete((req: any, res: any) => {
   }
 });
 
-// Need to refactor 
 router.route('/assets').get((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if(!decodedToken) {
@@ -254,7 +227,6 @@ router.route('/assets').get((req: any, res: any) => {
   } else if (!(decodedToken.username in game.players)) {
     res.status(400).json({status:'Error', message: 'Player not found'});
   } else {
-    console.log(game.boards)
     res.status(200).json({boards: game.boards, cards: game.cards})
   }
 });
