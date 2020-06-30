@@ -59,6 +59,7 @@ function assignBoards() {
     const username = game.metadata.boards[i];
     if (game.players[username]) {
       game.players[username].board = assignedBoards[i]
+      game.boards[index].PLAYER = username;
     } else {
       delete game.boards[index];
     };
