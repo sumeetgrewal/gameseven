@@ -21,6 +21,10 @@ Figma : https://www.figma.com/file/Z8zXzJePxaCViBKFMkycgA/7-Wonders?node-id=0%3A
 2. Run `Yarn`
 3. Run `Yarn start`
 
+### Starting both server & client
+1. Navigate to /client
+2. Run `Yarn dev`
+
 ## Collaborators
 [@vinielk](https://github.com/vinielk)
 [@rishav11](https://github.com/rishav11)
