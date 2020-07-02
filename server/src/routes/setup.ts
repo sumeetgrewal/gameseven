@@ -45,20 +45,21 @@ function startGame(){
   delete game.metadata.boards;
   delete game.metadata.assignedBoards;
   game.metadata.gameStatus = 'game';
-  while (!gameAssetsReady) {
-  }
   pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate' );
 }
 
 function assignBoards() {
   let assignedBoards: any[] = [];
+  while (!gameAssetsReady) {
+  }
   const boardIndices = shuffle(Array.from(Array(7).keys()))
   for (let i = 0; i < 7; i++) {
     let index: string = (boardIndices[i] + 1).toString();
     assignedBoards[i] = game.boards[index].SHORT_NAME;
     const username = game.metadata.boards[i];
     if (game.players[username]) {
-      game.players[username].board = assignedBoards[i]
+      game.players[username].board = assignedBoards[i];
+      game.players[username].boardID = index;
       game.boards[index].PLAYER = username;
     } else {
       delete game.boards[index];
@@ -99,7 +100,7 @@ function updateBoard(req: any, username: string) {
     game.metadata.assignedBoards = assignBoards();
     gameCountdown = setTimeout(() => {
       startGame();
-    }, 5000);
+    }, 2000);
   }
   pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate');
   pushUpdateToPlayers(JSON.stringify({ metadata: metadata }), 'gameupdate');

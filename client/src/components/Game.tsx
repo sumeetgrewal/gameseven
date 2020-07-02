@@ -1,17 +1,23 @@
 import * as React from 'react';
+import Board  from './Board'
+import {boardImages, cardImages} from './gameAssets'
+
+interface GameProps {
+  username: string,
+  players: any,
+  setPlayers: (players: any) => Promise<void>,
+}
 
 interface GameState {
   cache: {
-    boards: [],
-    cards: []
+    boards: any,
+    cards: any,
   },
-  listening: boolean,
-  loading: boolean,
+  isListening: boolean,
+  isLoaded: boolean,
+  myBoard: any,
 } 
 
-interface GameProps {
-
-}
 
 class Game extends React.Component<GameProps, GameState> {
   constructor(props: GameProps) {
@@ -22,8 +28,9 @@ class Game extends React.Component<GameProps, GameState> {
         boards: [],
         cards: []
       },
-      listening: false,
-      loading: false,
+      isListening: false,
+      isLoaded: false,
+      myBoard: undefined,
     }
   }
 
@@ -51,7 +58,9 @@ class Game extends React.Component<GameProps, GameState> {
     .then(() => {
     this.cacheData()
       .then(() => {
-        this.setState({loading: true});
+        const boardID = this.props.players[this.props.username].boardID;
+        const myBoard = this.state.cache.boards[boardID.toString()];
+        this.setState({myBoard,isLoaded: true});
         console.log(this.state.cache);
       })
     }).catch((error) => {
@@ -61,21 +70,29 @@ class Game extends React.Component<GameProps, GameState> {
 
   registerSSEListeners() : Promise<void> {
     return new Promise((resolve) => {
-      if (this.state.listening) resolve();
+      if (this.state.isListening) resolve();
 
       const source = new EventSource('/game/play');
       source.addEventListener('joined', (event: any) =>  {
           const parsedData = JSON.parse(event.data);
+          console.log(parsedData.players[this.props.username])
           console.log('joined', parsedData);
       });
 
-      this.setState({listening: true}, resolve);
+      this.setState({isListening: true}, resolve);
     })
   }
 
   render() {
-    return (
-      <div className="container d-flex align-items-center justify-content-center full-height">
+    if (this.state.isLoaded) {
+      return (
+        <Board 
+          myBoard={this.state.myBoard}
+        />
+      )
+    } else {
+      return (
+        <div className="container d-flex align-items-center justify-content-center full-height">
           <div className="row">
             <div className="col-12 game dialog"> 
               <h1 className="m-3">
@@ -83,8 +100,9 @@ class Game extends React.Component<GameProps, GameState> {
               </h1>
             </div>
           </div>
-      </div>
-    );
+        </div>
+      )  
+    }
   } 
 }
 

@@ -3,13 +3,14 @@ import BoardSelector from './BoardSelector';
 
 interface GameLobbyProps {
   gameStatus: string,
-  setGameStatus: (gameStatus: string) => Promise<void>,
   username: string,
+  players: any,
+  setGameStatus: (gameStatus: string) => Promise<void>,
   setUsername: (username: string) => Promise<void>,
+  setPlayers: (players: any) => Promise<void>,
 }
 
 function GameLobby(props: GameLobbyProps) {
-  const [players, setPlayers] = useState([]);
   const [boards, setBoards] = useState([]);
   const [assignedBoards, setAssignedBoards] = useState([]);
   const [playerOrder, setPlayerOrder] = useState([]);
@@ -25,7 +26,7 @@ function GameLobby(props: GameLobbyProps) {
         const parsedData = JSON.parse(event.data);
         console.log('joined', parsedData);
         props.setUsername(parsedData.username);
-        setPlayers(parsedData.players);
+        props.setPlayers(parsedData.players);
         props.setGameStatus(parsedData.gameStatus);
         setLoading(false);
       });
@@ -33,7 +34,7 @@ function GameLobby(props: GameLobbyProps) {
       source.addEventListener('playerupdate', function(event: any) {
         const parsedData = JSON.parse(event.data);
         console.log('playerupdate', parsedData);
-        setPlayers(parsedData.players);
+        props.setPlayers(parsedData.players);
       });
 
       source.addEventListener('gameupdate', function(event: any) {
@@ -104,6 +105,7 @@ function GameLobby(props: GameLobbyProps) {
   }
 
   const renderPlayers = () => {
+    let players = props.players;
     const playersList = Object.keys(players).map((player: any, index: number) => {
       const status = players[player]["status"];
       const customClass =  "mx-1 player-box " + ((status==="ready") ? "mx-1 player-box player-ready" : "" )
@@ -150,7 +152,7 @@ function GameLobby(props: GameLobbyProps) {
           <BoardSelector 
             assignedBoards={assignedBoards}
             boards={boards}
-            players={players}
+            players={props.players}
             playerOrder={playerOrder}
             username={props.username}
             turnToChoose={turnToChoose}

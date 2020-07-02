@@ -20,6 +20,7 @@ router.route('/').get((req: any, res: any) => {
     res.writeHead(200, headers);
     res.write(`id: ${sseId++}\n`);
     res.write(`event: joined\n`);
+    res.write(`data: ${JSON.stringify({players: game.players})}\n\n`);
     res.flush();
     
     const newClient: any = {
@@ -33,9 +34,6 @@ router.route('/').get((req: any, res: any) => {
       clients = clients.filter((client: any) => client.id !== username);
       if (clients.length === 0) {
         cleanupGame();
-      } else if (game.metadata.gameStatus === 'lobby') {
-        delete game.players[username];
-        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate' );
       } else {
         delete game.players[username];
         resetToLobby();
