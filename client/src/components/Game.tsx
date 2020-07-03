@@ -1,6 +1,6 @@
 import * as React from 'react';
-import Board  from './Board'
-import {/* boardImages, */ cardImages } from './gameAssets';
+import PlayerBoard  from './PlayerBoard'
+import {/* boardImages, */ cardImages, /*Card,*/ Board } from './gameAssets';
 
 interface GameProps {
   username: string,
@@ -10,13 +10,13 @@ interface GameProps {
 
 interface GameState {
   cache: {
-    boards: any,
-    cards: any,
+    boards: Array<any>,
+    cards: Array<any>,
   },
   isListening: boolean,
   isLoaded: boolean,
-  myBoard: any,
-  hand: [],
+  myBoard: Board | undefined,
+  hand: Array<string>,
   metadata: {
     age: number,
     turn: number,
@@ -122,7 +122,7 @@ class Game extends React.Component<GameProps, GameState> {
     const {myBoard} = this.state;
     if (this.state.isLoaded) {
       return (<>
-        <Board boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>
+        {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
             <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>

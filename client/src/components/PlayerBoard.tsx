@@ -2,11 +2,11 @@ import * as React from 'react'
 import {boardImages, /*cardImages*/ } from './gameAssets'
 
 interface BoardProps {
-    boardID: string,
+    boardID: number,
     boardName: string,
 }
 
-export default function Board (props: BoardProps) {
+export default function PlayerBoard (props: BoardProps) {
     const boardImage = boardImages[props.boardID + ".jpg"];
     return (<>
         <div 

@@ -1,9 +1,18 @@
+// /game/play route
 import { pushUpdateToPlayers, cleanupGame, resetToLobby } from "../middleware/util";
-const router = require('express').Router();
+const router = require('express').Router(); 
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
 let clients: any[] = [];
 let sseId: number = 1;
+
+function rotateHands() {
+  // TODO 
+}
+
+function generateHands() {
+  // TODO
+}
 
 function beginGame() {
   game.metadata = {
@@ -60,6 +69,10 @@ router.route('/').get((req: any, res: any) => {
       console.log(username + ' Connection closed');
     });
   }
+});
+
+router.route('/').post((req: any, res: any) => {
+  // TODO
 });
 
 module.exports = router;
