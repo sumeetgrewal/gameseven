@@ -1,8 +1,8 @@
-import { clients, gameCountdown } from "../routes/setup";
+import { gameCountdown } from "../routes/setup";
 let game = require('../models/game.model');
 let sseId: number = 2;
 
-export function pushUpdateToPlayers(data: string, event: string = 'message') {
+export function pushUpdateToPlayers(data: string, event: string = 'message', clients: any) {
   clients.forEach((client: any) => {
     client.res.write(`id: ${sseId++}\n`);
     client.res.write(`event: ${event}\n`);
