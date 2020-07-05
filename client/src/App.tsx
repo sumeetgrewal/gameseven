@@ -57,7 +57,7 @@ class App extends React.Component<MyProps, MyState> {
       />
     );
     else return (
-      <Game username={username} 
+      <Game username={username} setGameStatus={this.setGameStatus}
       players={players} setPlayers={this.setPlayers}
       />
     )

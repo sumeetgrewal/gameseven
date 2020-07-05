@@ -72,7 +72,33 @@ router.route('/').get((req: any, res: any) => {
 });
 
 router.route('/').post((req: any, res: any) => {
-  // TODO
+  const decodedToken: any = JWTHandlers.checkToken(req);
+  if (!decodedToken) {
+    return res.status(400).json({status: 'Error', message: 'Invalid token'});
+  } else if (!(decodedToken.username in game.players)) {
+    return res.status(400).json({status: 'Error', message: 'Player not found'});
+  } else {
+    const username: string = decodedToken.username;
+    const {card, age, turn} = req.body;
+    const ageSelections = game.selections[age];game.players[username].cards
+    const numPlayers = Object.keys(game.players).length
+    if (!game.players[username].cards) {
+      game.players[username].cards = [];
+    }
+    if (!ageSelections[turn]) {
+      ageSelections[turn] = []
+    }
+
+    game.players[username].cards.push(card);
+    ageSelections[turn].push(card);
+    res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
+    console.log(ageSelections)
+    if (ageSelections[turn].length === numPlayers) {
+      console.log("All players have selected cards");
+      beginGame();
+    }
+    
+  }
 });
 
 module.exports = router;

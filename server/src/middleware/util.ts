@@ -17,6 +17,11 @@ export function cleanupGame() {
   delete game.metadata.turnToChoose;
   delete game.metadata.boards;
   delete game.metadata.assignedBoards;
+  game.selections = {
+    1: {},
+    2: {},
+    3: {},
+  }
   clearTimeout(gameCountdown);
   game.players = {};
   console.log("game reset");
@@ -33,4 +38,9 @@ export function resetToLobby() {
     playerOrder: [],
     turnToChoose: -1,
   };
+  game.selections = {
+    1: {},
+    2: {},
+    3: {},
+  }
 }

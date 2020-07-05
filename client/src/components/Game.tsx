@@ -6,6 +6,7 @@ interface GameProps {
   username: string,
   players: any,
   setPlayers: (players: any) => Promise<void>,
+  setGameStatus: (gameStatus: string) => Promise<void>
 }
 
 interface GameState {
@@ -21,6 +22,7 @@ interface GameState {
     age: number,
     turn: number,
   }
+  isWaiting: boolean,
 } 
 
 
@@ -40,7 +42,8 @@ class Game extends React.Component<GameProps, GameState> {
       metadata: {
         age: 1, 
         turn: 1,
-      }
+      },
+      isWaiting: false,
     }
   }
 
@@ -59,6 +62,12 @@ class Game extends React.Component<GameProps, GameState> {
     })
   }
 
+  componentDidUpdate(oldProps: GameProps) {
+    if (oldProps.players !== this.props.players) {
+      this.props.setGameStatus("lobby");
+    }
+  }
+
   registerSSEListeners() : Promise<void> {
     return new Promise((resolve) => {
       if (this.state.isListening) resolve();
@@ -75,6 +84,7 @@ class Game extends React.Component<GameProps, GameState> {
         this.setState({
           metadata: parsedData.metadata,
           hand: parsedData.hand,
+          isWaiting: false,
         });
       });
 
@@ -101,15 +111,44 @@ class Game extends React.Component<GameProps, GameState> {
     })
   }
 
+  setWaiting () {
+    this.setState({isWaiting: true});
+  }
+  
+  selectCard (card: string, age: number, turn: number)  {
+    return new Promise((resolve) => {
+      console.log("Selected card " + card)
+      fetch("game/play", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({card, age, turn})
+      })
+      .then((res: any) => {
+        console.log(res);
+        if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
+        res.json()
+        .then((result: any) => {
+            (res.status === 200) && this.setState({isWaiting: true}, resolve);
+            console.log(res.status + " " + result.message);
+          })
+        })
+      .catch((error: Error) => {
+        console.log(error.message);
+      })
+    })
+  }
+
   renderHand() {
     const hand = this.state.hand;
     let cardArray: Array<any> = [];
+    const {age, turn} = this.state.metadata
+
     if (hand.length > 0) {
       hand.forEach((card: string) => {
         cardArray.push(
-          <div className="d-inline-block m-1" onClick={() => console.log("Clicked " + card)} key={card + '-container'}>
-            <button className="p-0 btn" key={card}>
-              <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
+          <div className="d-inline-block m-1" key={card + '-container'}>
+            <button className="p-0 btn" key={card} onClick={() => this.selectCard(card, age, turn)} value={card}>
+                <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
           </div>
         )
@@ -126,7 +165,10 @@ class Game extends React.Component<GameProps, GameState> {
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
             <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
-              {this.renderHand()}
+              {(this.state.isWaiting) ? 
+                <h5 className="text-white"> WAITING FOR YOUR TURN </h5>
+                : this.renderHand()
+              }
             </div>
           </div>
         </div>        

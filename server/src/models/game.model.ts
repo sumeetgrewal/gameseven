@@ -5,4 +5,9 @@ module.exports = {
   players: {},
   boards: {},
   cards: {},
+  selections: {
+    1: {},
+    2: {},
+    3: {},
+  },
 }
