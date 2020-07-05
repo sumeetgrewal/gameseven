@@ -25,7 +25,6 @@ interface GameState {
   isWaiting: boolean,
 } 
 
-
 class Game extends React.Component<GameProps, GameState> {
   constructor(props: GameProps) {
     super(props)
@@ -87,6 +86,13 @@ class Game extends React.Component<GameProps, GameState> {
           isWaiting: false,
         });
       });
+
+      source.addEventListener('gameupdate', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('gameupdate in game', parsedData);
+        this.props.setPlayers(parsedData.players);
+        this.props.setGameStatus(parsedData.metadata.gameStatus);
+      })
 
       this.setState({isListening: true}, resolve);
     })

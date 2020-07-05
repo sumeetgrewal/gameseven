@@ -3,7 +3,7 @@ import { pushUpdateToPlayers, cleanupGame, resetToLobby } from "../middleware/ut
 const router = require('express').Router(); 
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
-let clients: any[] = [];
+let gameClients: any[] = [];
 let sseId: number = 1;
 
 function rotateHands() {
@@ -15,15 +15,16 @@ function generateHands() {
 }
 
 function beginGame() {
-  game.metadata = {
-    age: 1,
-    turn: 1,
-    playerOrder: game.metadata.playerOrder,
+  if (game.metadata.turn === 7) {
+    game.metadata.turn = 1;
+    game.metadata.age++;
+  } else {
+    game.metadata.turn++
   }
   game.hands = {
     's': ["1", "2", "3", "4", "5", "6", "7"]
   }
-  pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand: game.hands['s']}), 'turnupdate', clients)
+  pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand: game.hands['s']}), 'turnupdate', gameClients)
 }
 
 router.route('/').get((req: any, res: any) => {
@@ -48,23 +49,22 @@ router.route('/').get((req: any, res: any) => {
       id: username,
       res
     }
-    clients.push(newClient);
-
+    gameClients.push(newClient);
+    
     const numPlayers = Object.keys(game.players).length
-    if (clients.length === numPlayers) {
+    if (gameClients.length === numPlayers) {
       beginGame();
     }
 
     req.on('close', () => {
       res.end();
-      clients = clients.filter((client: any) => client.id !== username);
-      if (clients.length === 0) {
+      gameClients = gameClients.filter((client: any) => client.id !== username);
+      if (gameClients.length === 0) {
         cleanupGame();
       } else {
         delete game.players[username];
         resetToLobby();
-        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
-        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', clients );
+        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata, players: game.players}), 'gameupdate', gameClients );
       }
       console.log(username + ' Connection closed');
     });

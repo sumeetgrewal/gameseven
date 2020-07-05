@@ -4,7 +4,7 @@ const router = require('express').Router();
 const dbScan = require('../dbScan')
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
-export let clients: any[] = [];
+let setupClients: any[] = [];
 export let gameCountdown: any;
 let gameAssetsReady: boolean = false;
 
@@ -17,7 +17,7 @@ export function shuffle(a: number[]) {
 }
 
 function startBoardSelection() {
-  const numPlayers: number = clients.length;
+  const numPlayers: number = setupClients.length;
   const randomOrder: number[] = shuffle([...Array(numPlayers).keys()]);
   let index: number = 0;
   game.metadata.playerOrder = new Array<string>(numPlayers);
@@ -26,7 +26,7 @@ function startBoardSelection() {
     index++;
   }
   game.metadata.turnToChoose = 0;
-  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate', setupClients);
 }
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
@@ -44,7 +44,7 @@ function startGame(){
   delete game.metadata.boards;
   delete game.metadata.assignedBoards;
   game.metadata.gameStatus = 'game';
-  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', clients);
+  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', setupClients);
 }
 
 function assignBoards() {
@@ -68,7 +68,7 @@ function assignBoards() {
 }
 
 function prepareGameAssets() {
-  let numPlayers: string = clients.length.toString()
+  let numPlayers: string = setupClients.length.toString()
   numPlayers = "4"
   const cardFilter = {
     FilterExpression: "#np <= :np",
@@ -94,21 +94,21 @@ function updateBoard(req: any, username: string) {
   game.players[username].board = board;
   game.metadata.boards[board] = username;
   game.metadata.turnToChoose++;
-  const allSelected = game.metadata.turnToChoose === clients.length;
+  const allSelected = game.metadata.turnToChoose === setupClients.length;
   if (allSelected) {
     game.metadata.assignedBoards = assignBoards();
     gameCountdown = setTimeout(() => {
       startGame();
     }, 2000);
   }
-  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', clients);
-  pushUpdateToPlayers(JSON.stringify({ metadata: metadata }), 'gameupdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', setupClients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: metadata }), 'gameupdate', setupClients);
 }
 
 function updateStatus(req: any, username: string) {
   const status: string = req.body.status;
   game.players[username].status = status;
-  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', setupClients);
   game.metadata.gameStatus = (Object.values(game.players).every((player: any) => player.status === 'ready') && 'boardSelection') || 'lobby';
   if (game.metadata.gameStatus === 'boardSelection') {
     startBoardSelection();
@@ -137,22 +137,22 @@ router.route('/setup').get((req: any, res: any) => {
       id: username,
       res
     }
-    clients.push(newClient);
+    setupClients.push(newClient);
 
     req.on('close', () => {
       res.end();
-      clients = clients.filter((client: any) => client.id !== username);
-      if (clients.length === 0) {
+      setupClients = setupClients.filter((client: any) => client.id !== username);
+      if (setupClients.length === 0) {
         cleanupGame();
       } else if (game.metadata.gameStatus === 'lobby') {
         delete game.players[username];
-        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
       } else {
         clearTimeout(gameCountdown);
         delete game.players[username];
         resetToLobby();
-        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
-        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', clients );
+        pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
+        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', setupClients );
       }
       console.log(username + ' Connection closed');
     });
@@ -171,7 +171,7 @@ router.route('/setup').post((req: any, res: any) => {
   } else {
     const username: string = req.body.username    
     game.players[username] = {status: 'pending'};
-    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
     const token: string = JWTHandlers.createToken(username);
     res.json({status: 'success', token});
   }
@@ -214,9 +214,10 @@ router.route('/setup').delete((req: any, res: any) => {
     res.status(400).json({status: 'Error', message: 'Player not found'});
   } else {
     const username: string = decodedToken.username;
-    clients = clients.filter((client: any) => client.id !== username);
+    setupClients = setupClients.filter((client: any) => client.id !== username);
     delete game.players[username];
-    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+    resetToLobby();
+    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
     res.json({status: 'success'});
   }
 });
