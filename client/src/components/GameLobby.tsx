@@ -66,7 +66,6 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
             assignedBoards,
           })
         }
-        // reset state
         this.props.setGameStatus(gameStatus);
       });
       

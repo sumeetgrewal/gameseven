@@ -18,6 +18,7 @@ interface GameState {
   isLoaded: boolean,
   myBoard: Board | undefined,
   hand: Array<string>,
+  myCards: Array<string>,
   metadata: {
     age: number,
     turn: number,
@@ -37,6 +38,7 @@ class Game extends React.Component<GameProps, GameState> {
       isListening: false,
       isLoaded: false,
       myBoard: undefined,
+      myCards: [],
       hand: [],
       metadata: {
         age: 1, 
@@ -123,6 +125,7 @@ class Game extends React.Component<GameProps, GameState> {
   
   selectCard (card: string, age: number, turn: number)  {
     return new Promise((resolve) => {
+      this.setState({hand: []})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
@@ -134,7 +137,10 @@ class Game extends React.Component<GameProps, GameState> {
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            (res.status === 200) && this.setState({isWaiting: true}, resolve);
+            const myCards: string[] = this.state.myCards;
+            const newHandLoaded: boolean = this.state.hand.length > 1;
+            myCards.push(card);
+            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myCards}, resolve);
             console.log(res.status + " " + result.message);
           })
         })
@@ -142,6 +148,24 @@ class Game extends React.Component<GameProps, GameState> {
         console.log(error.message);
       })
     })
+  }
+  renderMyCards() {
+    const myCards = this.state.myCards;
+    let myCardArray: Array<any> = [];
+    if (myCards.length > 0) {
+      myCards.forEach((card: string) => {
+        myCardArray.push(
+          <div className="d-inline-block m-1 card-wrapper" key={card + '-container'}>
+            <img className="built-card" src={cardImages[card + '.png']} alt="card" key={card}/>
+          </div>
+        )
+      })
+    }
+    return (
+      <div className='col-12 built-container text-center d-flex flex-wrap flex-xl-column justify-content-center'>
+        {myCardArray}
+      </div>
+    )
   }
 
   renderHand() {
@@ -152,7 +176,7 @@ class Game extends React.Component<GameProps, GameState> {
     if (hand.length > 0) {
       hand.forEach((card: string) => {
         cardArray.push(
-          <div className="d-inline-block m-1" key={card + '-container'}>
+          <div className="d-inline-block m-1" key={card + '-hand-container'}>
             <button className="p-0 btn" key={card} onClick={() => this.selectCard(card, age, turn)} value={card}>
                 <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
@@ -160,7 +184,14 @@ class Game extends React.Component<GameProps, GameState> {
         )
       })
     }
-    return cardArray
+    return (
+      <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
+        {(this.state.isWaiting) ? 
+          <h5 className="text-white"> WAITING FOR YOUR TURN </h5>
+          : cardArray
+        }
+      </div>
+    )
   }
 
   render() {
@@ -170,12 +201,8 @@ class Game extends React.Component<GameProps, GameState> {
         {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
-            <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
-              {(this.state.isWaiting) ? 
-                <h5 className="text-white"> WAITING FOR YOUR TURN </h5>
-                : this.renderHand()
-              }
-            </div>
+            {this.renderMyCards()}
+            {this.renderHand()}
           </div>
         </div>        
       </>)

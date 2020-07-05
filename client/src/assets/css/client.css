@@ -195,13 +195,31 @@ GAME
 ======================= */ 
 
 .hand-container {
-    width: 70vw;
+    width: 85vw;
     background-color: #00000077;
     padding: 40px;
-    margin: 40px 0;
+    margin: 40px 0 0;
 }
 
 .hand-card {
     width: 177px;
     height: 75px;
+}
+
+.built-container {
+    background-color: #00000077;
+    padding: 70px 30px 30px;
+    margin: 0;
+    max-height: 350px;
+}
+
+.built-card {
+    margin-top: -40px;
+    width: 177px;
+    height: 75px;
+}
+
+.card-wrapper {
+    width: 177px;
+    height: 35px;
 }
