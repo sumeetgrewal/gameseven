@@ -1,4 +1,4 @@
-import { pushUpdateToPlayers, cleanupGame, resetToLobby } from "../middleware/util";
+import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 
 const router = require('express').Router();
 const dbScan = require('../dbScan')
@@ -7,14 +7,6 @@ let JWTHandlers = require('../middleware/jwt.authorization');
 let setupClients: any[] = [];
 export let gameCountdown: any;
 let gameAssetsReady: boolean = false;
-
-export function shuffle(a: number[]) {
-  for (let i: number = a.length - 1; i > 0; i--) {
-      const j: number = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function startBoardSelection() {
   const numPlayers: number = setupClients.length;
@@ -69,7 +61,7 @@ function assignBoards() {
 
 function prepareGameAssets() {
   let numPlayers: string = setupClients.length.toString()
-  numPlayers = "4"
+  numPlayers = '3';
   const cardFilter = {
     FilterExpression: "#np <= :np",
     ExpressionAttributeNames:{

@@ -2,6 +2,14 @@ import { gameCountdown } from "../routes/setup";
 let game = require('../models/game.model');
 let sseId: number = 2;
 
+export function shuffle(a: number[]) {
+  for (let i: number = a.length - 1; i > 0; i--) {
+      const j: number = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function pushUpdateToPlayers(data: string, event: string = 'message', clients: any) {
   clients.forEach((client: any) => {
     client.res.write(`id: ${sseId++}\n`);

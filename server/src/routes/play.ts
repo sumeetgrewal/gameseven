@@ -1,5 +1,5 @@
 // /game/play route
-import { pushUpdateToPlayers, cleanupGame, resetToLobby } from "../middleware/util";
+import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 const router = require('express').Router(); 
 let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
@@ -14,21 +14,45 @@ function rotateHands() {
   })
 }
 
-function generateHands() {
-  // TODO
-  game.hands = {
-    1: ["1", "2", "3", "4", "5", "6", "7"],
-    2: ["8", "9", "10", "11", "12", "13", "14"]
+function filterCardsByAge(age: number, numPlayers: number) {
+  let selectedCards = [];
+  let numGuilds = numPlayers + 2;
+  let start, end : number;
+  if (age === 1) {
+    start = 1, end = 48;
+  } else if (age === 2) {
+    start = 49, end = 98;
+  } else if (age === 3) {
+    start = 99, end = 138;
+    let guilds = shuffle(Array.from(Array(10).keys()))
+    guilds.splice(0, numGuilds).forEach((i: number) => selectedCards.push(i + 138))
   }
+  for (let i: number = start; i <= end; i++) {
+    if (game.cards[i.toString()]){
+      selectedCards.push(i);
+    }
+  }
+  return selectedCards;
+}
+
+function generateHands(numPlayers: number) {
+  const cards = filterCardsByAge(game.metadata.age, numPlayers);
+  const shuffledArray = shuffle(cards);
+  let hands: any = {};
+  for (let i = 0 ; i< numPlayers; i++) {
+    hands[i + 1] = shuffledArray.splice(7*i,7);
+  }
+  game.hands = hands;
 }
 
 function updateTurn() {
-  if (game.metadata.turn === 7) {
+  if (game.metadata.turn === 6) {
     if (game.metadata.age === 3) {
+      // TODO end game
     } else {
       game.metadata.age++;
       game.metadata.turn = 1;
-      return beginGame();
+      return beginAge();
     }
   } else {
     game.metadata.turn++
@@ -49,12 +73,12 @@ function sendUpdatedTurn() {
   })
 }
 
-function beginGame() {
+function beginAge() {
   const playerIDs = Object.keys(game.players);
   for (let i = 0; i < playerIDs.length; i++ ) {
     game.players[playerIDs[i]].handID = i + 1;
   }
-  generateHands()
+  generateHands(playerIDs.length)
   sendUpdatedTurn();
 }
 
@@ -84,7 +108,7 @@ router.route('/').get((req: any, res: any) => {
     
     const numPlayers = Object.keys(game.players).length
     if (gameClients.length === numPlayers) {
-      beginGame();
+      beginAge();
     }
 
     req.on('close', () => {
