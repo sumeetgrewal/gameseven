@@ -7,24 +7,55 @@ let gameClients: any[] = [];
 let sseId: number = 1;
 
 function rotateHands() {
-  // TODO 
+  const numHands = Object.values(game.hands).length;
+  Object.keys(game.players).forEach((player: string) => {
+    const currID = game.players[player].handID;
+    game.players[player].handID = (currID % numHands) + 1;
+  })
 }
 
 function generateHands() {
   // TODO
+  game.hands = {
+    1: ["1", "2", "3", "4", "5", "6", "7"],
+    2: ["8", "9", "10", "11", "12", "13", "14"]
+  }
 }
 
-function beginGame() {
+function updateTurn() {
   if (game.metadata.turn === 7) {
-    game.metadata.turn = 1;
-    game.metadata.age++;
+    if (game.metadata.age === 3) {
+    } else {
+      game.metadata.age++;
+      game.metadata.turn = 1;
+      return beginGame();
+    }
   } else {
     game.metadata.turn++
   }
-  game.hands = {
-    's': ["1", "2", "3", "4", "5", "6", "7"]
+  rotateHands();
+  sendUpdatedTurn();
+}
+
+function sendUpdatedTurn() {
+  gameClients.forEach((client: any) => {
+    const handID = game.players[client.id].handID;
+    const hand = game.hands[handID];
+    console.log(client.id, hand);
+    if (hand) {
+      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand}), 'turnupdate', [client])
+    }
+    else console.log("ERROR");
+  })
+}
+
+function beginGame() {
+  const playerIDs = Object.keys(game.players);
+  for (let i = 0; i < playerIDs.length; i++ ) {
+    game.players[playerIDs[i]].handID = i + 1;
   }
-  pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand: game.hands['s']}), 'turnupdate', gameClients)
+  generateHands()
+  sendUpdatedTurn();
 }
 
 router.route('/').get((req: any, res: any) => {
@@ -91,14 +122,21 @@ router.route('/').post((req: any, res: any) => {
 
     game.players[username].cards.push(card);
     ageSelections[turn].push(card);
+    removeCardFromHand(username, card)
     res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
     console.log(ageSelections)
     if (ageSelections[turn].length === numPlayers) {
       console.log("All players have selected cards");
-      beginGame();
+      updateTurn();
     }
-    
   }
 });
+
+function removeCardFromHand(playerName: string, card: string) {
+  const handID = game.players[playerName].handID;
+  const newHand: string[] = game.hands[handID];
+  newHand.splice(newHand.indexOf(card), 1);
+  game.hands[handID] = newHand;
+}
 
 module.exports = router;

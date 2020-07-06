@@ -162,7 +162,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
     }
     return (
-      <div className='col-12 built-container text-center d-flex flex-wrap flex-xl-column justify-content-center'>
+      <div className='col-12 built-container text-center d-flex flex-wrap flex-sm-column justify-content-center'>
         {myCardArray}
       </div>
     )
