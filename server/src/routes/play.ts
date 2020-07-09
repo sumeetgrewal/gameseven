@@ -113,13 +113,13 @@ router.route('/').get((req: any, res: any) => {
 
     req.on('close', () => {
       res.end();
-      gameClients = gameClients.filter((client: any) => client.id !== username);
       if (gameClients.length === 0) {
         cleanupGame();
       } else {
         delete game.players[username];
         resetToLobby();
         pushUpdateToPlayers( JSON.stringify({metadata: game.metadata, players: game.players}), 'gameupdate', gameClients );
+        gameClients = [];
       }
       console.log(username + ' Connection closed');
     });

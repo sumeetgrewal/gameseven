@@ -134,12 +134,12 @@ router.route('/setup').get((req: any, res: any) => {
     req.on('close', () => {
       res.end();
       setupClients = setupClients.filter((client: any) => client.id !== username);
-      if (setupClients.length === 0) {
+      if (setupClients.length === 0 && game.metadata.gameStatus !== 'game') {
         cleanupGame();
       } else if (game.metadata.gameStatus === 'lobby') {
         delete game.players[username];
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
-      } else {
+      } else if (game.metadata.gameStatus === 'boardSelection') {
         clearTimeout(gameCountdown);
         delete game.players[username];
         resetToLobby();
