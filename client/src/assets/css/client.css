@@ -8,10 +8,14 @@ GLOBAL
 ======================= */ 
 
 body {
-    margin: 50;
     font-family: 'Cinzel', serif;
     background: #D6D6D6;
     background-image: url(../images/background.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
 }
 
 input {
@@ -152,4 +156,70 @@ BOARDSELECTOR
 
 .board-name:hover {
     border-right-color: rgb(147, 0, 184);
+}
+
+/* =======================
+BOARD
+======================= */ 
+
+.my-board {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+.gradient-top {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+    height: 200px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.gradient-bottom {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+    height: 150px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+}
+
+/* =======================
+GAME
+======================= */ 
+
+.hand-container {
+    width: 85vw;
+    background-color: #00000077;
+    padding: 40px;
+    margin: 40px 0 0;
+}
+
+.hand-card {
+    width: 177px;
+    height: 75px;
+}
+
+.built-container {
+    background-color: #00000077;
+    padding: 70px 30px 30px;
+    margin: 0;
+    max-height: 350px;
+}
+
+.built-card {
+    margin-top: -40px;
+    width: 177px;
+    height: 75px;
+}
+
+.card-wrapper {
+    width: 177px;
+    height: 35px;
 }

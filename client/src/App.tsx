@@ -7,6 +7,8 @@ import Game from './components/Game';
 interface MyState {
   gameStatus: string,
   username: string,
+  players: any,
+  isListening: boolean,
 } 
 
 interface MyProps {
@@ -16,11 +18,15 @@ class App extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props);
     this.state = {
-        gameStatus: "join", // join / lobby / boardSelection / game
-        username: ""
+      gameStatus: "join", // join / lobby / boardSelection / game
+      username: "",
+      players: [],
+      isListening: false,
     }
     this.setGameStatus = this.setGameStatus.bind(this);
     this.setUsername = this.setUsername.bind(this);
+    this.setPlayers = this.setPlayers.bind(this);
+    this.setListening = this.setListening.bind(this);
   }
 
   setGameStatus(gameStatus: string) : Promise<void> {
@@ -35,8 +41,20 @@ class App extends React.Component<MyProps, MyState> {
     })
   }
 
+  setPlayers(players: any) : Promise<void> {
+    return new Promise((resolve) => {
+      this.setState({players}, resolve);
+    })
+  }
+
+  setListening(isListening: boolean) : Promise<void> {
+    return new Promise((resolve) => {
+      this.setState({isListening}, resolve)
+    })
+  }
+
   renderGameStage() {
-    const {gameStatus, username} = this.state;
+    const {gameStatus, username, players, isListening} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -44,10 +62,14 @@ class App extends React.Component<MyProps, MyState> {
       <GameLobby 
         gameStatus={gameStatus} setGameStatus={this.setGameStatus} 
         username={username} setUsername={this.setUsername} 
+        players={players} setPlayers={this.setPlayers}
+        isListening={isListening} setListening={this.setListening}
       />
     );
     else return (
-      <Game />
+      <Game username={username} setGameStatus={this.setGameStatus}
+      players={players} setPlayers={this.setPlayers}
+      />
     )
   }
 

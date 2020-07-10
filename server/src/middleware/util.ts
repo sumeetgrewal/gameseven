@@ -1,8 +1,16 @@
-import { clients, gameCountdown } from "../routes/setup";
+import { gameCountdown } from "../routes/setup";
 let game = require('../models/game.model');
 let sseId: number = 2;
 
-export function pushUpdateToPlayers(data: string, event: string = 'message') {
+export function shuffle(a: number[]) {
+  for (let i: number = a.length - 1; i > 0; i--) {
+      const j: number = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export function pushUpdateToPlayers(data: string, event: string = 'message', clients: any) {
   clients.forEach((client: any) => {
     client.res.write(`id: ${sseId++}\n`);
     client.res.write(`event: ${event}\n`);
@@ -12,13 +20,23 @@ export function pushUpdateToPlayers(data: string, event: string = 'message') {
 }
 
 export function cleanupGame() {
-  game.metadata.gameStatus = 'lobby';
-  delete game.metadata.playerOrder;
-  delete game.metadata.turnToChoose;
-  delete game.metadata.boards;
-  delete game.metadata.assignedBoards;
+  console.log("Cleanup");
+  game.metadata = {
+      boards: [],
+      assignedBoards: [],
+      turnToChoose: -1,
+      playerOrder: [],
+      gameStatus: "lobby",
+      age: 1,
+      turn: 1,
+    };
+  game.players = {},
+  game.selections = {
+    1: {},
+    2: {},
+    3: {},
+  },
   clearTimeout(gameCountdown);
-  game.players = {};
   console.log("game reset");
 }
 
@@ -32,5 +50,12 @@ export function resetToLobby() {
     assignedBoards: [],
     playerOrder: [],
     turnToChoose: -1,
+    age: 1,
+    turn: 1,
   };
+  game.selections = {
+    1: {},
+    2: {},
+    3: {},
+  }
 }

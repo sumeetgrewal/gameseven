@@ -1,69 +1,83 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import BoardSelector from './BoardSelector';
 
 interface GameLobbyProps {
   gameStatus: string,
-  setGameStatus: (gameStatus: string) => Promise<void>,
   username: string,
+  players: any,
+  isListening: boolean,
+  setGameStatus: (gameStatus: string) => Promise<void>,
   setUsername: (username: string) => Promise<void>,
+  setPlayers: (players: any) => Promise<void>,
+  setListening: (isListening: boolean) => Promise<void>,
 }
 
-function GameLobby(props: GameLobbyProps) {
-  const [players, setPlayers] = useState([]);
-  const [boards, setBoards] = useState([]);
-  const [assignedBoards, setAssignedBoards] = useState([]);
-  const [playerOrder, setPlayerOrder] = useState([]);
-  const [turnToChoose, setTurnToChoose] = useState(-1);
-  const [loading, setLoading] = useState(true);
-  const [listening, setListening] = useState(false);
+interface GameLobbyState {
+  boards: Array<string>,
+  assignedBoards: Array<string>,
+  playerOrder: Array<string>,
+  turnToChoose: number,
+  isLoading: boolean,
+}
 
-  useEffect( () => {
-    if (!listening) {
+class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
+  constructor(props: GameLobbyProps) {
+    super(props)
+  
+    this.state = {
+      boards: [],
+      assignedBoards: [],
+      playerOrder: [],
+      turnToChoose: -1,
+      isLoading: false,
+    }
+  }
+
+  componentDidMount() {
+    if (!this.props.isListening) {
+
       const source = new EventSource('/game/setup');
-
-      source.addEventListener('joined', function(event: any) {
+      source.addEventListener('joined', (event: any) => {
         const parsedData = JSON.parse(event.data);
         console.log('joined', parsedData);
-        props.setUsername(parsedData.username);
-        setPlayers(parsedData.players);
-        props.setGameStatus(parsedData.gameStatus);
-        setLoading(false);
+        this.props.setUsername(parsedData.username);
+        this.props.setPlayers(parsedData.players);
+        this.props.setGameStatus(parsedData.gameStatus);
+        this.setState({isLoading: false});
       });
-
-      source.addEventListener('playerupdate', function(event: any) {
+      
+      source.addEventListener('playerupdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
         console.log('playerupdate', parsedData);
-        setPlayers(parsedData.players);
+        this.props.setPlayers(parsedData.players);
       });
-
-      source.addEventListener('gameupdate', function(event: any) {
+      
+      source.addEventListener('gameupdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
-        const {metadata} = parsedData;
+        const {turnToChoose, playerOrder, boards, assignedBoards, gameStatus} = parsedData.metadata;
         console.log('gameupdate', parsedData);
-        if (metadata.gameStatus !== 'game') {
-          setTurnToChoose(metadata.turnToChoose);
-          if (metadata.turnToChoose === 0) {
-            setPlayerOrder(metadata.playerOrder);
-          };
-          if (metadata.boards) {
-            setBoards(metadata.boards)
-          }
-          if (metadata.assignedBoards) {
-            setAssignedBoards(metadata.assignedBoards)
-          }
-        } 
-        // reset state
-        props.setGameStatus(metadata.gameStatus);
+        if (gameStatus !== 'game') {
+          this.setState({
+            turnToChoose,
+            playerOrder,
+            boards,
+            assignedBoards,
+          })
+        } else {
+          source.close();
+          this.props.setListening(false);
+        }
+        this.props.setGameStatus(gameStatus);
       });
-
-      source.addEventListener('error', function(error: any) {
+      
+      source.addEventListener('error', (error: any) => {
         console.log(error);
       });
-      setListening(true);
     }
-  }, [listening, props]);
+    this.props.setListening(true);
+  }
 
-  const exitGame = async () => {
+  async exitGame () {
     try {
       let response = await fetch('/game/setup', {
         credentials: 'include',
@@ -75,14 +89,15 @@ function GameLobby(props: GameLobbyProps) {
         throw new Error(result.message);
       } else {
         console.log(result);
-        props.setGameStatus("join");
+        this.props.setListening(false);
+        this.props.setGameStatus("join");
       }
     } catch (err) {
       console.log(err);
     }
   }
 
-  const setReady = async () => {
+  async setReady () {
     try {
       let response = await fetch('/game/setup', {
         credentials: 'include',
@@ -103,7 +118,8 @@ function GameLobby(props: GameLobbyProps) {
     }
   }
 
-  const renderPlayers = () => {
+  renderPlayers () {
+    let players = this.props.players;
     const playersList = Object.keys(players).map((player: any, index: number) => {
       const status = players[player]["status"];
       const customClass =  "mx-1 player-box " + ((status==="ready") ? "mx-1 player-box player-ready" : "" )
@@ -127,38 +143,42 @@ function GameLobby(props: GameLobbyProps) {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="container d-flex align-items-center justify-content-center full-height">
-        <h3 className="text-white">Connecting to game...</h3>
-      </div>
-    );
-  } else {
-    return (
-      <div className="container d-flex align-items-center justify-content-center full-height">
-        {props.gameStatus === 'lobby' ? 
-          <div className="row">
-            <div className="col-12 dialog"> 
-              {renderPlayers()}
+  render () {
+    const {isLoading, assignedBoards, boards, playerOrder, turnToChoose } = this.state;
+    if (isLoading) {
+      return (
+        <div className="container d-flex align-items-center justify-content-center full-height">
+          <h3 className="text-white">Connecting to game...</h3>
+        </div>
+      );
+    } else {
+      return (
+        <div className="container d-flex align-items-center justify-content-center full-height">
+          {this.props.gameStatus === 'lobby' ? 
+            <div className="row">
+              <div className="col-12 dialog"> 
+                {this.renderPlayers()}
+              </div>
+              <div className="col-12 d-flex justify-content-center">
+                <button className="btn join-btn" onClick={() => this.exitGame()}>EXIT</button> 
+                <button className="btn join-btn" onClick={() => this.setReady()} autoFocus={true}>I'M READY</button> 
+              </div>
             </div>
-            <div className="col-12 d-flex justify-content-center">
-              <button className="btn join-btn" onClick={() => exitGame()}>EXIT</button> 
-              <button className="btn join-btn" onClick={() => setReady()} autoFocus={true}>I'M READY</button> 
-            </div>
-          </div>
-        :
-          <BoardSelector 
-            assignedBoards={assignedBoards}
-            boards={boards}
-            players={players}
-            playerOrder={playerOrder}
-            username={props.username}
-            turnToChoose={turnToChoose}
-          />
-        }
-      </div>
-    );
+          :
+            <BoardSelector 
+              assignedBoards={assignedBoards}
+              boards={boards}
+              players={this.props.players}
+              playerOrder={playerOrder}
+              username={this.props.username}
+              turnToChoose={turnToChoose}
+            />
+          }
+        </div>
+      );
+    }
   }
+
 }
 
 export default GameLobby;

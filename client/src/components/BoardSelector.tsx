@@ -37,9 +37,6 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         if (oldProps.assignedBoards !== this.props.assignedBoards) {
             this.revealBoards();
         }
-        // if (oldProps.players !== this.props.players) {
-        //     // reset game state? 
-        // }
     }
 
     updateMyTurn() {
