@@ -18,7 +18,6 @@ interface GameLobbyState {
   playerOrder: Array<string>,
   turnToChoose: number,
   isLoading: boolean,
-  source: any,
 }
 
 class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
@@ -31,7 +30,6 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       playerOrder: [],
       turnToChoose: -1,
       isLoading: false,
-      source: undefined,
     }
   }
 
@@ -65,6 +63,9 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
             boards,
             assignedBoards,
           })
+        } else {
+          source.close();
+          this.props.setListening(false);
         }
         this.props.setGameStatus(gameStatus);
       });
@@ -76,12 +77,6 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
     this.props.setListening(true);
   }
 
-  componentWillUnmount() {
-    const {source} = this.state;
-    if (source) {
-      source.close()
-    }
-  }
   async exitGame () {
     try {
       let response = await fetch('/game/setup', {
@@ -94,6 +89,7 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
         throw new Error(result.message);
       } else {
         console.log(result);
+        this.props.setListening(false);
         this.props.setGameStatus("join");
       }
     } catch (err) {
