@@ -1,7 +1,47 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import {/* boardImages, */ cardImages, /*Card,*/ Board } from './gameAssets';
+import {/* boardImages, */ cardImages, Card, Board, Resource } from './GameAssets';
 
+interface ResourceList { 
+  wood: number,
+  ore: number,
+  stone: number,
+  clay: number,
+  glass: number,
+  papyrus: number,
+  loom: number,
+  compass: number,
+  tablet: number,
+  gear: number,
+}
+
+interface CardList {
+  brown: Array<string>,
+  gray: Array<string>,
+  blue: Array<string>,
+  green: Array<string>,
+  red: Array<string>,
+  yellow: Array<string>,
+  purple: Array<string>,
+}
+
+interface MilitaryStats {
+  LOSS: number,
+  ONE: number,
+  THREE: number,
+  FIVE: number
+}
+interface PlayerData {
+  board: Board | undefined,
+  cards: CardList,
+  resources: ResourceList,
+  optionalResources: any,
+  personalResources: any, 
+  military?: MilitaryStats,
+  coins: number,
+  points?: number,
+  shields?: number,
+}
 interface GameProps {
   username: string,
   players: any,
@@ -11,19 +51,20 @@ interface GameProps {
 
 interface GameState {
   cache: {
-    boards: Array<any>,
-    cards: Array<any>,
+    boards: Array<Board>,
+    cards: Array<Card>,
   },
   isListening: boolean,
   isLoaded: boolean,
+  isWaiting: boolean,
   myBoard: Board | undefined,
-  hand: Array<string>,
-  myCards: Array<string>,
+  myCards: any,
+  current_hand: Array<string>,
   metadata: {
     age: number,
     turn: number,
   }
-  isWaiting: boolean,
+  
 } 
 
 class Game extends React.Component<GameProps, GameState> {
@@ -39,7 +80,7 @@ class Game extends React.Component<GameProps, GameState> {
       isLoaded: false,
       myBoard: undefined,
       myCards: [],
-      hand: [],
+      current_hand: [],
       metadata: {
         age: 1, 
         turn: 1,
@@ -84,7 +125,7 @@ class Game extends React.Component<GameProps, GameState> {
         console.log('new hand', parsedData);
         this.setState({
           metadata: parsedData.metadata,
-          hand: parsedData.hand,
+          current_hand: parsedData.hand,
           isWaiting: false,
         });
       });
@@ -125,7 +166,7 @@ class Game extends React.Component<GameProps, GameState> {
   
   selectCard (card: string, age: number, turn: number)  {
     return new Promise((resolve) => {
-      this.setState({hand: []})
+      this.setState({current_hand: []})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
@@ -138,7 +179,7 @@ class Game extends React.Component<GameProps, GameState> {
         res.json()
         .then((result: any) => {
             const myCards: string[] = this.state.myCards;
-            const newHandLoaded: boolean = this.state.hand.length > 1;
+            const newHandLoaded: boolean = this.state.current_hand.length > 1;
             myCards.push(card);
             (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myCards}, resolve);
             console.log(res.status + " " + result.message);
@@ -169,7 +210,7 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderHand() {
-    const hand = this.state.hand;
+    const hand = this.state.current_hand;
     let cardArray: Array<any> = [];
     const {age, turn} = this.state.metadata
 

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {boardImages, /*cardImages*/ } from './gameAssets'
+import {boardImages, /*cardImages*/ } from './GameAssets'
 
 interface BoardProps {
     boardID: number,

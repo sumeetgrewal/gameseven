@@ -35,3 +35,5 @@ export interface Card {
   CHAINS?: Array<any>,
   NUM_PLAYERS: number,
 }
+
+export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
