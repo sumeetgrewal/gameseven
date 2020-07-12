@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import {/* boardImages, */ cardImages, Card, Board, Resource, CardTypeList, ResourceList, MilitaryStats } from './GameAssets';
+import { cardImages, Card, Board, Resource, CardTypeList, ResourceList, MilitaryStats } from './GameAssets';
 
 interface PlayerData {
   board: Board | undefined,

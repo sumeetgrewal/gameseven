@@ -1,7 +1,7 @@
 // /game/play route
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
+import { game } from '../models/game.model'
 const router = require('express').Router(); 
-let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
 let sseId: number = 1;

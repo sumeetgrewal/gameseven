@@ -1,5 +1,5 @@
 import { gameCountdown } from "../routes/setup";
-let game = require('../models/game.model');
+import { game } from '../models/game.model'
 let sseId: number = 2;
 
 export function shuffle(a: number[]) {
@@ -22,20 +22,25 @@ export function pushUpdateToPlayers(data: string, event: string = 'message', cli
 export function cleanupGame() {
   console.log("Cleanup");
   game.metadata = {
-      boards: [],
-      assignedBoards: [],
-      turnToChoose: -1,
-      playerOrder: [],
-      gameStatus: "lobby",
-      age: 1,
-      turn: 1,
-    };
+    gameStatus: 'lobby',
+    playerOrder: [],
+    age: 1,
+    turn: 1,
+  };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
   game.players = {},
   game.selections = {
     1: {},
     2: {},
     3: {},
   },
+  game.gameData = {
+    playerData: {}
+  }
   clearTimeout(gameCountdown);
   console.log("game reset");
 }
@@ -46,16 +51,21 @@ export function resetToLobby() {
   }
   game.metadata = {
     gameStatus: 'lobby',
-    boards: [],
-    assignedBoards: [],
     playerOrder: [],
-    turnToChoose: -1,
     age: 1,
     turn: 1,
   };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
   game.selections = {
     1: {},
     2: {},
     3: {},
+  }
+  game.gameData = {
+    playerData: {}
   }
 }
