@@ -1,47 +1,20 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import {/* boardImages, */ cardImages, Card, Board, Resource } from './GameAssets';
+import {/* boardImages, */ cardImages, Card, Board, Resource, CardTypeList, ResourceList, MilitaryStats } from './GameAssets';
 
-interface ResourceList { 
-  wood: number,
-  ore: number,
-  stone: number,
-  clay: number,
-  glass: number,
-  papyrus: number,
-  loom: number,
-  compass: number,
-  tablet: number,
-  gear: number,
-}
-
-interface CardList {
-  brown: Array<string>,
-  gray: Array<string>,
-  blue: Array<string>,
-  green: Array<string>,
-  red: Array<string>,
-  yellow: Array<string>,
-  purple: Array<string>,
-}
-
-interface MilitaryStats {
-  LOSS: number,
-  ONE: number,
-  THREE: number,
-  FIVE: number
-}
 interface PlayerData {
   board: Board | undefined,
-  cards: CardList,
+  cards: Array<string>
+  cardTypes: CardTypeList,
   resources: ResourceList,
-  optionalResources: any,
-  personalResources: any, 
+  optionalResources?: Array<[number, Resource]>,
+  personalResources?: Array<[number, Resource]>,
   military?: MilitaryStats,
   coins: number,
+  shields: number,
   points?: number,
-  shields?: number,
 }
+
 interface GameProps {
   username: string,
   players: any,
@@ -57,14 +30,12 @@ interface GameState {
   isListening: boolean,
   isLoaded: boolean,
   isWaiting: boolean,
-  myBoard: Board | undefined,
-  myCards: any,
+  myData: PlayerData, 
   current_hand: Array<string>,
   metadata: {
     age: number,
     turn: number,
   }
-  
 } 
 
 class Game extends React.Component<GameProps, GameState> {
@@ -78,14 +49,48 @@ class Game extends React.Component<GameProps, GameState> {
       },
       isListening: false,
       isLoaded: false,
-      myBoard: undefined,
-      myCards: [],
       current_hand: [],
       metadata: {
         age: 1, 
         turn: 1,
       },
       isWaiting: false,
+      myData: {
+        board: undefined,
+        cards: [],
+        cardTypes: {
+          brown: [],
+          gray: [],
+          blue: [],
+          green: [],
+          red: [],
+          yellow: [],
+          purple: [],
+        },
+        resources: {
+          wood: 0,
+          ore: 0,
+          stone: 0,
+          clay: 0,
+          glass: 0,
+          papyrus: 0,
+          loom: 0,
+          compass: 0,
+          tablet: 0,
+          gear: 0,
+        },
+        optionalResources: [],
+        personalResources: [], 
+        military: {
+          loss: 0,
+          one: 0,
+          three:0,
+          five:0,
+        },
+        coins: 3,
+        points: 0,
+        shields: 0,
+      },
     }
   }
 
@@ -95,8 +100,9 @@ class Game extends React.Component<GameProps, GameState> {
     this.cacheData()
       .then(() => {
         const boardID = this.props.players[this.props.username].boardID;
-        const myBoard = this.state.cache.boards[boardID.toString()];
-        this.setState({myBoard, isLoaded: true});
+        const playerData = this.state.myData;
+        playerData.board = this.state.cache.boards[boardID.toString()];
+        this.setState({myData: playerData, isLoaded: true});
         console.log(this.state.cache);
       })
     }).catch((error) => {
@@ -178,10 +184,12 @@ class Game extends React.Component<GameProps, GameState> {
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            const myCards: string[] = this.state.myCards;
+            const myData: PlayerData = this.state.myData;
             const newHandLoaded: boolean = this.state.current_hand.length > 1;
-            myCards.push(card);
-            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myCards}, resolve);
+            const category: string = this.state.cache.cards[Number(card)].CATEGORY
+            myData.cards.push(card);
+            myData.cardTypes[category.toLowerCase()].push(card);
+            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myData}, resolve);
             console.log(res.status + " " + result.message);
           })
         })
@@ -191,7 +199,7 @@ class Game extends React.Component<GameProps, GameState> {
     })
   }
   renderMyCards() {
-    const myCards = this.state.myCards;
+    const myCards = this.state.myData.cards;
     let myCardArray: Array<any> = [];
     if (myCards.length > 0) {
       myCards.forEach((card: string) => {
@@ -236,7 +244,7 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   render() {
-    const {myBoard} = this.state;
+    const myBoard = this.state.myData.board;
     if (this.state.isLoaded) {
       return (<>
         {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}

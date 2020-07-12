@@ -37,3 +37,35 @@ export interface Card {
 }
 
 export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
+
+export interface ResourceList {
+  [index: string] : number,
+  wood: number,
+  ore: number,
+  stone: number,
+  clay: number,
+  glass: number,
+  papyrus: number,
+  loom: number,
+  compass: number,
+  tablet: number,
+  gear: number,
+}
+
+export interface CardTypeList {
+  [index: string] : Array<string>,
+  brown: Array<string>,
+  gray: Array<string>,
+  blue: Array<string>,
+  green: Array<string>,
+  red: Array<string>,
+  yellow: Array<string>,
+  purple: Array<string>,
+}
+
+export interface MilitaryStats {
+  loss: number,
+  one: number,
+  three: number,
+  five: number
+}
