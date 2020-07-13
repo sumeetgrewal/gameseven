@@ -58,16 +58,16 @@ function updateTurn() {
     game.metadata.turn++
   }
   rotateHands();
-  sendUpdatedTurn();
+  sendTurnUpdate();
 }
 
-function sendUpdatedTurn() {
+function sendTurnUpdate() {
   gameClients.forEach((client: any) => {
     const handID = game.players[client.id].handID;
     const hand = game.hands[handID];
     console.log(client.id, hand);
     if (hand) {
-      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand}), 'turnupdate', [client])
+      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand}), 'turnUpdate', [client])
     }
   })
 }
@@ -78,13 +78,26 @@ function beginAge() {
     game.players[playerIDs[i]].handID = i + 1;
   }
   generateHands(playerIDs.length)
-  sendUpdatedTurn();
+  sendTurnUpdate();
 }
 
-function sendPlayerData() {
+function sendPlayerData(username: string) {
   gameClients.forEach((client: any) => {
-    pushUpdateToPlayers(JSON.stringify({playerData: game.gameData.playerData}), 'playerdataupdate', [client])
+    if (client.id === username) {
+      pushUpdateToPlayers(JSON.stringify({myData: game.gameData.playerData[client.id]}), 'playerDataUpdate', [client])
+    }
   })
+}
+
+function sendAllPlayerData() {
+  pushUpdateToPlayers(JSON.stringify({playerData: game.gameData.playerData}), 'allPlayerDataUpdate', gameClients)
+}
+
+function removeCardFromHand(playerName: string, card: string) {
+  const handID = game.players[playerName].handID;
+  const newHand: string[] = game.hands[handID];
+  newHand.splice(newHand.indexOf(card), 1);
+  game.hands[handID] = newHand;
 }
 
 router.route('/').get((req: any, res: any) => {
@@ -110,7 +123,7 @@ router.route('/').get((req: any, res: any) => {
       res
     }
     gameClients.push(newClient);
-    sendPlayerData();
+    sendPlayerData(username);
 
     const numPlayers = Object.keys(game.players).length
     if (gameClients.length === numPlayers) {
@@ -124,7 +137,7 @@ router.route('/').get((req: any, res: any) => {
       } else {
         delete game.players[username];
         resetToLobby();
-        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata, players: game.players}), 'gameupdate', gameClients );
+        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata, players: game.players}), 'gameUpdate', gameClients );
         gameClients = [];
       }
       console.log(username + ' Connection closed');
@@ -141,33 +154,42 @@ router.route('/').post((req: any, res: any) => {
   } else {
     const username: string = decodedToken.username;
     const {card, age, turn} = req.body;
-    const ageSelections = game.selections[age];game.players[username].cards
-    const numPlayers = Object.keys(game.players).length
-    if (!game.players[username].cards) {
-      game.players[username].cards = [];
+    if (isValidCardSelection(username, card)) {
+      handleCardSelect(username, card, age, turn);
+      res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
+    } else {
+      res.status(400).json({status: 'Error', message: `Invalid Selection: ${username} can not select ${card}`})
     }
-    if (!ageSelections[turn]) {
-      ageSelections[turn] = []
-    }
-  
-    game.gameData.playerData[username].cards.push(card);
-    ageSelections[turn].push(card);
-    removeCardFromHand(username, card)
-    res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
-    console.log(ageSelections)
-    if (ageSelections[turn].length === numPlayers) {
-      console.log("All players have selected cards");
-      updateTurn();
-    }
-    sendPlayerData();
   }
 });
 
-function removeCardFromHand(playerName: string, card: string) {
-  const handID = game.players[playerName].handID;
-  const newHand: string[] = game.hands[handID];
-  newHand.splice(newHand.indexOf(card), 1);
-  game.hands[handID] = newHand;
+// TODO validate card selection 
+function isValidCardSelection(username: string, cardID: string): boolean {
+  const card = game.cards[cardID];
+  const playerData = game.gameData.playerData[username];
+  console.log(card.RESOURCE_COST, card.VALUE);
+  console.log(playerData.resources, playerData.coins);
+  return true;
+}
+
+function handleCardSelect(username: string, card: string, age: number, turn: number) {
+    const ageSelectedCards = game.selections[age];
+    const numPlayers = Object.keys(game.players).length
+    if (!ageSelectedCards[turn]) {
+      ageSelectedCards[turn] = []
+    }
+    ageSelectedCards[turn].push(card);
+    game.gameData.playerData[username].cards.push(card);
+    removeCardFromHand(username, card)
+    
+    if (ageSelectedCards[turn].length === numPlayers) {
+      console.log("All players have selected cards");
+      updateTurn();
+      sendPlayerData(username);
+      sendAllPlayerData();
+    } else {
+      sendPlayerData(username);
+    }
 }
 
 module.exports = router;

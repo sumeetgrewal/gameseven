@@ -19,7 +19,7 @@ interface GameState {
   isWaiting: boolean,
   myData: PlayerData, 
   playerData: {
-    [index: string]: PlayerData
+    [username: string]: PlayerData
   }
   current_hand: Array<string>,
   metadata: {
@@ -108,7 +108,7 @@ class Game extends React.Component<GameProps, GameState> {
           console.log('joined', parsedData);
       });
 
-      source.addEventListener('turnupdate', (event: any) =>  {
+      source.addEventListener('turnUpdate', (event: any) =>  {
         const parsedData = JSON.parse(event.data);
         console.log('new hand', parsedData);
         this.setState({
@@ -118,21 +118,28 @@ class Game extends React.Component<GameProps, GameState> {
         });
       });
 
-      source.addEventListener('gameupdate', (event: any) => {
+      source.addEventListener('gameUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
-        console.log('gameupdate in game', parsedData);
+        console.log('Game: gameUpdate', parsedData);
         this.props.setPlayers(parsedData.players);
         this.props.setGameStatus(parsedData.metadata.gameStatus);
       })
 
-      source.addEventListener('playerdataupdate', (event: any) => {
+      source.addEventListener('playerDataUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
-        console.log('playerdataupdate', parsedData);
-        const myData = parsedData.playerData[this.props.username];
-        delete parsedData.playerData[this.props.username];
-        const playerData = parsedData.playerData;
-        this.setState({myData, playerData});
+        console.log('playerDataUpdate', parsedData);
+        const myData = parsedData.myData;
+        this.setState({myData}, () => console.log(this.state.myData));
       })
+
+      source.addEventListener('allPlayerDataUpdate', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('allPlayerDataUpdate', parsedData);
+        const playerData = parsedData.playerData;
+        delete playerData[this.props.username];
+        this.setState({playerData});
+      })
+
 
       this.setState({isListening: true}, resolve);
     })
@@ -233,7 +240,7 @@ class Game extends React.Component<GameProps, GameState> {
 
   render() {
     const myBoard = this.state.myData.board;
-    if (this.state.isLoaded && myBoard) {
+    if (this.state.isLoaded && (myBoard !== undefined)) {
       return (<>
         {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
         <div className="container d-flex align-items-center justify-content-center">
