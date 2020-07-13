@@ -25,7 +25,7 @@ export interface Card {
   CHAINS?: Array<any>;
   NUM_PLAYERS: number;
 }
-interface PlayerData {
+export interface PlayerData {
   board: Board | undefined;
   cards: Array<string>;
   cardTypes: CardTypeList;
@@ -88,9 +88,9 @@ export interface gameModel {
     [index: string]: Board;
   };
   setupData?: {
-    boards: string[]; // Deleted on game start
-    assignedBoards: string[]; // Deleted on game start
-    turnToChoose: number; // Deleted on game start
+    boards: string[];
+    assignedBoards: string[]; 
+    turnToChoose: number; 
   };
   selections: {
     [age: number]: any;

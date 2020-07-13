@@ -1,6 +1,7 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 
 import { game } from '../models/game.model'
+import { Player } from '../models/player.model'
 const router = require('express').Router();
 const dbScan = require('../dbScan')
 let JWTHandlers = require('../middleware/jwt.authorization');
@@ -18,7 +19,6 @@ function startBoardSelection() {
     index++;
   }
   game.setupData.turnToChoose = 0;
-  // TODO send setupdata
   pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'gameupdate', setupClients);
 }
 
@@ -34,6 +34,12 @@ function loadTable(tableName: string, id: string, params: {} = {}): Promise<void
 
 function startGame(){
   delete game.setupData
+  for (const username in game.players) {
+    const board = game.boards[game.players[username].boardID];
+    console.log(board);
+    game.gameData.playerData[username] = new Player(board);
+  }
+  console.log(game.gameData);
   game.metadata.gameStatus = 'game';
   pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate', setupClients);
 }

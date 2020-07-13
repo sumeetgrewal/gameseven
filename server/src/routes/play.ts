@@ -40,7 +40,7 @@ function generateHands(numPlayers: number) {
   const shuffledArray = shuffle(cards);
   let hands: any = {};
   for (let i = 0 ; i< numPlayers; i++) {
-    hands[i + 1] = shuffledArray.splice(7*i,7);
+    hands[i + 1] = shuffledArray.splice(0,7);
   }
   game.hands = hands;
 }

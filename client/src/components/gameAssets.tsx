@@ -7,7 +7,6 @@ function importAll(r: any) {
   return images;
 }
 
-
 export interface Board {
   BOARD_ID: number,  // Partition key
   NAME: string,

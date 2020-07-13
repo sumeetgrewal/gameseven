@@ -1,4 +1,4 @@
-import { gameModel } from "./type.model"
+import { gameModel } from "./playerData.model"
 
 export let game: gameModel = {
   metadata: {

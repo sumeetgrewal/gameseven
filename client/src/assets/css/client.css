@@ -11,6 +11,7 @@ body {
     font-family: 'Cinzel', serif;
     background: #D6D6D6;
     background-image: url(../images/background.jpg);
+    background-color: rgb(31, 30, 30);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

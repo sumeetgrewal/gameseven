@@ -1,19 +1,7 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, Resource, CardTypeList, ResourceList, MilitaryStats } from './GameAssets';
-
-interface PlayerData {
-  board: Board | undefined,
-  cards: Array<string>
-  cardTypes: CardTypeList,
-  resources: ResourceList,
-  optionalResources?: Array<[number, Resource]>,
-  personalResources?: Array<[number, Resource]>,
-  military?: MilitaryStats,
-  coins: number,
-  shields: number,
-  points?: number,
-}
+import { cardImages, Card, Board } from './GameAssets';
+import { Player } from './Player';
 
 interface GameProps {
   username: string,
@@ -30,7 +18,7 @@ interface GameState {
   isListening: boolean,
   isLoaded: boolean,
   isWaiting: boolean,
-  myData: PlayerData, 
+  myData: Player, 
   current_hand: Array<string>,
   metadata: {
     age: number,
@@ -55,42 +43,7 @@ class Game extends React.Component<GameProps, GameState> {
         turn: 1,
       },
       isWaiting: false,
-      myData: {
-        board: undefined,
-        cards: [],
-        cardTypes: {
-          brown: [],
-          gray: [],
-          blue: [],
-          green: [],
-          red: [],
-          yellow: [],
-          purple: [],
-        },
-        resources: {
-          wood: 0,
-          ore: 0,
-          stone: 0,
-          clay: 0,
-          glass: 0,
-          papyrus: 0,
-          loom: 0,
-          compass: 0,
-          tablet: 0,
-          gear: 0,
-        },
-        optionalResources: [],
-        personalResources: [], 
-        military: {
-          loss: 0,
-          one: 0,
-          three:0,
-          five:0,
-        },
-        coins: 3,
-        points: 0,
-        shields: 0,
-      },
+      myData: new Player(),
     }
   }
 
@@ -99,6 +52,7 @@ class Game extends React.Component<GameProps, GameState> {
     .then(() => {
     this.cacheData()
       .then(() => {
+        // TODO won't need to assign board here, just receive from server
         const boardID = this.props.players[this.props.username].boardID;
         const playerData = this.state.myData;
         playerData.board = this.state.cache.boards[boardID.toString()];
@@ -184,10 +138,11 @@ class Game extends React.Component<GameProps, GameState> {
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            const myData: PlayerData = this.state.myData;
+          // TODO should receive updated PlayerData from server
+            const myData: Player = this.state.myData;
             const newHandLoaded: boolean = this.state.current_hand.length > 1;
             const category: string = this.state.cache.cards[Number(card)].CATEGORY
-            myData.cards.push(card);
+            myData.selectCard(card);
             myData.cardTypes[category.toLowerCase()].push(card);
             (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myData}, resolve);
             console.log(res.status + " " + result.message);
