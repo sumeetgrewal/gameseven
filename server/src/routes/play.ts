@@ -69,7 +69,6 @@ function sendUpdatedTurn() {
     if (hand) {
       pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand}), 'turnupdate', [client])
     }
-    else console.log("ERROR");
   })
 }
 
@@ -80,6 +79,12 @@ function beginAge() {
   }
   generateHands(playerIDs.length)
   sendUpdatedTurn();
+}
+
+function sendPlayerData() {
+  gameClients.forEach((client: any) => {
+    pushUpdateToPlayers(JSON.stringify({playerData: game.gameData.playerData}), 'playerdataupdate', [client])
+  })
 }
 
 router.route('/').get((req: any, res: any) => {
@@ -105,7 +110,8 @@ router.route('/').get((req: any, res: any) => {
       res
     }
     gameClients.push(newClient);
-    
+    sendPlayerData();
+
     const numPlayers = Object.keys(game.players).length
     if (gameClients.length === numPlayers) {
       beginAge();
@@ -143,8 +149,8 @@ router.route('/').post((req: any, res: any) => {
     if (!ageSelections[turn]) {
       ageSelections[turn] = []
     }
-
-    game.players[username].cards.push(card);
+  
+    game.gameData.playerData[username].cards.push(card);
     ageSelections[turn].push(card);
     removeCardFromHand(username, card)
     res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
@@ -153,6 +159,7 @@ router.route('/').post((req: any, res: any) => {
       console.log("All players have selected cards");
       updateTurn();
     }
+    sendPlayerData();
   }
 });
 

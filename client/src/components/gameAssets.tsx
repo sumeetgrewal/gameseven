@@ -68,3 +68,16 @@ export interface MilitaryStats {
   three: number,
   five: number
 }
+
+export interface PlayerData {
+  board: Board | undefined,
+  cards: Array<string>,
+  cardTypes: CardTypeList,
+  resources: ResourceList,
+  optionalResources?: Array<[number, Resource]>,
+  personalResources?: Array<[number, Resource]>,
+  military?: MilitaryStats,
+  coins: number,
+  shields: number,
+  points?: number,
+}

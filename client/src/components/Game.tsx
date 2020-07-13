@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board } from './GameAssets';
-import { Player } from './Player';
+import { cardImages, Card, Board, PlayerData } from './GameAssets';
 
 interface GameProps {
   username: string,
@@ -18,7 +17,10 @@ interface GameState {
   isListening: boolean,
   isLoaded: boolean,
   isWaiting: boolean,
-  myData: Player, 
+  myData: PlayerData, 
+  playerData: {
+    [index: string]: PlayerData
+  }
   current_hand: Array<string>,
   metadata: {
     age: number,
@@ -38,12 +40,41 @@ class Game extends React.Component<GameProps, GameState> {
       isListening: false,
       isLoaded: false,
       current_hand: [],
+      // TODO lift metadata state to App if possible
       metadata: {
         age: 1, 
         turn: 1,
       },
       isWaiting: false,
-      myData: new Player(),
+      playerData: {},
+      myData: {
+        board : undefined,
+        cards : [],
+        cardTypes : {
+          brown: [],
+          gray: [],
+          blue: [],
+          green: [],
+          red: [],
+          yellow: [],
+          purple: [],
+        },
+        resources : {
+          wood: 0,
+          ore: 0,
+          stone: 0,
+          clay: 0,
+          glass: 0,
+          papyrus: 0,
+          loom: 0,
+          compass: 0,
+          tablet: 0,
+          gear: 0,
+        },
+        coins : 3,
+        shields : 0,
+        points : 0,
+      },
     }
   }
 
@@ -52,11 +83,7 @@ class Game extends React.Component<GameProps, GameState> {
     .then(() => {
     this.cacheData()
       .then(() => {
-        // TODO won't need to assign board here, just receive from server
-        const boardID = this.props.players[this.props.username].boardID;
-        const playerData = this.state.myData;
-        playerData.board = this.state.cache.boards[boardID.toString()];
-        this.setState({myData: playerData, isLoaded: true});
+        this.setState({isLoaded: true});
         console.log(this.state.cache);
       })
     }).catch((error) => {
@@ -73,7 +100,8 @@ class Game extends React.Component<GameProps, GameState> {
   registerSSEListeners() : Promise<void> {
     return new Promise((resolve) => {
       if (this.state.isListening) resolve();
-
+      
+      // TODO lift EventSource registration to App 
       const source = new EventSource('/game/play');
       source.addEventListener('joined', (event: any) =>  {
           const parsedData = JSON.parse(event.data);
@@ -95,6 +123,15 @@ class Game extends React.Component<GameProps, GameState> {
         console.log('gameupdate in game', parsedData);
         this.props.setPlayers(parsedData.players);
         this.props.setGameStatus(parsedData.metadata.gameStatus);
+      })
+
+      source.addEventListener('playerdataupdate', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('playerdataupdate', parsedData);
+        const myData = parsedData.playerData[this.props.username];
+        delete parsedData.playerData[this.props.username];
+        const playerData = parsedData.playerData;
+        this.setState({myData, playerData});
       })
 
       this.setState({isListening: true}, resolve);
@@ -139,14 +176,10 @@ class Game extends React.Component<GameProps, GameState> {
         res.json()
         .then((result: any) => {
           // TODO should receive updated PlayerData from server
-            const myData: Player = this.state.myData;
             const newHandLoaded: boolean = this.state.current_hand.length > 1;
-            const category: string = this.state.cache.cards[Number(card)].CATEGORY
-            myData.selectCard(card);
-            myData.cardTypes[category.toLowerCase()].push(card);
-            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), myData}, resolve);
+            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded)}, resolve);
             console.log(res.status + " " + result.message);
-          })
+          })  
         })
       .catch((error: Error) => {
         console.log(error.message);
@@ -200,7 +233,7 @@ class Game extends React.Component<GameProps, GameState> {
 
   render() {
     const myBoard = this.state.myData.board;
-    if (this.state.isLoaded) {
+    if (this.state.isLoaded && myBoard) {
       return (<>
         {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
         <div className="container d-flex align-items-center justify-content-center">
