@@ -1,3 +1,5 @@
+import { Player } from "./player.model";
+
 export interface Board {
   BOARD_ID: number;
   NAME: string;
@@ -30,8 +32,8 @@ export interface PlayerData {
   cards: Array<string>;
   cardTypes: CardTypeList;
   resources: ResourceList;
-  optionalResources?: Array<[number, Resource]>;
-  personalResources?: Array<[number, Resource]>;
+  optionalResources?: Array<any>;
+  personalResources?: Array<any>;
   military?: MilitaryStats;
   coins: number;
   shields: number;
@@ -97,7 +99,7 @@ export interface gameModel {
   };
   gameData?: {
     playerData: {
-      [username: string]: PlayerData;
+      [username: string]: Player;
     };
   };
 }

@@ -1,6 +1,7 @@
 // /game/play route
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 import { game } from '../models/game.model'
+import { Player } from "../models/player.model";
 const router = require('express').Router(); 
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
@@ -50,6 +51,7 @@ function updateTurn() {
     if (game.metadata.age === 3) {
       // TODO end game
     } else {
+      // TODO handle military
       game.metadata.age++;
       game.metadata.turn = 1;
       return beginAge();
@@ -154,32 +156,24 @@ router.route('/').post((req: any, res: any) => {
   } else {
     const username: string = decodedToken.username;
     const {card, age, turn} = req.body;
-    if (isValidCardSelection(username, card)) {
-      handleCardSelect(username, card, age, turn);
+    const player: Player = game.gameData.playerData[username];
+    if (player.canBuild(card)) {
+      handleCardSelect(player, username, card, age, turn);
       res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
     } else {
-      res.status(400).json({status: 'Error', message: `Invalid Selection: ${username} can not select ${card}`})
+      res.status(400).json({status: 'Error', message: `Invalid Selection: Can't afford to build card # ${card}`})
     }
   }
 });
 
-// TODO validate card selection 
-function isValidCardSelection(username: string, cardID: string): boolean {
-  const card = game.cards[cardID];
-  const playerData = game.gameData.playerData[username];
-  console.log(card.RESOURCE_COST, card.VALUE);
-  console.log(playerData.resources, playerData.coins);
-  return true;
-}
-
-function handleCardSelect(username: string, card: string, age: number, turn: number) {
+function handleCardSelect(player: Player, username: string, card: string, age: number, turn: number) {
     const ageSelectedCards = game.selections[age];
     const numPlayers = Object.keys(game.players).length
     if (!ageSelectedCards[turn]) {
       ageSelectedCards[turn] = []
     }
     ageSelectedCards[turn].push(card);
-    game.gameData.playerData[username].cards.push(card);
+    player.selectCard(card);
     removeCardFromHand(username, card)
     
     if (ageSelectedCards[turn].length === numPlayers) {

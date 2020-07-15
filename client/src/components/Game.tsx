@@ -14,6 +14,7 @@ interface GameState {
     boards: Array<Board>,
     cards: Array<Card>,
   },
+  error: string,
   isListening: boolean,
   isLoaded: boolean,
   isWaiting: boolean,
@@ -37,6 +38,7 @@ class Game extends React.Component<GameProps, GameState> {
         boards: [],
         cards: []
       },
+      error: "", 
       isListening: false,
       isLoaded: false,
       current_hand: [],
@@ -170,6 +172,7 @@ class Game extends React.Component<GameProps, GameState> {
   
   selectCard (card: string, age: number, turn: number)  {
     return new Promise((resolve) => {
+      const oldHand = this.state.current_hand;
       this.setState({current_hand: []})
       console.log("Selected card " + card)
       fetch("game/play", {
@@ -182,17 +185,21 @@ class Game extends React.Component<GameProps, GameState> {
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-          // TODO should receive updated PlayerData from server
             const newHandLoaded: boolean = this.state.current_hand.length > 1;
-            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded)}, resolve);
             console.log(res.status + " " + result.message);
+            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), error: ""}, resolve);
+            if (res.status === 400) {
+              this.setState({current_hand: oldHand, error: res.status + " " + result.message})
+            };
           })  
         })
       .catch((error: Error) => {
         console.log(error.message);
+        this.setState({error: error.message})
       })
     })
   }
+  
   renderMyCards() {
     const myCards = this.state.myData.cards;
     let myCardArray: Array<any> = [];
@@ -245,6 +252,7 @@ class Game extends React.Component<GameProps, GameState> {
         {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
+            {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
             {this.renderMyCards()}
             {this.renderHand()}
           </div>
