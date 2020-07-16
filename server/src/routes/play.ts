@@ -157,6 +157,7 @@ router.route('/').post((req: any, res: any) => {
     const username: string = decodedToken.username;
     const {card, age, turn} = req.body;
     const player: Player = game.gameData.playerData[username];
+    // TODO should validate when sending turn instead
     if (player.canBuild(card)) {
       handleCardSelect(player, username, card, age, turn);
       res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
@@ -175,14 +176,12 @@ function handleCardSelect(player: Player, username: string, card: string, age: n
     ageSelectedCards[turn].push(card);
     player.selectCard(card);
     removeCardFromHand(username, card)
+    sendPlayerData(username);
     
     if (ageSelectedCards[turn].length === numPlayers) {
       console.log("All players have selected cards");
       updateTurn();
-      sendPlayerData(username);
       sendAllPlayerData();
-    } else {
-      sendPlayerData(username);
     }
 }
 

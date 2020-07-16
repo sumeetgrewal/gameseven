@@ -22,7 +22,7 @@ export let game: gameModel = {
   },
   gameData: {
     playerData: {
-      // username : PlayerData
+      // username : Player
     }
   }
 }

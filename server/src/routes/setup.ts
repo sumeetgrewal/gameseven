@@ -36,8 +36,16 @@ function startGame(){
   delete game.setupData
   for (const username in game.players) {
     const board = game.boards[game.players[username].boardID];
-    console.log(board);
-    game.gameData.playerData[username] = new Player(board);
+    const player = new Player(board);
+    const {playerOrder} = game.metadata;
+    const playerIndex = playerOrder.indexOf(username);
+    if (playerIndex >= 0) {
+      const left = playerOrder[playerIndex - 1];
+      const right = playerOrder[(playerIndex % (playerOrder.length)) + 1];
+      if (left) player.playerLeft = left;
+      if (right) player.playerRight = right;
+    }
+    game.gameData.playerData[username] = player;
   }
   console.log(game.gameData);
   game.metadata.gameStatus = 'game';

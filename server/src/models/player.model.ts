@@ -14,6 +14,8 @@ export class Player implements PlayerData {
   military?: MilitaryStats;
   conditionalResources?: Array<any>;
   discounts?: Array<any>;
+  playerLeft?: string;
+  playerRight?: string;
 
   constructor(board: Board | undefined = undefined) {
     this.board = board;
@@ -59,6 +61,7 @@ export class Player implements PlayerData {
     const card = game.cards[cardID];
     const resourceCost = card.RESOURCE_COST;
     const unmetCost: any[]= [];
+    // TODO Check chain cost first
     console.log(card);
     if (resourceCost.length === 0) return true;
     resourceCost.forEach((resource: [number, Resource | "COIN"]) => {
@@ -69,15 +72,16 @@ export class Player implements PlayerData {
         numRequired -= this.resources[resource[1].toLowerCase()];
       }
       if (numRequired > 0) {
-        unmetCost.push(resource);
+        unmetCost.push([numRequired, resource[1]]);
       } 
     })
     console.log(unmetCost); 
     if (unmetCost.length === 0) {
       return true;
     }
-    // TODO Check optional resources (DFS)
-    // TODO Check personal resources (DFS)
+    // TODO Check optional resources (DFS) = Brown/Gray
+    // optionalResources = [ Card_Values ] = [ [[Q, R], [Q, R]], [[Q, R], [Q, R]]]
+    // TODO Check personal resources (DFS) = [ [[Q, R], [Q, R]], [[Q, R], [Q, R]]] Yellow/Purple/Board
     // TODO Check purchase options and discounts
     return false;
   }
