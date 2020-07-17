@@ -56,14 +56,36 @@ export class Player implements PlayerData {
     }
   }
 
-  // TODO validate card selection 
+  // ---- VALIDATION
   canBuild(cardID: string): boolean {
     const card = game.cards[cardID];
-    const resourceCost = card.RESOURCE_COST;
-    const unmetCost: any[]= [];
-    // TODO Check chain cost first
     console.log(card);
-    if (resourceCost.length === 0) return true;
+    return ((card.RESOURCE_COST.length === 0) 
+      || (this.isChainCostMet(card.CHAIN_COST))
+      || (this.isResourceCostMet(card.RESOURCE_COST))) 
+  }
+
+  private isChainCostMet(chainCost: Array<any>) : boolean {
+    for (let i = 0; i < chainCost.length; i++) {
+      const cardID: any = chainCost[i];
+      if (this.cards.includes(cardID)) {
+        console.log("Chain cost is met");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private isResourceCostMet(resourceCost: Array<any>) : boolean{
+    let unmetCost: any[] = this.checkResources(resourceCost);
+
+    return((unmetCost.length === 0)
+          || this.checkAdditionalResources(unmetCost))
+  }
+
+  private checkResources(resourceCost: Array<any>) : Array<any>{
+    const unmetCost: any[] = [];
+
     resourceCost.forEach((resource: [number, Resource | "COIN"]) => {
       let numRequired = resource[0];
       if (resource[1] === 'COIN') {
@@ -75,17 +97,67 @@ export class Player implements PlayerData {
         unmetCost.push([numRequired, resource[1]]);
       } 
     })
-    console.log(unmetCost); 
-    if (unmetCost.length === 0) {
-      return true;
-    }
-    // TODO Check optional resources (DFS) = Brown/Gray
-    // optionalResources = [ Card_Values ] = [ [[Q, R], [Q, R]], [[Q, R], [Q, R]]]
-    // TODO Check personal resources (DFS) = [ [[Q, R], [Q, R]], [[Q, R], [Q, R]]] Yellow/Purple/Board
-    // TODO Check purchase options and discounts
-    return false;
+
+    return unmetCost;
   }
 
+  private checkAdditionalResources(resourceCost: Array<any>) : boolean {
+    const cards: any[] = this.optionalResources.concat(this.personalResources);
+    if (cards.length === 0) return false;
+    let resourceLists: Array<[ResourceList, number]> = [];
+    let initResources: ResourceList = {
+      wood: 0,
+      ore: 0,
+      stone: 0,
+      clay: 0,
+      glass: 0,
+      papyrus: 0,
+      loom: 0,
+      compass: 0,
+      tablet: 0,
+      gear: 0,
+    };
+    createResourceLists(initResources, 0);
+    
+    while (resourceLists.length > 0) {
+      let list = resourceLists.pop();
+      if (checkResourceList(resourceCost, list[0])) {
+        return true;
+      } else {
+        createResourceLists(list[0], list[1] + 1);
+      }
+    }
+    return false;
+
+    function createResourceLists(list: ResourceList, cardIndex: number): void {
+      const card: Array<[number, string]> = cards[cardIndex]; 
+      if (card) {
+        card.forEach((value: [number, string]) => {
+          let newList: ResourceList = Object.assign({}, list); 
+          newList[value[1].toLowerCase()] += value[0];
+          resourceLists.push([newList, cardIndex]);
+        });
+      }
+    }
+
+    function checkResourceList(resourceCost: Array<any>, values: ResourceList): boolean {
+      const unmetCost: any = [];
+      resourceCost.forEach((resource: [number, Resource]) => {
+        let numRequired = resource[0];
+        numRequired -= values[resource[1].toLowerCase()];
+        if (numRequired > 0) unmetCost.push([numRequired, resource[1]]);
+      })
+      return (unmetCost.length === 0);
+    }         
+  }
+
+  // TODO create purchase options
+  // Check if neighbour has resources required
+  // Compute cost including discounts
+  private checkPurchaseOptions(resourceCost: Array<any>) : any {
+  }
+
+  // ---- CARD SELECTION
   selectCard(cardID: string) {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
@@ -95,7 +167,7 @@ export class Player implements PlayerData {
     } else if (card.VALUE_TYPE === "OR") {
       this.buildOrCard(card);
     } else if (card.VALUE_TYPE === "CONDITION") {
-      // TODO
+      this.conditionalResources.push(card.VALUE);
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.discounts.push(card.VALUE);
     }
