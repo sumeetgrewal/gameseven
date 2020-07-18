@@ -59,7 +59,7 @@ export class Player implements PlayerData {
   // ---- VALIDATION
   canBuild(cardID: string): boolean {
     const card = game.cards[cardID];
-    console.log(card);
+    console.log(card.CARD_ID + " " + card.NAME);
     return ((card.RESOURCE_COST.length === 0) 
       || (this.isChainCostMet(card.CHAIN_COST))
       || (this.isResourceCostMet(card.RESOURCE_COST))) 
@@ -102,7 +102,16 @@ export class Player implements PlayerData {
   }
 
   private checkAdditionalResources(resourceCost: Array<any>) : boolean {
-    const cards: any[] = this.optionalResources.concat(this.personalResources);
+    const allCards: any[] = this.optionalResources.concat(this.personalResources);
+    const resources = resourceCost.map((resource: [number, string]) => {return resource[1]})
+    const cards: any[] = [];
+    allCards.forEach((valueArray: Array<[number, string]>) => {
+      const newValues = valueArray.filter((resourceValue: [number, string]) => {
+        if (resources.includes(resourceValue[1])) return resourceValue;
+      })
+      if (newValues.length > 0) cards.push(newValues);
+    });
+
     if (cards.length === 0) return false;
     let resourceLists: Array<[ResourceList, number]> = [];
     let initResources: ResourceList = {
@@ -118,7 +127,7 @@ export class Player implements PlayerData {
       gear: 0,
     };
     createResourceLists(initResources, 0);
-    
+
     while (resourceLists.length > 0) {
       let list = resourceLists.pop();
       if (checkResourceList(resourceCost, list[0])) {
@@ -162,15 +171,22 @@ export class Player implements PlayerData {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
     this.cards.push(cardID);
+    // TODO if cost includes coin, deduct from total
     if (card.VALUE_TYPE === "AND") {
       this.buildAndCard(card);
     } else if (card.VALUE_TYPE === "OR") {
       this.buildOrCard(card);
     } else if (card.VALUE_TYPE === "CONDITION") {
+      // TODO Check if resource is coin, then add coins, else add to condRes array
       this.conditionalResources.push(card.VALUE);
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.discounts.push(card.VALUE);
     }
+  }
+
+  discard() {
+    this.coins += 3;
+    console.log(this.coins);
   }
 
   private buildOrCard(card: Card) {
@@ -220,8 +236,8 @@ export class Player implements PlayerData {
   }
 
   private addCoins(cardValue: Array<[number, Resource]>) {
-    const numShields = cardValue[0][0];
-    this.shields += numShields;
+    const numCoins = cardValue[0][0];
+    this.coins += numCoins;
     console.log('coins: ' + this.coins)
   }
 }

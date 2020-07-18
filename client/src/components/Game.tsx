@@ -11,18 +11,20 @@ interface GameProps {
 
 interface GameState {
   cache: {
-    boards: Array<Board>,
-    cards: Array<Card>,
+    boards: {[index: string]: Board},
+    cards: {[index: string]: Card},
   },
   error: string,
   isListening: boolean,
   isLoaded: boolean,
+  selectedCard: string,
   isWaiting: boolean,
   myData: PlayerData, 
   playerData: {
     [username: string]: PlayerData
   }
-  current_hand: Array<string>,
+  currentHand: Array<string>,
+  handInfo: any,
   metadata: {
     age: number,
     turn: number,
@@ -35,18 +37,20 @@ class Game extends React.Component<GameProps, GameState> {
     
     this.state = {
       cache: {
-        boards: [],
-        cards: []
+        boards: {},
+        cards: {}
       },
       error: "", 
       isListening: false,
       isLoaded: false,
-      current_hand: [],
+      currentHand: [],
+      handInfo: {},
       // TODO lift metadata state to App if possible
       metadata: {
         age: 1, 
         turn: 1,
       },
+      selectedCard: "",
       isWaiting: false,
       playerData: {},
       myData: {
@@ -115,7 +119,8 @@ class Game extends React.Component<GameProps, GameState> {
         console.log('new hand', parsedData);
         this.setState({
           metadata: parsedData.metadata,
-          current_hand: parsedData.hand,
+          currentHand: parsedData.hand,
+          handInfo: parsedData.handInfo,
           isWaiting: false,
         });
       });
@@ -170,26 +175,26 @@ class Game extends React.Component<GameProps, GameState> {
     this.setState({isWaiting: true});
   }
   
-  selectCard (card: string, age: number, turn: number)  {
+  selectCard (card: string, action: string,age: number, turn: number)  {
     return new Promise((resolve) => {
-      const oldHand = this.state.current_hand;
-      this.setState({current_hand: []})
+      const oldHand = this.state.currentHand;
+      this.setState({currentHand: [], selectedCard: ""})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({card, age, turn})
+        body: JSON.stringify({card, action, age, turn})
       })
       .then((res: any) => {
         console.log(res);
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            const newHandLoaded: boolean = this.state.current_hand.length > 1;
+            const newHandLoaded: boolean = this.state.currentHand.length > 1;
             console.log(res.status + " " + result.message);
             (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), error: ""}, resolve);
             if (res.status === 400) {
-              this.setState({current_hand: oldHand, error: res.status + " " + result.message})
+              this.setState({currentHand: oldHand, error: res.status + " " + result.message})
             };
           })  
         })
@@ -219,16 +224,26 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  handleCardSelect (selectedCard: string, age: number, turn: number)  {
+    this.setState({selectedCard});
+    console.log(selectedCard);
+  }
+
   renderHand() {
-    const hand = this.state.current_hand;
+    const {currentHand: hand, handInfo} = this.state;
     let cardArray: Array<any> = [];
     const {age, turn} = this.state.metadata
 
     if (hand.length > 0) {
       hand.forEach((card: string) => {
+        const info = handInfo[card]
+        console.log(card, info);
         cardArray.push(
-          <div className="d-inline-block m-1" key={card + '-hand-container'}>
-            <button className="p-0 btn" key={card} onClick={() => this.selectCard(card, age, turn)} value={card}>
+          <div 
+            className={"d-inline-block m-1 " + (info.costMet ? "cost-met" : "cost-not-met")} 
+            key={card + '-hand-container'}
+          >
+            <button className="p-0 btn" key={card} onClick={() => this.handleCardSelect(card, age, turn)} value={card}>
                 <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
           </div>
@@ -245,6 +260,46 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  renderCardInfo() {
+    const {selectedCard} = this.state;
+    const card = this.state.cache.cards[selectedCard];
+    if (selectedCard === "") {
+      return (
+      <div className="row card-info-container text-center d-flex justify-content-center">
+        {(this.state.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
+      </div>
+      )
+    } else {
+      const handInfo = this.state.handInfo[selectedCard];
+      const canBuild = (handInfo) ? handInfo.costMet : false;
+      return (
+        <div className='row card-info-container text-center d-flex justify-content-center'>
+          <div className="col-12">
+            <h4 className="text-white">{card.NAME}</h4>
+          </div>
+          <div className="col-12 col-md-6 col-lg-4">
+            <button className="btn join-btn option-btn"key={card.CARD_ID} value={card.CARD_ID}
+              onClick={() => this.selectCard(selectedCard, "discard", this.state.metadata.age , this.state.metadata.turn)} >
+              DISCARD
+            </button>
+          </div>
+          <div className="col-12 col-md-6 col-lg-4">
+            <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
+              STAGE
+            </button>
+          </div>
+          <div className="col-12 col-md-12 col-lg-4">
+            <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={!canBuild} 
+              onClick={() => this.selectCard(selectedCard, "build", this.state.metadata.age , this.state.metadata.turn)} 
+              value={card.CARD_ID}>
+              BUILD
+            </button>
+          </div>
+        </div>
+      )
+    }
+  }
+
   render() {
     const myBoard = this.state.myData.board;
     if (this.state.isLoaded && (myBoard !== undefined)) {
@@ -254,6 +309,7 @@ class Game extends React.Component<GameProps, GameState> {
           <div className='row'>
             {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
             {this.renderMyCards()}
+            {this.renderCardInfo()}
             {this.renderHand()}
           </div>
         </div>        

@@ -7,31 +7,25 @@ let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
 let sseId: number = 1;
 
+//TODO rotate in opposite direction in age 2
 function rotateHands() {
-  const numHands = Object.values(game.hands).length;
-  Object.keys(game.players).forEach((player: string) => {
-    const currID = game.players[player].handID;
-    game.players[player].handID = (currID % numHands) + 1;
-  })
+  const numHands = Object.keys(game.hands).length;
+    Object.keys(game.players).forEach((player: string) => {
+      const currID = game.players[player].handID;
+      game.players[player].handID = ((currID % numHands) + 1);
+    })
 }
 
 function filterCardsByAge(age: number, numPlayers: number) {
-  let selectedCards = [];
-  let numGuilds = numPlayers + 2;
-  let start, end : number;
-  if (age === 1) {
-    start = 1, end = 48;
-  } else if (age === 2) {
-    start = 49, end = 98;
-  } else if (age === 3) {
-    start = 99, end = 138;
+  const selectedCards = [];
+  const start: number = (age - 1) * 49 + 1
+  const end: number = Math.min(age * 49, 138)
+  if (age === 3) {
     let guilds = shuffle(Array.from(Array(10).keys()))
-    guilds.splice(0, numGuilds).forEach((i: number) => selectedCards.push(i + 138))
+    guilds.splice(0, numPlayers + 2).forEach((i: number) => selectedCards.push(i + 139))
   }
   for (let i: number = start; i <= end; i++) {
-    if (game.cards[i.toString()]){
-      selectedCards.push(i);
-    }
+    if (game.cards[i.toString()]) selectedCards.push(i);
   }
   return selectedCards;
 }
@@ -67,9 +61,18 @@ function sendTurnUpdate() {
   gameClients.forEach((client: any) => {
     const handID = game.players[client.id].handID;
     const hand = game.hands[handID];
+    const player = game.gameData.playerData[client.id];
     console.log(client.id, hand);
     if (hand) {
-      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand}), 'turnUpdate', [client])
+      const handInfo: any= {};
+      hand.forEach((cardID: any) => {
+        //TODO add purchaseOptions
+        handInfo[cardID] = {
+          costMet: player.canBuild(cardID)
+        }
+      })
+      console.log(handInfo);
+      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo}), 'turnUpdate', [client])
     }
   })
 }
@@ -155,28 +158,30 @@ router.route('/').post((req: any, res: any) => {
     return res.status(400).json({status: 'Error', message: 'Player not found'});
   } else {
     const username: string = decodedToken.username;
-    const {card, age, turn} = req.body;
+    const {card, action, age, turn} = req.body;
     const player: Player = game.gameData.playerData[username];
-    // TODO should validate when sending turn instead
-    if (player.canBuild(card)) {
-      handleCardSelect(player, username, card, age, turn);
-      res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
-    } else {
-      res.status(400).json({status: 'Error', message: `Invalid Selection: Can't afford to build card # ${card}`})
-    }
+    handleCardSelect(player, username, card, action, age, turn);
+    res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
+    // res.status(400).json({status: 'Error', message: `Invalid Selection: Can't afford to build card # ${card}`})
   }
 });
 
-function handleCardSelect(player: Player, username: string, card: string, age: number, turn: number) {
+function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number) {
     const ageSelectedCards = game.selections[age];
     const numPlayers = Object.keys(game.players).length
     if (!ageSelectedCards[turn]) {
       ageSelectedCards[turn] = []
     }
     ageSelectedCards[turn].push(card);
-    player.selectCard(card);
+
+    if (action === "discard") {
+      player.discard();
+    } else if (action==="build") {
+      player.selectCard(card);
+    }
     removeCardFromHand(username, card)
     sendPlayerData(username);
+
     
     if (ageSelectedCards[turn].length === numPlayers) {
       console.log("All players have selected cards");
