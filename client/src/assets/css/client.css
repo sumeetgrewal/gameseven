@@ -19,10 +19,8 @@ body {
     padding: 0;
 }
 
-@media (min-width: 1000px) {
-    .container {
-        max-width: 85%;
-    }
+.row {
+    width: 100%;
 }
 
 input {
@@ -214,6 +212,7 @@ GAME
 }
 
 .built-container {
+    width: 100%;
     background-color: #00000077;
     padding: 70px 30px 30px;
     margin: 0;

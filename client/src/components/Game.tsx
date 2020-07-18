@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions } from './GameAssets';
 
 interface GameProps {
   username: string,
@@ -218,7 +218,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
     }
     return (
-      <div className='col-12 built-container text-center d-flex flex-wrap flex-sm-column justify-content-center'>
+      <div className='col-12 built-container text-center d-flex flex-wrap flex-column justify-content-center'>
         {myCardArray}
       </div>
     )
@@ -230,13 +230,13 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderHand() {
-    const {currentHand: hand, handInfo} = this.state;
+    const {currentHand, handInfo} = this.state;
     let cardArray: Array<any> = [];
     const {age, turn} = this.state.metadata
 
-    if (hand.length > 0) {
-      hand.forEach((card: string) => {
-        const info = handInfo[card]
+    if (currentHand.length > 0) {
+      currentHand.forEach((card: string) => {
+        const info: BuildOptions = handInfo[card]
         console.log(card, info);
         cardArray.push(
           <div 
@@ -253,7 +253,7 @@ class Game extends React.Component<GameProps, GameState> {
     return (
       <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
         {(this.state.isWaiting) ? 
-          <h5 className="text-white"> WAITING FOR YOUR TURN </h5>
+          <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
           : cardArray
         }
       </div>
@@ -265,7 +265,7 @@ class Game extends React.Component<GameProps, GameState> {
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
-      <div className="row card-info-container text-center d-flex justify-content-center">
+      <div className="col-12 card-info-container text-center d-flex justify-content-center">
         {(this.state.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
@@ -273,27 +273,31 @@ class Game extends React.Component<GameProps, GameState> {
       const handInfo = this.state.handInfo[selectedCard];
       const canBuild = (handInfo) ? handInfo.costMet : false;
       return (
-        <div className='row card-info-container text-center d-flex justify-content-center'>
-          <div className="col-12">
-            <h4 className="text-white">{card.NAME}</h4>
+        <div className='col-12 container card-info-container text-center justify-content-center'>
+          <div className="row">
+            <div className="col-12">
+              <h4 className="text-white">{card.NAME}</h4>
+            </div>
           </div>
-          <div className="col-12 col-md-6 col-lg-4">
-            <button className="btn join-btn option-btn"key={card.CARD_ID} value={card.CARD_ID}
-              onClick={() => this.selectCard(selectedCard, "discard", this.state.metadata.age , this.state.metadata.turn)} >
-              DISCARD
-            </button>
-          </div>
-          <div className="col-12 col-md-6 col-lg-4">
-            <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
-              STAGE
-            </button>
-          </div>
-          <div className="col-12 col-md-12 col-lg-4">
-            <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={!canBuild} 
-              onClick={() => this.selectCard(selectedCard, "build", this.state.metadata.age , this.state.metadata.turn)} 
-              value={card.CARD_ID}>
-              BUILD
-            </button>
+          <div className="row">
+            <div className="col-12 col-md-6 col-lg-4">
+              <button className="btn join-btn option-btn"key={card.CARD_ID} value={card.CARD_ID}
+                onClick={() => this.selectCard(selectedCard, "discard", this.state.metadata.age , this.state.metadata.turn)} >
+                DISCARD
+              </button>
+            </div>
+            <div className="col-12 col-md-6 col-lg-4">
+              <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
+                STAGE
+              </button>
+            </div>
+            <div className="col-12 col-md-12 col-lg-4">
+              <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={!canBuild}
+                onClick={() => this.selectCard(selectedCard, "build", this.state.metadata.age , this.state.metadata.turn)} 
+                value={card.CARD_ID}>
+                BUILD
+              </button>
+            </div>
           </div>
         </div>
       )

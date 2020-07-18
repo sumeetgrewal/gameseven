@@ -1,5 +1,11 @@
-import { Board, Resource, CardTypeList, ResourceList, MilitaryStats, PlayerData, Card } from './playerData.model';
+import { Board, Resource, CardTypeList, ResourceList, MilitaryStats, PlayerData, BuildOptions, Card } from './playerData.model';
 import { game } from './game.model'
+
+interface conditionData  {
+  category: any[],
+  player: any[],
+  value: any[],
+}
 
 export class Player implements PlayerData {
   board: Board | undefined;
@@ -57,12 +63,20 @@ export class Player implements PlayerData {
   }
 
   // ---- VALIDATION
-  canBuild(cardID: string): boolean {
+  canBuild(cardID: string): BuildOptions {
+    const buildOptions: BuildOptions = {
+      costMet: false,
+      coinCost: 0,
+      purchaseOptions: [],
+    }
     const card = game.cards[cardID];
     console.log(card.CARD_ID + " " + card.NAME);
-    return ((card.RESOURCE_COST.length === 0) 
+    buildOptions.costMet = ((card.RESOURCE_COST.length === 0) 
       || (this.isChainCostMet(card.CHAIN_COST))
       || (this.isResourceCostMet(card.RESOURCE_COST))) 
+
+    // TODO coinCost and purchaseOptions
+    return buildOptions;
   }
 
   private isChainCostMet(chainCost: Array<any>) : boolean {
@@ -171,14 +185,12 @@ export class Player implements PlayerData {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
     this.cards.push(cardID);
-    // TODO if cost includes coin, deduct from total
     if (card.VALUE_TYPE === "AND") {
       this.buildAndCard(card);
     } else if (card.VALUE_TYPE === "OR") {
       this.buildOrCard(card);
     } else if (card.VALUE_TYPE === "CONDITION") {
-      // TODO Check if resource is coin, then add coins, else add to condRes array
-      this.conditionalResources.push(card.VALUE);
+      this.buildConditionCard(card);
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.discounts.push(card.VALUE);
     }
@@ -186,9 +198,31 @@ export class Player implements PlayerData {
 
   discard() {
     this.coins += 3;
-    console.log(this.coins);
+    console.log('coins: ' + this.coins);
+  }
+  
+  private buildConditionCard(card: Card) {
+    const value = card.VALUE;
+    const resources = value[2];
+    const newResources: any[] = [];
+    resources.forEach((resource: [number, string]) => {
+      if (resource[1]==='COIN') {
+        const data: conditionData = {category: value[0], player: value[1], value: value[2]}
+        this.redeemCondition(data);
+      } else {
+        newResources.push(resource);
+      }
+    })
+    const data: conditionData = {category: value[0], player: value[1], value: newResources}
+    this.conditionalResources.push(data);
   }
 
+  private redeemCondition(conditionData: conditionData) {
+    console.log(conditionData);
+    // TODO build condition 
+    // {category: ['YELLOW', 'BLUE', ...], player: ['LEFT', 'RIGHT', 'SELF'], value: [[Q, R], [Q, R]]}
+  }
+  
   private buildOrCard(card: Card) {
     if (card.CATEGORY === 'BROWN' || card.CATEGORY === 'GRAY') {
       this.optionalResources.push(card.VALUE);
@@ -223,19 +257,19 @@ export class Player implements PlayerData {
     console.log(this.resources);
   }
 
-  private addShields(cardValue: Array<[number, Resource]>) {
+  private addShields(cardValue: Array<[number, string]>) {
     const numShields = cardValue[0][0];
     this.shields += numShields;
     console.log('shields: ' + this.shields)
   }
 
-  private addPoints(cardValue: Array<[number, Resource]>) {
+  private addPoints(cardValue: Array<[number, string]>) {
     const numPoints = cardValue[0][0];
     this.points += numPoints;
     console.log('points: ' + this.points)
   }
 
-  private addCoins(cardValue: Array<[number, Resource]>) {
+  private addCoins(cardValue: Array<[number, string]>) {
     const numCoins = cardValue[0][0];
     this.coins += numCoins;
     console.log('coins: ' + this.coins)

@@ -2,6 +2,7 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 import { game } from '../models/game.model'
 import { Player } from "../models/player.model";
+import { BuildOptions } from "../models/playerData.model";
 const router = require('express').Router(); 
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
@@ -66,12 +67,11 @@ function sendTurnUpdate() {
     if (hand) {
       const handInfo: any= {};
       hand.forEach((cardID: any) => {
-        //TODO add purchaseOptions
-        handInfo[cardID] = {
-          costMet: player.canBuild(cardID)
-        }
+        const buildOptions: BuildOptions = player.canBuild(cardID);
+        handInfo[cardID] = buildOptions;
       })
-      console.log(handInfo);
+      game.players[client.id].handInfo = handInfo;
+      console.log(game.players[client.id]);
       pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo}), 'turnUpdate', [client])
     }
   })
@@ -160,11 +160,23 @@ router.route('/').post((req: any, res: any) => {
     const username: string = decodedToken.username;
     const {card, action, age, turn} = req.body;
     const player: Player = game.gameData.playerData[username];
-    handleCardSelect(player, username, card, action, age, turn);
-    res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
-    // res.status(400).json({status: 'Error', message: `Invalid Selection: Can't afford to build card # ${card}`})
+    if (validateSelection(username, card, action)) {
+      handleCardSelect(player, username, card, action, age, turn);
+      res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
+    } else {
+      res.status(400).json({status: 'Error', message: `Invalid Selection: Can't build card # ${card}`})
+    }
   }
 });
+
+function validateSelection(username: string, card: string, action: string) {
+  const handInfo = game.players[username].handInfo;
+  const cards = Object.keys(handInfo);
+  const isCardInHand: boolean = cards.includes(String(card));
+  const isCostMet: boolean = handInfo[card].costMet;
+  if (action==='build') return (isCardInHand && isCostMet);
+  else if (action==='discard') return (isCardInHand);
+}
 
 function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number) {
     const ageSelectedCards = game.selections[age];
@@ -177,7 +189,7 @@ function handleCardSelect(player: Player, username: string, card: string, action
     if (action === "discard") {
       player.discard();
     } else if (action==="build") {
-      player.selectCard(card);
+        player.selectCard(card);
     }
     removeCardFromHand(username, card)
     sendPlayerData(username);

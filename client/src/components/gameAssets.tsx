@@ -37,6 +37,12 @@ export interface Card {
 
 export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
 
+export interface BuildOptions {    
+  costMet: boolean,
+  coinCost: number,
+  purchaseOptions: any[],
+}
+
 export interface ResourceList {
   [index: string] : number,
   wood: number,
