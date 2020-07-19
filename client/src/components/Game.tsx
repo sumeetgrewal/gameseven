@@ -308,7 +308,10 @@ class Game extends React.Component<GameProps, GameState> {
     const myBoard = this.state.myData.board;
     if (this.state.isLoaded && (myBoard !== undefined)) {
       return (<>
-        {myBoard && <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME}/>}
+        {myBoard && 
+          <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME} 
+            metadata={this.state.metadata} myData={this.state.myData}/>
+        }
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
             {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
