@@ -75,8 +75,24 @@ export class Player implements PlayerData {
       || (this.isChainCostMet(card.CHAIN_COST))
       || (this.isResourceCostMet(card.RESOURCE_COST))) 
 
+    if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
+      buildOptions.costMet = true;
+    } else if (this.isResourceCostMet(card.RESOURCE_COST)) {
+      buildOptions.costMet = true;
+      buildOptions.coinCost = this.getCoinCost(card.RESOURCE_COST);
+    }
     // TODO coinCost and purchaseOptions
     return buildOptions;
+  }
+
+  getCoinCost(resourceCost: Array<any>): number {
+    let coinCost = 0;
+    resourceCost.forEach((resource: [number, string]) => {
+      if (resource[1] === 'COIN') {
+        coinCost = resource[0];
+      }
+    })
+    return coinCost;
   }
 
   private isChainCostMet(chainCost: Array<any>) : boolean {
@@ -181,7 +197,7 @@ export class Player implements PlayerData {
   }
 
   // ---- CARD SELECTION
-  selectCard(cardID: string) {
+  selectCard(cardID: string, coinCost: number) {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
     this.cards.push(cardID);
@@ -194,6 +210,7 @@ export class Player implements PlayerData {
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.discounts.push(card.VALUE);
     }
+    this.coins -= coinCost;
   }
 
   discard() {

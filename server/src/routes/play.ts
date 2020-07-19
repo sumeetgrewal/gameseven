@@ -179,6 +179,8 @@ function validateSelection(username: string, card: string, action: string) {
 }
 
 function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number) {
+    const options: BuildOptions = game.players[username].handInfo[card];
+    const coinCost = options.coinCost;
     const ageSelectedCards = game.selections[age];
     const numPlayers = Object.keys(game.players).length
     if (!ageSelectedCards[turn]) {
@@ -189,12 +191,11 @@ function handleCardSelect(player: Player, username: string, card: string, action
     if (action === "discard") {
       player.discard();
     } else if (action==="build") {
-        player.selectCard(card);
+        player.selectCard(card, coinCost);
     }
     removeCardFromHand(username, card)
     sendPlayerData(username);
 
-    
     if (ageSelectedCards[turn].length === numPlayers) {
       console.log("All players have selected cards");
       updateTurn();
