@@ -40,10 +40,11 @@ function startGame(){
     const {playerOrder} = game.metadata;
     const playerIndex = playerOrder.indexOf(username);
     if (playerIndex >= 0) {
-      const left = playerOrder[playerIndex - 1];
-      const right = playerOrder[(playerIndex % (playerOrder.length)) + 1];
-      if (left) player.playerLeft = left;
-      if (right) player.playerRight = right;
+      const numPlayers: number = playerOrder.length;
+      const left = playerOrder[(playerIndex + (numPlayers - 1)) % numPlayers];
+      const right = playerOrder[(playerIndex + 1) % numPlayers];
+      if (left && (left !== username)) player.playerLeft = left;
+      if (right && (right !== username) && (right !== left)) player.playerRight = right;
     }
     game.gameData.playerData[username] = player;
   }

@@ -8,12 +8,13 @@ let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
 let sseId: number = 1;
 
-//TODO rotate in opposite direction in age 2
-function rotateHands() {
+function rotateHands(clockwise: boolean = true) {
   const numHands = Object.keys(game.hands).length;
     Object.keys(game.players).forEach((player: string) => {
       const currID = game.players[player].handID;
-      game.players[player].handID = ((currID % numHands) + 1);
+      (clockwise) 
+      ? (game.players[player].handID = ((currID  + 1) % numHands))
+      : (game.players[player].handID = (currID  + (numHands - 1)) % numHands)
     })
 }
 
@@ -36,7 +37,7 @@ function generateHands(numPlayers: number) {
   const shuffledArray = shuffle(cards);
   let hands: any = {};
   for (let i = 0 ; i< numPlayers; i++) {
-    hands[i + 1] = shuffledArray.splice(0,7);
+    hands[i] = shuffledArray.splice(0,7);
   }
   game.hands = hands;
 }
@@ -54,7 +55,7 @@ function updateTurn() {
   } else {
     game.metadata.turn++
   }
-  rotateHands();
+  rotateHands(!(game.metadata.age===2));
   sendTurnUpdate();
 }
 
@@ -80,7 +81,7 @@ function sendTurnUpdate() {
 function beginAge() {
   const playerIDs = Object.keys(game.players);
   for (let i = 0; i < playerIDs.length; i++ ) {
-    game.players[playerIDs[i]].handID = i + 1;
+    game.players[playerIDs[i]].handID = i;
   }
   generateHands(playerIDs.length)
   sendTurnUpdate();

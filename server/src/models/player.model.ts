@@ -81,7 +81,7 @@ export class Player implements PlayerData {
       buildOptions.costMet = true;
       buildOptions.coinCost = this.getCoinCost(card.RESOURCE_COST);
     }
-    // TODO coinCost and purchaseOptions
+    // TODO purchaseOptions
     return buildOptions;
   }
 
