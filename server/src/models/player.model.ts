@@ -233,11 +233,49 @@ export class Player implements PlayerData {
     const data: conditionData = {category: value[0], player: value[1], value: newResources}
     this.conditionalResources.push(data);
   }
-
+  
   private redeemCondition(conditionData: conditionData) {
     console.log(conditionData);
-    // TODO build condition 
-    // {category: ['YELLOW', 'BLUE', ...], player: ['LEFT', 'RIGHT', 'SELF'], value: [[Q, R], [Q, R]]}
+    const values = {
+      coins: 0,
+      points: 0,
+    }
+    let total: number = 0;
+    conditionData.player.forEach((player) =>  {
+      let playerData: PlayerData;
+      switch (player) {
+        case "SELF": playerData = this; break;
+        case "LEFT" : playerData = game.gameData.playerData[this.playerLeft]; break;
+        case "RIGHT" : playerData = game.gameData.playerData[this.playerRight]; break;
+      }
+      if (playerData) {
+        conditionData.category.forEach((category: string) => {
+          let count = 0;
+          switch (category) {
+            case 'MILITARY_LOSS': 
+              count += playerData.military.loss
+              break;
+            case 'STAGE': 
+              // TODO
+            default:
+              const cardType: Array<string> = playerData.cardTypes[category.toLowerCase()];
+              if (cardType) count += cardType.length;
+              break;
+          }
+          total += count;
+        })
+      }
+    })
+    conditionData.value.forEach((value: [number, 'POINT' | 'COIN']) => {
+      if (value[1] === 'POINT') {
+        values.points += value[0]*total;
+      } else if (value[1] === 'COIN') {
+        values.coins += value[0]*total;
+      }
+    })
+    this.addCoins(values.coins);
+    this.addPoints(values.points);
+    console.log(`Earned ${values.coins} coins and ${values.points} points`);
   }
   
   private buildOrCard(card: Card) {
@@ -249,20 +287,20 @@ export class Player implements PlayerData {
       this.personalResources.push(card.VALUE);
       console.log(this.personalResources);
     }
-  }
+  } 
 
   private buildAndCard(card: Card) {
     if (['BROWN', 'GRAY', 'GREEN'].includes(card.CATEGORY)) {
       this.addResources(card.VALUE);
     }
     else if (card.CATEGORY === 'RED') {
-      this.addShields(card.VALUE);
+      this.addShields(card.VALUE[0][0]);
     }
     else if (card.CATEGORY === 'BLUE') {
-      this.addPoints(card.VALUE);
+      this.addPoints(card.VALUE[0][0]);
     }
     else if (card.CATEGORY === 'YELLOW') {
-      this.addCoins(card.VALUE);
+      this.addCoins(card.VALUE[0][0]);
     }
   }
 
@@ -274,20 +312,17 @@ export class Player implements PlayerData {
     console.log(this.resources);
   }
 
-  private addShields(cardValue: Array<[number, string]>) {
-    const numShields = cardValue[0][0];
+  private addShields(numShields: number) {
     this.shields += numShields;
     console.log('shields: ' + this.shields)
   }
 
-  private addPoints(cardValue: Array<[number, string]>) {
-    const numPoints = cardValue[0][0];
+  private addPoints(numPoints: number) {
     this.points += numPoints;
     console.log('points: ' + this.points)
   }
 
-  private addCoins(cardValue: Array<[number, string]>) {
-    const numCoins = cardValue[0][0];
+  private addCoins(numCoins: number) {
     this.coins += numCoins;
     console.log('coins: ' + this.coins)
   }
