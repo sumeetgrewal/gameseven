@@ -14,7 +14,6 @@ export class Player implements PlayerData {
   personalResources?: Array<any>;
   military?: MilitaryStats;
   conditionalResources?: Array<any>;
-  discounts?: Array<any>;
   playerLeft?: string;
   playerRight?: string;
   purchaseCosts: {
@@ -34,7 +33,6 @@ export class Player implements PlayerData {
     this.optionalResources = [];
     this.personalResources = [];
     this.conditionalResources = [];
-    this.discounts = [];
     this.military = {
         loss: 0,
         one: 0,
@@ -81,7 +79,7 @@ export class Player implements PlayerData {
         buildOptions.purchaseOptions = purchaseOptions[1];
       }
     }
-    if (buildOptions.coinCost >= this.coins) {
+    if (buildOptions.coinCost > this.coins) {
       buildOptions.costMet = false;
     }
 
@@ -109,7 +107,7 @@ export class Player implements PlayerData {
       const rightCost = this.purchaseCosts.playerRight[resource]
       const leftMet = (left) ? left.resources[resource] : 0
       const rightMet = (right) ? right.resources[resource] : 0
-
+      
       if (rightCost > leftCost) {
         if (rightMet >= numRequired) {
           addResources('Right', numRequired, rightCost, resource);
@@ -250,7 +248,7 @@ export class Player implements PlayerData {
     } else if (card.VALUE_TYPE === "CONDITION") {
       this.buildConditionCard(card);
     } else if (card.VALUE_TYPE === "DISCOUNT") {
-      this.discounts.push(card.VALUE);
+      this.buildDiscountCard(card);
     }
     this.coins -= coinCost;
     this.executePurchase(purchaseOptions);
@@ -271,7 +269,22 @@ export class Player implements PlayerData {
     this.coins += 3;
     console.log('coins: ' + this.coins);
   }
-  
+
+  private buildDiscountCard(card: Card) {
+    const value = card.VALUE;
+    const leftDiscount = value[0].includes('LEFT');
+    const rightDiscount = value[0].includes('RIGHT');
+    const resources = value[1];
+    resources.forEach((resource: string) => {
+      if (leftDiscount) {
+        this.purchaseCosts.playerLeft[resource.toLowerCase()] = 1;
+      }
+      if (rightDiscount) {
+        this.purchaseCosts.playerRight[resource.toLowerCase()] = 1;
+      }
+    })
+  }
+
   private buildConditionCard(card: Card) {
     const value = card.VALUE;
     const resources = value[2];
