@@ -237,7 +237,6 @@ class Game extends React.Component<GameProps, GameState> {
     if (currentHand.length > 0) {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
-        console.log(card, info);
         cardArray.push(
           <div 
             className={"d-inline-block m-1 " + (info.costMet ? "cost-met" : "cost-not-met")} 

@@ -40,7 +40,14 @@ export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" |
 export interface BuildOptions {    
   costMet: boolean,
   coinCost: number,
-  purchaseOptions: any[],
+  purchaseOptions: PurchaseOptions,
+}
+
+export interface PurchaseOptions {
+  purchaseRight: [],
+  purchaseLeft: [],
+  costRight: number,
+  costLeft: number
 }
 
 export interface ResourceList {

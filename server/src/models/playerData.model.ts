@@ -44,10 +44,22 @@ export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" |
 export interface BuildOptions {    
   costMet: boolean,
   coinCost: number,
-  purchaseOptions: any[],
+  purchaseOptions: PurchaseOptions,
 }
 
-export interface ResourceList {
+export interface ConditionData  {
+  category: any[],
+  player: any[],
+  value: any[],
+}
+export interface PurchaseOptions {
+  purchaseRight: [],
+  purchaseLeft: [],
+  costRight: number,
+  costLeft: number
+}
+
+export class ResourceList {
   [index: string]: number;
   wood: number;
   ore: number;
@@ -59,9 +71,21 @@ export interface ResourceList {
   compass: number;
   tablet: number;
   gear: number;
+  constructor(initValue: number = 0) {
+    this.wood = initValue;
+    this.ore = initValue;
+    this.stone = initValue;
+    this.clay = initValue;
+    this.glass = initValue;
+    this.papyrus = initValue;
+    this.loom = initValue;
+    this.compass = initValue;
+    this.tablet = initValue;
+    this.gear = initValue;
+  }
 }
 
-export interface CardTypeList {
+export class CardTypeList {
   [index: string]: Array<string>;
   brown: Array<string>;
   gray: Array<string>;
@@ -70,6 +94,15 @@ export interface CardTypeList {
   red: Array<string>;
   yellow: Array<string>;
   purple: Array<string>;
+  constructor() {
+      this.brown = [];
+      this.gray = [];
+      this.blue = [];
+      this.green = [];
+      this.red = [];
+      this.yellow = [];
+      this.purple = [];
+  }
 }
 
 export interface MilitaryStats {

@@ -36,7 +36,7 @@ function startGame(){
   delete game.setupData
   for (const username in game.players) {
     const board = game.boards[game.players[username].boardID];
-    const player = new Player(board);
+    const player = new Player(username, board);
     const {playerOrder} = game.metadata;
     const playerIndex = playerOrder.indexOf(username);
     if (playerIndex >= 0) {
