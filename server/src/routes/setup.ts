@@ -1,8 +1,9 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 
+import { game } from '../models/game.model'
+import { Player } from '../models/player.model'
 const router = require('express').Router();
 const dbScan = require('../dbScan')
-let game = require('../models/game.model');
 let JWTHandlers = require('../middleware/jwt.authorization');
 let setupClients: any[] = [];
 export let gameCountdown: any;
@@ -17,8 +18,8 @@ function startBoardSelection() {
     game.metadata.playerOrder[randomOrder[index]] = username;
     index++;
   }
-  game.metadata.turnToChoose = 0;
-  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate', setupClients);
+  game.setupData.turnToChoose = 0;
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'gameupdate', setupClients);
 }
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
@@ -32,22 +33,35 @@ function loadTable(tableName: string, id: string, params: {} = {}): Promise<void
 }
 
 function startGame(){
-  delete game.metadata.turnToChoose;
-  delete game.metadata.boards;
-  delete game.metadata.assignedBoards;
+  delete game.setupData
+  for (const username in game.players) {
+    const board = game.boards[game.players[username].boardID];
+    const player = new Player(board);
+    const {playerOrder} = game.metadata;
+    const playerIndex = playerOrder.indexOf(username);
+    if (playerIndex >= 0) {
+      const left = playerOrder[playerIndex - 1];
+      const right = playerOrder[(playerIndex % (playerOrder.length)) + 1];
+      if (left) player.playerLeft = left;
+      if (right) player.playerRight = right;
+    }
+    game.gameData.playerData[username] = player;
+  }
+  console.log(game.gameData);
   game.metadata.gameStatus = 'game';
-  pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', setupClients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'gameupdate', setupClients);
 }
 
-function assignBoards() {
-  let assignedBoards: any[] = [];
+function assignBoards(): string[] {
+  let assignedBoards: string[] = [];
   while (!gameAssetsReady) {
   }
   const boardIndices = shuffle(Array.from(Array(7).keys()))
   for (let i = 0; i < 7; i++) {
     let index: string = (boardIndices[i] + 1).toString();
     assignedBoards[i] = game.boards[index].SHORT_NAME;
-    const username = game.metadata.boards[i];
+    const username = game.setupData.boards[i];
+    
     if (game.players[username]) {
       game.players[username].board = assignedBoards[i];
       game.players[username].boardID = index;
@@ -79,22 +93,23 @@ function prepareGameAssets() {
 }
 
 function updateBoard(req: any, username: string) {
-  const metadata: any = game.metadata;
+  const setupData: any = game.setupData
   const board: number = req.body.board - 1;
-  if (!metadata.boards)
-    game.metadata.boards = Array(7);
+  if (!setupData.boards)
+    game.setupData.boards = Array(7);
   game.players[username].board = board;
-  game.metadata.boards[board] = username;
-  game.metadata.turnToChoose++;
-  const allSelected = game.metadata.turnToChoose === setupClients.length;
+  game.setupData.boards[board] = username;
+  game.setupData.turnToChoose++;
+  const allSelected = game.setupData.turnToChoose === setupClients.length;
   if (allSelected) {
-    game.metadata.assignedBoards = assignBoards();
+    game.setupData.assignedBoards = assignBoards();
     gameCountdown = setTimeout(() => {
       startGame();
     }, 2000);
   }
+  console.log("Selected a board, sending data", setupData)
   pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', setupClients);
-  pushUpdateToPlayers(JSON.stringify({ metadata: metadata }), 'gameupdate', setupClients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata , setupData }), 'gameupdate', setupClients);
 }
 
 function updateStatus(req: any, username: string) {
@@ -133,18 +148,19 @@ router.route('/setup').get((req: any, res: any) => {
 
     req.on('close', () => {
       res.end();
+      const gameStatus = game.metadata.gameStatus;
       setupClients = setupClients.filter((client: any) => client.id !== username);
-      if (setupClients.length === 0 && game.metadata.gameStatus !== 'game') {
+      if (setupClients.length === 0 && gameStatus !== 'game') {
         cleanupGame();
-      } else if (game.metadata.gameStatus === 'lobby') {
+      } else if (gameStatus === 'lobby') {
         delete game.players[username];
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
-      } else if (game.metadata.gameStatus === 'boardSelection') {
+      } else if (gameStatus === 'boardSelection') {
         clearTimeout(gameCountdown);
         delete game.players[username];
         resetToLobby();
         pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
-        pushUpdateToPlayers( JSON.stringify({metadata: game.metadata}), 'gameupdate', setupClients );
+        pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'gameupdate', setupClients);
       }
       console.log(username + ' Connection closed');
     });
@@ -183,9 +199,10 @@ router.route('/setup').put((req: any, res: any) => {
     }
 
     if (req.body.board) {
-      const metadata: any = game.metadata;
-      if (metadata.playerOrder && (metadata.turnToChoose + 1)) {
-        if (metadata.playerOrder[metadata.turnToChoose] !== username) {
+      const {turnToChoose} = game.setupData;
+      const {playerOrder} = game.metadata;
+      if (playerOrder && (turnToChoose + 1)) {
+        if (playerOrder[turnToChoose] !== username) {
           return res.status(400).json({status: 'Error', message: 'Not your turn!'});
         } else {
           updateBoard(req, username);

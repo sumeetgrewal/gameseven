@@ -11,11 +11,16 @@ body {
     font-family: 'Cinzel', serif;
     background: #D6D6D6;
     background-image: url(../images/background.jpg);
+    background-color: rgb(31, 30, 30);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     margin: 0;
     padding: 0;
+}
+
+.row {
+    width: 100%;
 }
 
 input {
@@ -194,11 +199,11 @@ BOARD
 GAME
 ======================= */ 
 
-.hand-container {
-    width: 85vw;
+.hand-container, .card-info-container {
+    width: 100%;
     background-color: #00000077;
     padding: 40px;
-    margin: 40px 0 0;
+    margin: 20px 0 0 !important;
 }
 
 .hand-card {
@@ -207,10 +212,11 @@ GAME
 }
 
 .built-container {
+    width: 100%;
     background-color: #00000077;
     padding: 70px 30px 30px;
     margin: 0;
-    max-height: 350px;
+    max-height: 275px;
 }
 
 .built-card {
@@ -222,4 +228,28 @@ GAME
 .card-wrapper {
     width: 177px;
     height: 35px;
+}
+
+.cost-met {
+    border-bottom: 3px solid green;
+}
+
+.cost-not-met {
+    border-bottom: 3px solid rgb(255, 81, 0);
+}
+
+.option-btn {
+    margin: 20px 0 0;
+    min-width: 250px;
+    width: 100%;
+    padding: 10px 30px;
+    font-weight: bold;
+    font-size: 1.3em;
+    color: #d6d6d6;
+    background-color: rgb(2, 97, 2);
+    border-radius: 0;
+}
+
+.option-btn:disabled {
+    background-color: #615d5d;
 }

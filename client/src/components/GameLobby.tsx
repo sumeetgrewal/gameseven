@@ -54,14 +54,15 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       
       source.addEventListener('gameupdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
-        const {turnToChoose, playerOrder, boards, assignedBoards, gameStatus} = parsedData.metadata;
+        const {playerOrder, gameStatus} = parsedData.metadata;
         console.log('gameupdate', parsedData);
-        if (gameStatus !== 'game') {
-          this.setState({
-            turnToChoose,
-            playerOrder,
-            boards,
-            assignedBoards,
+        if (gameStatus !== 'game' && parsedData.setupData) {
+          const {turnToChoose, boards, assignedBoards} = parsedData.setupData;
+          this.setState({ 
+            playerOrder, 
+            turnToChoose, 
+            boards, 
+            assignedBoards
           })
         } else {
           source.close();

@@ -7,7 +7,6 @@ function importAll(r: any) {
   return images;
 }
 
-
 export interface Board {
   BOARD_ID: number,  // Partition key
   NAME: string,
@@ -34,4 +33,57 @@ export interface Card {
   CHAIN_COST?: Array<number>, // card_id
   CHAINS?: Array<any>,
   NUM_PLAYERS: number,
+}
+
+export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
+
+export interface BuildOptions {    
+  costMet: boolean,
+  coinCost: number,
+  purchaseOptions: any[],
+}
+
+export interface ResourceList {
+  [index: string] : number,
+  wood: number,
+  ore: number,
+  stone: number,
+  clay: number,
+  glass: number,
+  papyrus: number,
+  loom: number,
+  compass: number,
+  tablet: number,
+  gear: number,
+}
+
+export interface CardTypeList {
+  [index: string] : Array<string>,
+  brown: Array<string>,
+  gray: Array<string>,
+  blue: Array<string>,
+  green: Array<string>,
+  red: Array<string>,
+  yellow: Array<string>,
+  purple: Array<string>,
+}
+
+export interface MilitaryStats {
+  loss: number,
+  one: number,
+  three: number,
+  five: number
+}
+
+export interface PlayerData {
+  board: Board | undefined,
+  cards: Array<string>,
+  cardTypes: CardTypeList,
+  resources: ResourceList,
+  optionalResources?: Array<any>,
+  personalResources?: Array<any>,
+  military?: MilitaryStats,
+  coins: number,
+  shields: number,
+  points?: number,
 }
