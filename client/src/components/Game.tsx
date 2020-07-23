@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData, BuildOptions } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions } from './GameAssets';
 
 interface GameProps {
   username: string,
@@ -269,8 +269,9 @@ class Game extends React.Component<GameProps, GameState> {
       </div>
       )
     } else {
-      const handInfo = this.state.handInfo[selectedCard];
-      const canBuild = (handInfo) ? handInfo.costMet : false;
+      const cardBuildOptions: BuildOptions = this.state.handInfo[selectedCard];
+      const canBuild = (cardBuildOptions) ? cardBuildOptions.costMet : false;
+      const purchaseOptions : PurchaseOptions[] = cardBuildOptions.purchaseOptions;
       return (
         <div className='col-12 container card-info-container text-center justify-content-center'>
           <div className="row">

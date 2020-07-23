@@ -56,12 +56,12 @@ export class Player implements PlayerData {
     const buildOptions: BuildOptions = {
       costMet: false,
       coinCost: 0,
-      purchaseOptions: {
+      purchaseOptions: [{
         costLeft: 0,
         costRight: 0, 
         purchaseLeft: [],
         purchaseRight: [],
-      },
+      }],
     }
     const card = game.cards[cardID];
     console.log(card.CARD_ID + " " + card.NAME);
@@ -83,13 +83,13 @@ export class Player implements PlayerData {
       buildOptions.coinCost = this.getCoinCost(card.RESOURCE_COST);
 
     // Can I purchase from my neighbours? 
-    } else {
-      const bestPurchaseOption: [boolean, PurchaseOptions]= this.checkPurchaseOptions(unmetCostArray);
-      if (bestPurchaseOption[0]) {
-        buildOptions.costMet = true;
-        buildOptions.coinCost = bestPurchaseOption[1].costLeft + bestPurchaseOption[1].costRight;
-        buildOptions.purchaseOptions = bestPurchaseOption[1];
-      }
+    // } else {
+    //   const bestPurchaseOption: [boolean, PurchaseOptions]= this.checkPurchaseOptions(unmetCostArray);
+    //   if (bestPurchaseOption[0]) {
+    //     buildOptions.costMet = true;
+    //     buildOptions.coinCost = bestPurchaseOption[1].costLeft + bestPurchaseOption[1].costRight;
+    //     buildOptions.purchaseOptions = bestPurchaseOption[1];
+    //   }
     }
 
     // Can I afford the cost? 
@@ -125,7 +125,7 @@ export class Player implements PlayerData {
           const buildOption = {
             costMet: true,
             coinCost: purchaseOptions[1].costLeft + purchaseOptions[1].costRight,
-            purchaseOptions : purchaseOptions[1],
+            purchaseOptions : [purchaseOptions[1]],
           }
           buildOptionsArray.push(buildOption);
         }

@@ -44,7 +44,7 @@ export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" |
 export interface BuildOptions {    
   costMet: boolean,
   coinCost: number,
-  purchaseOptions: PurchaseOptions,
+  purchaseOptions: PurchaseOptions[],
 }
 
 export interface ConditionData  {
