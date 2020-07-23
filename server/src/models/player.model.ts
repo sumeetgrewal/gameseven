@@ -48,7 +48,10 @@ export class Player implements PlayerData {
     }
   }
 
-  // ---- VALIDATION
+  /* =======================
+  VALIDATION 
+  ======================= */   
+
   canBuild(cardID: string): BuildOptions {
     const buildOptions: BuildOptions = {
       costMet: false,
@@ -62,23 +65,34 @@ export class Player implements PlayerData {
     }
     const card = game.cards[cardID];
     console.log(card.CARD_ID + " " + card.NAME);
-    buildOptions.costMet = ((card.RESOURCE_COST.length === 0) 
-      || (this.isChainCostMet(card.CHAIN_COST))
-      || (this.isResourceCostMet(card.RESOURCE_COST))) 
 
+    // Is card free or is chain cost met ?
     if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
       buildOptions.costMet = true;
-    } else if (this.isResourceCostMet(card.RESOURCE_COST)) {
+      return buildOptions;
+    }
+
+    // TODO Check if resource cost includes any coins => cost
+    // buildOptions.coinCost = cost
+    // buildOptions.costMet = cost > this.coins)
+
+    // Can I afford to build? 
+    let unmetCostArray: any = this.isResourceCostMet(card.RESOURCE_COST);
+    if (unmetCostArray.length === 0) {
       buildOptions.costMet = true;
       buildOptions.coinCost = this.getCoinCost(card.RESOURCE_COST);
+
+    // Can I purchase from my neighbours? 
     } else {
-      const purchaseOptions: [boolean, PurchaseOptions] = this.checkPurchaseOptions(card.RESOURCE_COST);
-      if (purchaseOptions[0]) {
+      const bestPurchaseOption: [boolean, PurchaseOptions]= this.checkPurchaseOptions(unmetCostArray);
+      if (bestPurchaseOption[0]) {
         buildOptions.costMet = true;
-        buildOptions.coinCost = purchaseOptions[1].costLeft + purchaseOptions[1].costRight;
-        buildOptions.purchaseOptions = purchaseOptions[1];
+        buildOptions.coinCost = bestPurchaseOption[1].costLeft + bestPurchaseOption[1].costRight;
+        buildOptions.purchaseOptions = bestPurchaseOption[1];
       }
     }
+
+    // Can I afford the cost? 
     if (buildOptions.coinCost > this.coins) {
       buildOptions.costMet = false;
     }
@@ -86,10 +100,53 @@ export class Player implements PlayerData {
     return buildOptions;
   }
   
-  // TODO create purchase options
-  // Check optional resources
+  private checkPurchaseOptions(unmetCostArray: any) : [boolean, PurchaseOptions] {
+    const buildOptionsArray: BuildOptions[] = [];
+      for (let i = 0; i< unmetCostArray.length; i++) {
+        // unmetCost => Check if it includes coins 
+        const purchaseOptions: [any[], PurchaseOptions] = this.checkNeighbourResources(unmetCostArray[i]);
+        if (purchaseOptions[0].length > 0) {
+          console.log("Can't purchase , unmet resources : " + purchaseOptions[0][0] + " ... ")
+          const leftCards: object[]= game.gameData.playerData[this.playerLeft].optionalResources.map((valueArray: [number, string]) => {
+            return {
+              player: 'left',
+              value: valueArray,
+            }
+          })
+          const rightCards: object[] = game.gameData.playerData[this.playerRight].optionalResources.map((valueArray: [number, string]) => {
+            return {
+              player: 'right',
+              value: valueArray,
+            }
+          })
+          const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards)) // => PurchaseOption[]
+          buildOptionsArray.concat(result);
+        } else {
+          const buildOption = {
+            costMet: true,
+            coinCost: purchaseOptions[1].costLeft + purchaseOptions[1].costRight,
+            purchaseOptions : purchaseOptions[1],
+          }
+          buildOptionsArray.push(buildOption);
+        }
+      }
+      if (buildOptionsArray.length > 0) {
+        // TODO return optimal buildOption
+        return [true, {
+          costLeft: 0,
+          costRight: 0, 
+          purchaseLeft: [],
+          purchaseRight: [],
+        }]
+      } else return [false, {
+        costLeft: 0,
+        costRight: 0, 
+        purchaseLeft: [],
+        purchaseRight: [],
+      }]
+  }
 
-  private checkPurchaseOptions(unmetCost: Array<any>) : [ boolean, PurchaseOptions ] {
+  private checkNeighbourResources(unmetCost: Array<any>) : [ any[], PurchaseOptions ] {
     const purchaseOptions: any = {
       purchaseRight: [],
       purchaseLeft: [],
@@ -98,10 +155,16 @@ export class Player implements PlayerData {
     };
     const right: Player = game.gameData.playerData[this.playerRight]; 
     const left: Player = game.gameData.playerData[this.playerLeft];
+    const stillUnmetCost = []
     for (let i = 0; i < unmetCost.length; i++) {
       let numRequired = unmetCost[i][0];
       const resource = unmetCost[i][1].toLowerCase();
-      if (resource === 'COIN') return [false, purchaseOptions]
+
+      // TODO lifted to canBuild, remove coin check
+      if (resource === 'COIN') {
+        stillUnmetCost.push(unmetCost[i]);
+        return [stillUnmetCost, purchaseOptions]
+      }
 
       const leftCost = this.purchaseCosts.playerLeft[resource]
       const rightCost = this.purchaseCosts.playerRight[resource]
@@ -110,36 +173,37 @@ export class Player implements PlayerData {
       
       if (rightCost > leftCost) {
         if (rightMet >= numRequired) {
-          addResources('Right', numRequired, rightCost, resource);
+          purchaseOptions.purchaseRight.push([numRequired, resource]);
+          purchaseOptions.costRight += rightCost*numRequired;
         } else {
           numRequired -= rightMet;
-          addResources('Right', rightMet, rightCost, resource);
+          purchaseOptions.purchaseRight.push([rightMet, resource]);
+          purchaseOptions.costRight += rightCost*rightMet;
           if (leftMet >= numRequired) {
-            addResources('Left', numRequired, leftCost, resource);
+            purchaseOptions.purchaseLeft.push([numRequired, resource]);
+            purchaseOptions.costLeft += leftCost*numRequired;
           } else {
-            return [false, purchaseOptions];
+            stillUnmetCost.push([numRequired, unmetCost[i][1]]);
           }
         }
       } else {
         if (leftMet >= numRequired) {
-          addResources('Left', numRequired, leftCost, resource);
+          purchaseOptions.purchaseLeft.push([numRequired, resource]);
+          purchaseOptions.costLeft += leftCost*numRequired;
         } else {
           numRequired -= leftMet;
-          addResources('Left', leftMet, leftCost, resource);
+          purchaseOptions.purchaseLeft.push([leftMet, resource]);
+          purchaseOptions.costLeft += leftCost*leftMet;
           if (rightMet >= numRequired) {
-            addResources('Right', numRequired, rightCost, resource);
+            purchaseOptions.purchaseRight.push([numRequired, resource]);
+            purchaseOptions.costRight += rightCost*numRequired;
           } else {
-            return [false, purchaseOptions];
+            stillUnmetCost.push([numRequired, unmetCost[i][1]]);
           }
         }
       }
     }
-    return [true, purchaseOptions];
-
-    function addResources(player: string, quantity: number, cost: number, resource: string) {
-      purchaseOptions['purchase' + player].push([quantity, resource]);
-      purchaseOptions['cost' + player] += cost*quantity;
-    }
+    return [stillUnmetCost, purchaseOptions];
   }
 
   getCoinCost(resourceCost: Array<any>): number {
@@ -163,11 +227,14 @@ export class Player implements PlayerData {
     return false;
   }
 
-  private isResourceCostMet(resourceCost: Array<any>) : boolean{
+  private isResourceCostMet(resourceCost: Array<any>) : Array<any>{
     let unmetCost: any[] = this.checkResources(resourceCost);
+    
+    if (unmetCost.length > 0) {
+      unmetCost = this.checkAdditionalResources(unmetCost, this.optionalResources.concat(this.personalResources));
+    }
 
-    return((unmetCost.length === 0)
-          || this.checkAdditionalResources(unmetCost))
+    return unmetCost
   }
 
   private checkResources(resourceCost: Array<any>) : Array<any>{
@@ -188,8 +255,32 @@ export class Player implements PlayerData {
     return unmetCost;
   }
 
-  private checkAdditionalResources(resourceCost: Array<any>) : boolean {
-    const allCards: any[] = this.optionalResources.concat(this.personalResources);
+  //TODO search function
+  private checkNeighbourAdditionalResources(resourceCost: any[], allCards: object[]): BuildOptions[] {
+    // allCardsArray = [
+    //   card = {
+    //     player: left,
+    //     valueArray: [[Q, R], [Q, R]]
+    //   }
+    //   card = {
+    //     player: left,
+    //     valueArray: [[Q, R], [Q, R]]
+    //   }
+    //   card = {
+    //     player: right,
+    //     valueArray: [[Q, R], [Q, R]]
+    //   }
+    //   card = {
+    //     player: right,
+    //     valueArray: [[Q, R], [Q, R]]
+    //   }
+    // ]
+    // Compute costs
+    return [];
+  }
+
+  private checkAdditionalResources(resourceCost: Array<any>, allCards: any[]) : Array<any> {
+    const unmetCostArray: any[] = [];
     const resources = resourceCost.map((resource: [number, string]) => {return resource[1]})
     const cards: any[] = [];
     allCards.forEach((valueArray: Array<[number, string]>) => {
@@ -199,20 +290,22 @@ export class Player implements PlayerData {
       if (newValues.length > 0) cards.push(newValues);
     });
 
-    if (cards.length === 0) return false;
+    if (cards.length === 0) return resourceCost;
     let resourceLists: Array<[ResourceList, number]> = [];
     let initResources: ResourceList = new ResourceList(0);
     createResourceLists(initResources, 0);
 
     while (resourceLists.length > 0) {
       let list = resourceLists.pop();
-      if (checkResourceList(resourceCost, list[0])) {
-        return true;
+      const unmetCost: any[] = checkResourceList(resourceCost, list[0])
+      if (unmetCost.length === 0) {
+        return [];
       } else {
+        unmetCostArray.push(unmetCost);
         createResourceLists(list[0], list[1] + 1);
       }
     }
-    return false;
+    return unmetCostArray;
 
     function createResourceLists(list: ResourceList, cardIndex: number): void {
       const card: Array<[number, string]> = cards[cardIndex]; 
@@ -225,18 +318,21 @@ export class Player implements PlayerData {
       }
     }
 
-    function checkResourceList(resourceCost: Array<any>, values: ResourceList): boolean {
+    function checkResourceList(resourceCost: Array<any>, values: ResourceList): any[] {
       const unmetCost: any = [];
       resourceCost.forEach((resource: [number, Resource]) => {
         let numRequired = resource[0];
         numRequired -= values[resource[1].toLowerCase()];
         if (numRequired > 0) unmetCost.push([numRequired, resource[1]]);
       })
-      return (unmetCost.length === 0);
+      return (unmetCost);
     }         
   }
 
-  // ---- CARD SELECTION
+  /* =======================
+  CARD SELECTION
+  ======================= */ 
+
   selectCard(cardID: string, coinCost: number, purchaseOptions: PurchaseOptions) {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
@@ -291,7 +387,7 @@ export class Player implements PlayerData {
     const newResources: any[] = [];
     resources.forEach((resource: [number, string]) => {
       if (resource[1]==='COIN') {
-        const data: ConditionData = {category: value[0], player: value[1], value: value[2]}
+        const data: ConditionData = {category: value[0], player: value[1], value: [resource]}
         this.redeemCondition(data);
       } else {
         newResources.push(resource);

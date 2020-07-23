@@ -53,8 +53,8 @@ export interface ConditionData  {
   value: any[],
 }
 export interface PurchaseOptions {
-  purchaseRight: [],
-  purchaseLeft: [],
+  purchaseRight: any[],
+  purchaseLeft: any[],
   costRight: number,
   costLeft: number
 }
