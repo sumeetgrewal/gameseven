@@ -190,9 +190,10 @@ function handleCardSelect(player: Player, username: string, card: string, action
     ageSelectedCards[turn].push(card);
 
     if (action === "discard") {
-      player.discard();
+      player.discard(card);
     } else if (action==="build") {
-        player.selectCard(card, coinCost, purchaseOptions);
+        // TODO pass selected purchase option
+        player.selectCard(card, coinCost, purchaseOptions[0]);
     }
     removeCardFromHand(username, card)
     sendPlayerData(username);

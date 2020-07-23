@@ -361,7 +361,8 @@ export class Player implements PlayerData {
     console.log(`Player ${this.username} received ${cost} coins from ${username}`);
   }
 
-  discard() {
+  discard(card: string) {
+    game.gameData.discardPile.push(card);
     this.coins += 3;
     console.log('coins: ' + this.coins);
   }

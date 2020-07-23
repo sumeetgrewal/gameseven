@@ -141,5 +141,6 @@ export interface gameModel {
     playerData: {
       [username: string]: Player;
     };
+    discardPile: string[],
   };
 }
