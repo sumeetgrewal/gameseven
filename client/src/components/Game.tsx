@@ -18,6 +18,7 @@ interface GameState {
   isListening: boolean,
   isLoaded: boolean,
   selectedCard: string,
+  viewPurchaseOptions: boolean;
   isWaiting: boolean,
   myData: PlayerData, 
   playerData: {
@@ -51,6 +52,7 @@ class Game extends React.Component<GameProps, GameState> {
         turn: 1,
       },
       selectedCard: "",
+      viewPurchaseOptions: false,
       isWaiting: false,
       playerData: {},
       myData: {
@@ -175,15 +177,22 @@ class Game extends React.Component<GameProps, GameState> {
     this.setState({isWaiting: true});
   }
   
-  selectCard (card: string, action: string,age: number, turn: number)  {
+  selectCard (card: string, action: string,age: number, turn: number, purchaseOption?: PurchaseOptions)  {
     return new Promise((resolve) => {
+      const purchase = (purchaseOption) ? purchaseOption 
+        :  {
+          costLeft: 0,
+          costRight: 0,
+          purchaseLeft: [],
+          purchaseRight : [],
+        }
       const oldHand = this.state.currentHand;
-      this.setState({currentHand: [], selectedCard: ""})
+      this.setState({currentHand: [], selectedCard: "", viewPurchaseOptions: false})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({card, action, age, turn})
+        body: JSON.stringify({card, action, age, turn, purchase})
       })
       .then((res: any) => {
         console.log(res);
@@ -224,25 +233,21 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
-  handleCardSelect (selectedCard: string, age: number, turn: number)  {
-    this.setState({selectedCard});
-    console.log(selectedCard);
-  }
-
   renderHand() {
     const {currentHand, handInfo} = this.state;
     let cardArray: Array<any> = [];
-    const {age, turn} = this.state.metadata
+    const handleCardSelect = (selectedCard: string)  => {
+      this.setState({selectedCard, viewPurchaseOptions: false});
+      console.log(selectedCard);
+    }
 
     if (currentHand.length > 0) {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
         cardArray.push(
-          <div 
-            className={"d-inline-block m-1 " + (info.costMet ? "cost-met" : "cost-not-met")} 
-            key={card + '-hand-container'}
-          >
-            <button className="p-0 btn" key={card} onClick={() => this.handleCardSelect(card, age, turn)} value={card}>
+          <div className={"d-inline-block m-1 " + (info.costMet ? "cost-met" : "cost-not-met")} 
+            key={card + '-hand-container'}>
+            <button className="p-0 btn" key={card} onClick={() => handleCardSelect(card)}>
                 <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
           </div>
@@ -260,7 +265,8 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderCardInfo() {
-    const {selectedCard} = this.state;
+    const {selectedCard, viewPurchaseOptions} = this.state;
+    const {age, turn} = this.state.metadata;
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
@@ -269,39 +275,100 @@ class Game extends React.Component<GameProps, GameState> {
       </div>
       )
     } else {
-      const cardBuildOptions: BuildOptions = this.state.handInfo[selectedCard];
-      const canBuild = (cardBuildOptions) ? cardBuildOptions.costMet : false;
-      const purchaseOptions : PurchaseOptions[] = cardBuildOptions.purchaseOptions;
-      return (
-        <div className='col-12 container card-info-container text-center justify-content-center'>
-          <div className="row">
-            <div className="col-12">
-              <h4 className="text-white">{card.NAME}</h4>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-12 col-md-6 col-lg-4">
-              <button className="btn join-btn option-btn"key={card.CARD_ID} value={card.CARD_ID}
-                onClick={() => this.selectCard(selectedCard, "discard", this.state.metadata.age , this.state.metadata.turn)} >
-                DISCARD
-              </button>
-            </div>
-            <div className="col-12 col-md-6 col-lg-4">
-              <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
-                STAGE
-              </button>
-            </div>
-            <div className="col-12 col-md-12 col-lg-4">
-              <button className="btn join-btn option-btn"key={card.CARD_ID} disabled={!canBuild}
-                onClick={() => this.selectCard(selectedCard, "build", this.state.metadata.age , this.state.metadata.turn)} 
-                value={card.CARD_ID}>
-                BUILD
-              </button>
-            </div>
+      const info: BuildOptions = this.state.handInfo[selectedCard];
+
+      if (!viewPurchaseOptions) {
+        return this.renderCardActions(card, info, selectedCard, age, turn)
+      }
+      else {
+        return this.renderPurchaseOptions(card, info, selectedCard, age, turn)
+      }
+    }
+  }
+
+  private renderCardActions(card: Card, cardInfo: any, cardID: string, age: number, turn: number) {
+    const canBuild = (cardInfo) ? cardInfo.costMet : false;
+    const handleCardBuild = () => {
+      if (cardInfo.coinCost > 0) {
+        this.setState({viewPurchaseOptions: true})
+      } else {
+        this.selectCard(cardID, "build", age, turn)
+      }
+    }
+    return (
+      <div className='col-12 container card-info-container text-center justify-content-center'>
+        <div className="row">
+          <div className="col-12">
+            <h4 className="text-white">{card.NAME}</h4>
           </div>
         </div>
-      )
+        <div className="row">
+          <div className="col-12 col-md-6 col-lg-4">
+            <button className="btn join-btn option-btn" key={card.CARD_ID} value={card.CARD_ID}
+              onClick={() => this.selectCard(cardID, "discard", age, turn)}>
+              DISCARD
+            </button>
+          </div>
+          <div className="col-12 col-md-6 col-lg-4">
+            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
+                        STAGE
+            </button>
+          </div>
+          <div className="col-12 col-md-12 col-lg-4">
+            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canBuild}
+              onClick={handleCardBuild}
+              value={card.CARD_ID}>
+              BUILD
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, cardID: string, age: number, turn: number) {
+    const purchaseOptions: PurchaseOptions[] = cardInfo.purchaseOptions;
+    const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
+    let result: any[] = [];
+    if (purchaseCost === 0) {
+      result = [(<div key={"purchase-info-" + card.CARD_ID}>
+        <h4 className="text-white" key={"purchase-info-" + card.CARD_ID}>{`Cost of card is ${cardInfo.coinCost}`}</h4>
+        <button className="btn join-btn option-btn" 
+          onClick={() => this.selectCard(cardID, "build", age, turn)}
+          key={"purchase-btn-" + card.CARD_ID}>
+            PURCHASE
+        </button>
+      </div>)]
+    } else {
+      for(let i = 0; i < purchaseOptions.length; i++) {
+        const purchase = purchaseOptions[i];
+        result.push(<div key={"purchase-info-" + card.CARD_ID}>
+          {purchase.costLeft > 0 && 
+            <h4 className="text-white" key={"purchase-cost-l" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
+          {purchase.costRight > 0 && 
+            <h4 className="text-white" key={"purchase-cost-r" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
+          <button className="btn join-btn option-btn" 
+            onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
+            key={"purchase-btn-" + i}>
+              PURCHASE
+          </button>
+        </div>)
+      }
     }
+    return (
+      <div className='col-12 container card-info-container text-center justify-content-center'>
+        <div className="row">
+          <div className="col-12">
+            <h4 className="text-white">{card.NAME}</h4>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12 col-md-6 col-lg-4">
+            {result}
+          </div> 
+        </div>
+      </div>
+    )
   }
 
   render() {

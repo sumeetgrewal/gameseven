@@ -201,7 +201,6 @@ export class Player implements PlayerData {
         buildOptionsArray.push(buildOption);
       } else {
         // Check optional resources
-        console.log("Checking neighbour optional resources...");
         const left: Player = game.gameData.playerData[this.playerLeft];
         const right: Player = game.gameData.playerData[this.playerRight];
         let leftCards: object[] = [];
@@ -216,7 +215,7 @@ export class Player implements PlayerData {
             return { player: 'right', value: valueArray }
           })
         } 
-        const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards)) // => PurchaseOption[]
+        const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards), purchaseOptions[1])
         buildOptionsArray = buildOptionsArray.concat(result);
       }
     }
@@ -269,6 +268,7 @@ export class Player implements PlayerData {
             purchaseOptions.purchaseLeft.push([numRequired, resource]);
             purchaseOptions.costLeft += leftCost*numRequired;
           } else {
+            numRequired -= leftMet;
             unmetCost.push([numRequired, resourceCost[i][1]]);
           }
         }
@@ -286,6 +286,7 @@ export class Player implements PlayerData {
             purchaseOptions.purchaseRight.push([numRequired, resource]);
             purchaseOptions.costRight += rightCost*numRequired;
           } else {
+            numRequired -= rightMet;
             unmetCost.push([numRequired, resourceCost[i][1]]);
           }
         }
@@ -294,7 +295,7 @@ export class Player implements PlayerData {
     return [unmetCost, purchaseOptions];
   }
 
-  private checkNeighbourAdditionalResources(resourceCost: any[], allCards: object[]): BuildOptions[] {
+  private checkNeighbourAdditionalResources(resourceCost: any[], allCards: object[], initOptions: PurchaseOptions): BuildOptions[] {
     const result: BuildOptions[] = []
     const resources = resourceCost.map((resource: [number, string]) => {return resource[1]})
     const cards: any[] = [];
@@ -308,7 +309,7 @@ export class Player implements PlayerData {
     if (cards.length === 0) return []
     let resourceLists: Array<{list: ResourceList, cardIndex: number, purchaseOptions: PurchaseOptions}> = [];
     let initResources: ResourceList = new ResourceList(0);
-    createResourceLists(initResources, 0, {costLeft: 0, costRight: 0, purchaseLeft: [], purchaseRight: []}, this.purchaseCosts);
+    createResourceLists(initResources, 0, initOptions, this.purchaseCosts);
 
     while (resourceLists.length > 0) {
       let cardData = resourceLists.pop();
@@ -326,7 +327,6 @@ export class Player implements PlayerData {
       }
     }
 
-    console.log("Checked neigbour options, result : " + result[0])
     return result;
 
     function createResourceLists(list: ResourceList, cardIndex: number, purchaseOptions: PurchaseOptions, purchaseCosts: {playerLeft: ResourceList, playerRight: ResourceList}): void {
@@ -376,7 +376,7 @@ export class Player implements PlayerData {
 
   receivePay(cost: number, username: string) {
     this.coins += cost;
-    console.log(`Player ${this.username} received ${cost} coins from ${username}`);
+    console.log(`Player ${this.username} received ${cost} coins from ${username} and now has ${this.coins} coins`);
   }
 
   discard(card: string) {

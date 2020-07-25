@@ -2,7 +2,7 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 import { game } from '../models/game.model'
 import { Player } from "../models/player.model";
-import { BuildOptions } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions } from "../models/playerData.model";
 const router = require('express').Router(); 
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
@@ -87,9 +87,9 @@ function beginAge() {
   sendTurnUpdate();
 }
 
-function sendPlayerData(username: string) {
+function sendPlayerData(username: string, sendToAll: boolean) {
   gameClients.forEach((client: any) => {
-    if (client.id === username) {
+    if (sendToAll || client.id === username) {
       pushUpdateToPlayers(JSON.stringify({myData: game.gameData.playerData[client.id]}), 'playerDataUpdate', [client])
     }
   })
@@ -129,7 +129,7 @@ router.route('/').get((req: any, res: any) => {
       res
     }
     gameClients.push(newClient);
-    sendPlayerData(username);
+    sendPlayerData(username, false);
 
     const numPlayers = Object.keys(game.players).length
     if (gameClients.length === numPlayers) {
@@ -159,10 +159,10 @@ router.route('/').post((req: any, res: any) => {
     return res.status(400).json({status: 'Error', message: 'Player not found'});
   } else {
     const username: string = decodedToken.username;
-    const {card, action, age, turn} = req.body;
+    const {card, action, age, turn, purchase} = req.body;
     const player: Player = game.gameData.playerData[username];
     if (validateSelection(username, card, action)) {
-      handleCardSelect(player, username, card, action, age, turn);
+      handleCardSelect(player, username, card, action, age, turn, purchase);
       res.status(200).json({message: `${username} selected card ${card} in Age ${age} Turn ${turn}`})
     } else {
       res.status(400).json({status: 'Error', message: `Invalid Selection: Can't build card # ${card}`})
@@ -179,9 +179,9 @@ function validateSelection(username: string, card: string, action: string) {
   else if (action==='discard') return (isCardInHand);
 }
 
-function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number) {
+function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number, purchase: PurchaseOptions) {
     const options: BuildOptions = game.players[username].handInfo[card];
-    const {coinCost, purchaseOptions} = options;
+    const {coinCost} = options;
     const ageSelectedCards = game.selections[age];
     const numPlayers = Object.keys(game.players).length
     if (!ageSelectedCards[turn]) {
@@ -192,14 +192,14 @@ function handleCardSelect(player: Player, username: string, card: string, action
     if (action === "discard") {
       player.discard(card);
     } else if (action==="build") {
-        // TODO pass selected purchase option
-        player.selectCard(card, coinCost, purchaseOptions[0]);
+        player.selectCard(card, coinCost, purchase);
     }
     removeCardFromHand(username, card)
-    sendPlayerData(username);
-
+    
     if (ageSelectedCards[turn].length === numPlayers) {
+      // Coin condition card should be redeemed after all players have built their cards
       console.log("All players have selected cards");
+      sendPlayerData(username, true);
       updateTurn();
       sendAllPlayerData();
     }
