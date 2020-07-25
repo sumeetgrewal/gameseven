@@ -357,21 +357,24 @@ export class Player implements PlayerData {
   CARD SELECTION
   ======================= */ 
 
-  selectCard(cardID: string, coinCost: number, purchaseOptions: PurchaseOptions) {
+  selectCard(cardID: string, coinCost: number, purchaseOptions: PurchaseOptions): ConditionData[] {
     const card: Card = game.cards[cardID];
     this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
     this.cards.push(cardID);
+    let condData: ConditionData[];
     if (card.VALUE_TYPE === "AND") {
       this.buildAndCard(card);
     } else if (card.VALUE_TYPE === "OR") {
       this.buildOrCard(card);
     } else if (card.VALUE_TYPE === "CONDITION") {
-      this.buildConditionCard(card);
+      condData = this.buildConditionCard(card);
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.buildDiscountCard(card);
     }
     this.coins -= coinCost;
     this.executePurchase(purchaseOptions);
+    // return condition to be redeemed at end of turn
+    return condData;
   }
 
   receivePay(cost: number, username: string) {
@@ -406,23 +409,24 @@ export class Player implements PlayerData {
     })
   }
 
-  private buildConditionCard(card: Card) {
+  private buildConditionCard(card: Card): ConditionData[] {
     const value = card.VALUE;
     const resources = value[2];
     const newResources: any[] = [];
+    let result: ConditionData[] = [];
     resources.forEach((resource: [number, string]) => {
       if (resource[1]==='COIN') {
-        const data: ConditionData = {category: value[0], player: value[1], value: [resource]}
-        this.redeemCondition(data);
+        result.push({category: value[0], player: value[1], value: [resource]})
       } else {
         newResources.push(resource);
       }
     })
     const data: ConditionData = {category: value[0], player: value[1], value: newResources}
     this.conditionalResources.push(data);
+    return result;
   }
   
-  private redeemCondition(conditionData: ConditionData) {
+  redeemCondition(conditionData: ConditionData) {
     console.log(conditionData);
     const values = {
       coins: 0,

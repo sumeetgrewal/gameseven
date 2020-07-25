@@ -2,11 +2,12 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 import { game } from '../models/game.model'
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData } from "../models/playerData.model";
 const router = require('express').Router(); 
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
 let sseId: number = 1;
+let conditionsToRedeem: {player: Player, condition: ConditionData[]}[] = [];
 
 function rotateHands(clockwise: boolean = true) {
   const numHands = Object.keys(game.hands).length;
@@ -192,13 +193,19 @@ function handleCardSelect(player: Player, username: string, card: string, action
     if (action === "discard") {
       player.discard(card);
     } else if (action==="build") {
-        player.selectCard(card, coinCost, purchase);
+      const condition: ConditionData[] = player.selectCard(card, coinCost, purchase);
+      if (condition) conditionsToRedeem.push({player, condition});
     }
     removeCardFromHand(username, card)
     
     if (ageSelectedCards[turn].length === numPlayers) {
-      // Coin condition card should be redeemed after all players have built their cards
       console.log("All players have selected cards");
+      for (let i = 0; i < conditionsToRedeem.length; i++) {
+        const data = conditionsToRedeem[i];
+        for (let j = 0; j < data.condition.length; j++) {
+          data.player.redeemCondition(data.condition[j])
+        }
+      }
       sendPlayerData(username, true);
       updateTurn();
       sendAllPlayerData();
