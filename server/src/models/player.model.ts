@@ -9,10 +9,10 @@ export class Player implements PlayerData {
   resources: ResourceList;
   coins: number;
   shields: number;
-  points?: number;
+  points: number;
   optionalResources?: Array<any>;
   personalResources?: Array<any>;
-  military?: MilitaryStats;
+  military: MilitaryStats;
   conditionalResources?: Array<any>;
   playerLeft?: string;
   playerRight?: string;
@@ -72,151 +72,38 @@ export class Player implements PlayerData {
       return buildOptions;
     }
 
-    // TODO Check if resource cost includes any coins => cost
-    // buildOptions.coinCost = cost
-    // buildOptions.costMet = cost > this.coins)
-
-    // Can I afford to build? 
-    let unmetCostArray: any = this.isResourceCostMet(card.RESOURCE_COST);
-    if (unmetCostArray.length === 0) {
+    const coinCost = this.getCoinCost(card.RESOURCE_COST);
+    if (coinCost > 0) {
       buildOptions.costMet = true;
-      buildOptions.coinCost = this.getCoinCost(card.RESOURCE_COST);
+      buildOptions.coinCost = coinCost;
+    } else {
 
-    // Can I purchase from my neighbours? 
-    // } else {
-    //   const bestPurchaseOption: [boolean, PurchaseOptions]= this.checkPurchaseOptions(unmetCostArray);
-    //   if (bestPurchaseOption[0]) {
-    //     buildOptions.costMet = true;
-    //     buildOptions.coinCost = bestPurchaseOption[1].costLeft + bestPurchaseOption[1].costRight;
-    //     buildOptions.purchaseOptions = bestPurchaseOption[1];
-    //   }
+      // Can I afford to build? 
+      let unmetCostArray: any = this.isResourceCostMet(card.RESOURCE_COST);
+      if (unmetCostArray.length === 0) {
+        buildOptions.costMet = true;      
+      } else {
+
+        // Can I purchase from my neighbours? 
+        console.log("Can't afford to build, checking purchase options ...");
+        const bestPurchaseOptions: PurchaseOptions[]= this.checkPurchaseOptions(unmetCostArray);
+        if (bestPurchaseOptions.length > 0) {
+          buildOptions.costMet = true;
+          buildOptions.coinCost = bestPurchaseOptions[0].costLeft + bestPurchaseOptions[0].costRight;
+          buildOptions.purchaseOptions = bestPurchaseOptions;
+          console.log("Purchase required: ", buildOptions.coinCost, buildOptions.purchaseOptions[0])
+        }
+      }
     }
-
+    
     // Can I afford the cost? 
     if (buildOptions.coinCost > this.coins) {
       buildOptions.costMet = false;
     }
-
     return buildOptions;
   }
-  
-  private checkPurchaseOptions(unmetCostArray: any) : [boolean, PurchaseOptions] {
-    const buildOptionsArray: BuildOptions[] = [];
-      for (let i = 0; i< unmetCostArray.length; i++) {
-        // unmetCost => Check if it includes coins 
-        const purchaseOptions: [any[], PurchaseOptions] = this.checkNeighbourResources(unmetCostArray[i]);
-        if (purchaseOptions[0].length > 0) {
-          console.log("Can't purchase , unmet resources : " + purchaseOptions[0][0] + " ... ")
-          const leftCards: object[]= game.gameData.playerData[this.playerLeft].optionalResources.map((valueArray: [number, string]) => {
-            return {
-              player: 'left',
-              value: valueArray,
-            }
-          })
-          const rightCards: object[] = game.gameData.playerData[this.playerRight].optionalResources.map((valueArray: [number, string]) => {
-            return {
-              player: 'right',
-              value: valueArray,
-            }
-          })
-          const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards)) // => PurchaseOption[]
-          buildOptionsArray.concat(result);
-        } else {
-          const buildOption = {
-            costMet: true,
-            coinCost: purchaseOptions[1].costLeft + purchaseOptions[1].costRight,
-            purchaseOptions : [purchaseOptions[1]],
-          }
-          buildOptionsArray.push(buildOption);
-        }
-      }
-      if (buildOptionsArray.length > 0) {
-        // TODO return optimal buildOption
-        return [true, {
-          costLeft: 0,
-          costRight: 0, 
-          purchaseLeft: [],
-          purchaseRight: [],
-        }]
-      } else return [false, {
-        costLeft: 0,
-        costRight: 0, 
-        purchaseLeft: [],
-        purchaseRight: [],
-      }]
-  }
 
-  private checkNeighbourResources(unmetCost: Array<any>) : [ any[], PurchaseOptions ] {
-    const purchaseOptions: any = {
-      purchaseRight: [],
-      purchaseLeft: [],
-      costRight: 0,
-      costLeft: 0
-    };
-    const right: Player = game.gameData.playerData[this.playerRight]; 
-    const left: Player = game.gameData.playerData[this.playerLeft];
-    const stillUnmetCost = []
-    for (let i = 0; i < unmetCost.length; i++) {
-      let numRequired = unmetCost[i][0];
-      const resource = unmetCost[i][1].toLowerCase();
-
-      // TODO lifted to canBuild, remove coin check
-      if (resource === 'COIN') {
-        stillUnmetCost.push(unmetCost[i]);
-        return [stillUnmetCost, purchaseOptions]
-      }
-
-      const leftCost = this.purchaseCosts.playerLeft[resource]
-      const rightCost = this.purchaseCosts.playerRight[resource]
-      const leftMet = (left) ? left.resources[resource] : 0
-      const rightMet = (right) ? right.resources[resource] : 0
-      
-      if (rightCost > leftCost) {
-        if (rightMet >= numRequired) {
-          purchaseOptions.purchaseRight.push([numRequired, resource]);
-          purchaseOptions.costRight += rightCost*numRequired;
-        } else {
-          numRequired -= rightMet;
-          purchaseOptions.purchaseRight.push([rightMet, resource]);
-          purchaseOptions.costRight += rightCost*rightMet;
-          if (leftMet >= numRequired) {
-            purchaseOptions.purchaseLeft.push([numRequired, resource]);
-            purchaseOptions.costLeft += leftCost*numRequired;
-          } else {
-            stillUnmetCost.push([numRequired, unmetCost[i][1]]);
-          }
-        }
-      } else {
-        if (leftMet >= numRequired) {
-          purchaseOptions.purchaseLeft.push([numRequired, resource]);
-          purchaseOptions.costLeft += leftCost*numRequired;
-        } else {
-          numRequired -= leftMet;
-          purchaseOptions.purchaseLeft.push([leftMet, resource]);
-          purchaseOptions.costLeft += leftCost*leftMet;
-          if (rightMet >= numRequired) {
-            purchaseOptions.purchaseRight.push([numRequired, resource]);
-            purchaseOptions.costRight += rightCost*numRequired;
-          } else {
-            stillUnmetCost.push([numRequired, unmetCost[i][1]]);
-          }
-        }
-      }
-    }
-    return [stillUnmetCost, purchaseOptions];
-  }
-
-  getCoinCost(resourceCost: Array<any>): number {
-    let coinCost = 0;
-    resourceCost.forEach((resource: [number, string]) => {
-      if (resource[1] === 'COIN') {
-        coinCost = resource[0];
-      }
-    })
-    return coinCost;
-  }
-
-  private isChainCostMet(chainCost: Array<any>) : boolean {
+  isChainCostMet(chainCost: Array<any>) : boolean {
     for (let i = 0; i < chainCost.length; i++) {
       const cardID: any = chainCost[i];
       if (this.cards.includes(cardID)) {
@@ -225,6 +112,16 @@ export class Player implements PlayerData {
       }
     }
     return false;
+  }
+
+  private getCoinCost(resourceCost: Array<any>): number {
+    let coinCost = 0;
+    resourceCost.forEach((resource: [number, string]) => {
+      if (resource[1] === 'COIN') {
+        coinCost = resource[0];
+      }
+    })
+    return coinCost;
   }
 
   private isResourceCostMet(resourceCost: Array<any>) : Array<any>{
@@ -237,16 +134,12 @@ export class Player implements PlayerData {
     return unmetCost
   }
 
-  private checkResources(resourceCost: Array<any>) : Array<any>{
+  private checkResources(resourceCost: Array<any>, values: ResourceList = this.resources) : Array<any>{
     const unmetCost: any[] = [];
 
-    resourceCost.forEach((resource: [number, Resource | "COIN"]) => {
+    resourceCost.forEach((resource: [number, Resource ]) => {
       let numRequired = resource[0];
-      if (resource[1] === 'COIN') {
-        numRequired -= this.coins;
-      } else {
-        numRequired -= this.resources[resource[1].toLowerCase()];
-      }
+      numRequired -= values[resource[1].toLowerCase()];
       if (numRequired > 0) {
         unmetCost.push([numRequired, resource[1]]);
       } 
@@ -255,31 +148,7 @@ export class Player implements PlayerData {
     return unmetCost;
   }
 
-  //TODO search function
-  private checkNeighbourAdditionalResources(resourceCost: any[], allCards: object[]): BuildOptions[] {
-    // allCardsArray = [
-    //   card = {
-    //     player: left,
-    //     valueArray: [[Q, R], [Q, R]]
-    //   }
-    //   card = {
-    //     player: left,
-    //     valueArray: [[Q, R], [Q, R]]
-    //   }
-    //   card = {
-    //     player: right,
-    //     valueArray: [[Q, R], [Q, R]]
-    //   }
-    //   card = {
-    //     player: right,
-    //     valueArray: [[Q, R], [Q, R]]
-    //   }
-    // ]
-    // Compute costs
-    return [];
-  }
-
-  private checkAdditionalResources(resourceCost: Array<any>, allCards: any[]) : Array<any> {
+  private checkAdditionalResources(resourceCost: Array<any>, allCards: any[]) : [number, string][][] {
     const unmetCostArray: any[] = [];
     const resources = resourceCost.map((resource: [number, string]) => {return resource[1]})
     const cards: any[] = [];
@@ -290,14 +159,14 @@ export class Player implements PlayerData {
       if (newValues.length > 0) cards.push(newValues);
     });
 
-    if (cards.length === 0) return resourceCost;
+    if (cards.length === 0) return [resourceCost];
     let resourceLists: Array<[ResourceList, number]> = [];
     let initResources: ResourceList = new ResourceList(0);
     createResourceLists(initResources, 0);
 
     while (resourceLists.length > 0) {
       let list = resourceLists.pop();
-      const unmetCost: any[] = checkResourceList(resourceCost, list[0])
+      const unmetCost: any[] = this.checkResources(resourceCost, list[0])
       if (unmetCost.length === 0) {
         return [];
       } else {
@@ -316,17 +185,172 @@ export class Player implements PlayerData {
           resourceLists.push([newList, cardIndex]);
         });
       }
+    }      
+  }
+
+  private checkPurchaseOptions(unmetCostArray: [number, string][][]) : PurchaseOptions[] {
+    let buildOptionsArray: BuildOptions[] = [];
+    for (let i = 0; i< unmetCostArray.length; i++) {
+      const purchaseOptions: [any[], PurchaseOptions] = this.checkNeighbourResources(unmetCostArray[i]);
+      if (purchaseOptions[0].length === 0) {
+        const buildOption = {
+          costMet: true,
+          coinCost: purchaseOptions[1].costLeft + purchaseOptions[1].costRight,
+          purchaseOptions : [purchaseOptions[1]],
+        }
+        buildOptionsArray.push(buildOption);
+      } else {
+        // Check optional resources
+        console.log("Checking neighbour optional resources...");
+        const left: Player = game.gameData.playerData[this.playerLeft];
+        const right: Player = game.gameData.playerData[this.playerRight];
+        let leftCards: object[] = [];
+        let rightCards: object[] = [];
+        if (left) {
+          leftCards = game.gameData.playerData[this.playerLeft].optionalResources.map((valueArray: [number, string]) => {
+            return { player: 'left', value: valueArray }
+          })
+        }
+        if (right) {
+          rightCards = game.gameData.playerData[this.playerRight].optionalResources.map((valueArray: [number, string]) => {
+            return { player: 'right', value: valueArray }
+          })
+        } 
+        const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards)) // => PurchaseOption[]
+        buildOptionsArray = buildOptionsArray.concat(result);
+      }
+    }
+    if (buildOptionsArray.length > 0) {
+      let optimalPurchaseOptions: PurchaseOptions[] = [];
+      let minCost = -1;
+      buildOptionsArray.forEach((options: BuildOptions) => {
+        if (options.coinCost <= minCost || minCost === -1) {
+          if (options.coinCost < minCost) {
+            minCost = options.coinCost;
+            optimalPurchaseOptions = [];
+          }
+          optimalPurchaseOptions =  optimalPurchaseOptions.concat(options.purchaseOptions);
+        }
+      })
+      return optimalPurchaseOptions
+    } else return [];
+  }
+
+  private checkNeighbourResources(resourceCost: Array<any>) : [ any[], PurchaseOptions ] {
+    const purchaseOptions: any = {
+      purchaseRight: [],
+      purchaseLeft: [],
+      costRight: 0,
+      costLeft: 0
+    };
+    const right: Player = game.gameData.playerData[this.playerRight]; 
+    const left: Player = game.gameData.playerData[this.playerLeft];
+    const unmetCost = []
+    for (let i = 0; i < resourceCost.length; i++) {
+      let numRequired = resourceCost[i][0];
+      const resource = resourceCost[i][1].toLowerCase();
+
+      const leftCost = this.purchaseCosts.playerLeft[resource]
+      const rightCost = this.purchaseCosts.playerRight[resource]
+      const leftMet = (left) ? left.resources[resource] : 0
+      const rightMet = (right) ? right.resources[resource] : 0
+      
+      if (rightCost > leftCost) {
+        if (rightMet >= numRequired) {
+          purchaseOptions.purchaseRight.push([numRequired, resource]);
+          purchaseOptions.costRight += rightCost*numRequired;
+        } else {
+          if (rightMet > 0) {
+            numRequired -= rightMet;
+            purchaseOptions.purchaseRight.push([rightMet, resource]);
+            purchaseOptions.costRight += rightCost*rightMet;
+          }
+          if (leftMet >= numRequired) {
+            purchaseOptions.purchaseLeft.push([numRequired, resource]);
+            purchaseOptions.costLeft += leftCost*numRequired;
+          } else {
+            unmetCost.push([numRequired, resourceCost[i][1]]);
+          }
+        }
+      } else {
+        if (leftMet >= numRequired) {
+          purchaseOptions.purchaseLeft.push([numRequired, resource]);
+          purchaseOptions.costLeft += leftCost*numRequired;
+        } else {
+          if (leftMet > 0) {
+            numRequired -= leftMet;
+            purchaseOptions.purchaseLeft.push([leftMet, resource]);
+            purchaseOptions.costLeft += leftCost*leftMet;
+          }
+          if (rightMet >= numRequired) {
+            purchaseOptions.purchaseRight.push([numRequired, resource]);
+            purchaseOptions.costRight += rightCost*numRequired;
+          } else {
+            unmetCost.push([numRequired, resourceCost[i][1]]);
+          }
+        }
+      }
+    }
+    return [unmetCost, purchaseOptions];
+  }
+
+  private checkNeighbourAdditionalResources(resourceCost: any[], allCards: object[]): BuildOptions[] {
+    const result: BuildOptions[] = []
+    const resources = resourceCost.map((resource: [number, string]) => {return resource[1]})
+    const cards: any[] = [];
+    allCards.forEach((card: {player: string, value: Array<[number, string]>}) => {
+      const newValues = card.value.filter((resourceValue: [number, string]) => {
+        if (resources.includes(resourceValue[1])) return resourceValue;
+      })
+      if (newValues.length > 0) cards.push({ ...card , value: newValues})
+    })
+
+    if (cards.length === 0) return []
+    let resourceLists: Array<{list: ResourceList, cardIndex: number, purchaseOptions: PurchaseOptions}> = [];
+    let initResources: ResourceList = new ResourceList(0);
+    createResourceLists(initResources, 0, {costLeft: 0, costRight: 0, purchaseLeft: [], purchaseRight: []}, this.purchaseCosts);
+
+    while (resourceLists.length > 0) {
+      let cardData = resourceLists.pop();
+      const unmetCost: any[] = this.checkResources(resourceCost, cardData.list)
+      if (unmetCost.length === 0) {
+        const {purchaseOptions} = cardData;
+        const buildOption: BuildOptions = {
+          costMet: true,
+          coinCost: purchaseOptions.costLeft + purchaseOptions.costRight,
+          purchaseOptions: [purchaseOptions],
+        }
+        result.push(buildOption);
+      } else {
+        createResourceLists(cardData.list, cardData.cardIndex + 1, cardData.purchaseOptions, this.purchaseCosts);
+      }
     }
 
-    function checkResourceList(resourceCost: Array<any>, values: ResourceList): any[] {
-      const unmetCost: any = [];
-      resourceCost.forEach((resource: [number, Resource]) => {
-        let numRequired = resource[0];
-        numRequired -= values[resource[1].toLowerCase()];
-        if (numRequired > 0) unmetCost.push([numRequired, resource[1]]);
-      })
-      return (unmetCost);
-    }         
+    console.log("Checked neigbour options, result : " + result[0])
+    return result;
+
+    function createResourceLists(list: ResourceList, cardIndex: number, purchaseOptions: PurchaseOptions, purchaseCosts: {playerLeft: ResourceList, playerRight: ResourceList}): void {
+      const card: {player: 'right' | 'left' , value: Array<[number, string]>} = cards[cardIndex]; 
+      if (card) {
+        card.value.forEach((value: [number, string]) => {
+          const newPurchaseOptions: PurchaseOptions = purchaseOptions;
+          if (card.player === "right") {
+            newPurchaseOptions.purchaseRight.push(value);
+            newPurchaseOptions.costRight += purchaseCosts.playerRight[value[1].toLowerCase()];
+          }
+          else {
+            newPurchaseOptions.purchaseLeft.push(value);
+            newPurchaseOptions.costLeft += purchaseCosts.playerLeft[value[1].toLowerCase()];
+          }
+          let newList: ResourceList = Object.assign({}, list); 
+          newList[value[1].toLowerCase()] += value[0];
+          resourceLists.push({
+            list: newList, 
+            cardIndex,
+            purchaseOptions: newPurchaseOptions});
+        });
+      }
+    }      
   }
 
   /* =======================
@@ -350,13 +374,7 @@ export class Player implements PlayerData {
     this.executePurchase(purchaseOptions);
   }
 
-  private executePurchase(purchaseOptions: PurchaseOptions) {
-    const {costLeft, costRight} = purchaseOptions;
-    if (costLeft > 0) game.gameData.playerData[this.playerLeft].receivePay(costLeft, this.username);
-    if (costRight > 0) game.gameData.playerData[this.playerRight].receivePay(costRight, this.username);
-  }
-
-  public receivePay(cost: number, username: string) {
+  receivePay(cost: number, username: string) {
     this.coins += cost;
     console.log(`Player ${this.username} received ${cost} coins from ${username}`);
   }
@@ -365,6 +383,12 @@ export class Player implements PlayerData {
     game.gameData.discardPile.push(card);
     this.coins += 3;
     console.log('coins: ' + this.coins);
+  }
+
+  private executePurchase(purchaseOptions: PurchaseOptions) {
+    const {costLeft, costRight} = purchaseOptions;
+    if (costLeft > 0) game.gameData.playerData[this.playerLeft].receivePay(costLeft, this.username);
+    if (costRight > 0) game.gameData.playerData[this.playerRight].receivePay(costRight, this.username);
   }
 
   private buildDiscountCard(card: Card) {
