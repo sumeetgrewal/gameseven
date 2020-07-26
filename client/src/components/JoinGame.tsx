@@ -69,7 +69,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
 
   handleInputChange = (event: any) => {
     const fieldName: string = event.target.name;
-    const value: string = event.target.value;
+    const value: string = event.target.value.trim();
     if (fieldName === 'username') {
       this.setState({username: value})
     } else if (fieldName === 'password') {

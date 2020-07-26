@@ -39,7 +39,8 @@ export function cleanupGame() {
     3: {},
   },
   game.gameData = {
-    playerData: {}
+    playerData: {},
+    discardPile: []
   }
   clearTimeout(gameCountdown);
   console.log("game reset");
@@ -66,6 +67,7 @@ export function resetToLobby() {
     3: {},
   }
   game.gameData = {
-    playerData: {}
+    playerData: {},
+    discardPile: []
   }
 }

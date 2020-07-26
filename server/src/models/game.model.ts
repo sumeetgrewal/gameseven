@@ -23,6 +23,7 @@ export let game: gameModel = {
   gameData: {
     playerData: {
       // username : Player
-    }
+    },
+    discardPile: [],
   }
 }
