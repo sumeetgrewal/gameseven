@@ -1,9 +1,8 @@
 import * as React from 'react'
-import {boardImages, PlayerData, /*cardImages*/ } from './GameAssets'
+import {boardImages, PlayerData, Board, /*cardImages*/ } from './GameAssets'
 
 interface BoardProps {
-    boardID: number,
-    boardName: string,
+    board: Board,
     metadata: {
         age: number,
         turn: number,
@@ -12,7 +11,7 @@ interface BoardProps {
 }
 
 export default function PlayerBoard (props: BoardProps) {
-    const boardImage = boardImages[props.boardID + ".jpg"];
+    const boardImage = boardImages[props.board.BOARD_ID + ".jpg"];
     return (<>
         <div 
             className="my-board m-0 full-height" 
@@ -34,10 +33,9 @@ export default function PlayerBoard (props: BoardProps) {
                         <h3>COINS</h3><h4>{props.myData.coins}</h4>
                     </div>
                 </div>
-                <div className="col-4 d-flex justify-content-end p-4">
-                    <h1 className="text-white">
-                        {props.boardName}
-                    </h1>
+                <div className="col-4 d-flex justify-content-end flex-column align-items-end flex-wrap p-4 text-white">
+                    <h2>{props.board.SHORT_NAME}</h2>
+                    <h4>{props.board.RESOURCE}</h4>
                 </div>
             </div>
         </div>

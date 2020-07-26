@@ -360,9 +360,34 @@ class Game extends React.Component<GameProps, GameState> {
           </div>
         </div>
         <div className="row">
-          <div className="col-12 col-md-6 col-lg-4">
+          <div className="col-12">
             {result}
           </div> 
+        </div>
+      </div>
+    )
+  }
+
+  renderStageInfo() {
+    const stages: any = [];
+    const {stageData} = this.state.myData;
+    if (stageData) {
+      for (let i = 1; i <= 3; i++) {
+        console.log(stageData[i]);
+        stages.push(
+          <div className="col-4" key={`stage-${i}`}>
+
+            <h3 className="pb-2" key={`stage-${i}`}>{`${i}`}</h3>
+            <h6 key={`stage-${i}`}>{`COST: ${stageData[i].cost}`}</h6>
+            <h6 key={`stage-${i}`}>{`VALUE: ${stageData[i].value}`}</h6>
+          </div> 
+        )
+      }
+    }
+    return (
+      <div className='col-12 card-info-container container text-center justify-content-center'>
+        <div className="row text-white">
+          {stages}
         </div>
       </div>
     )
@@ -373,8 +398,7 @@ class Game extends React.Component<GameProps, GameState> {
     if (this.state.isLoaded && (myBoard !== undefined)) {
       return (<>
         {myBoard && 
-          <PlayerBoard boardID={myBoard.BOARD_ID} boardName={myBoard.SHORT_NAME} 
-            metadata={this.state.metadata} myData={this.state.myData}/>
+          <PlayerBoard board={myBoard} metadata={this.state.metadata} myData={this.state.myData}/>
         }
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
@@ -382,6 +406,7 @@ class Game extends React.Component<GameProps, GameState> {
             {this.renderMyCards()}
             {this.renderCardInfo()}
             {this.renderHand()}
+            {this.renderStageInfo()}
           </div>
         </div>        
       </>)

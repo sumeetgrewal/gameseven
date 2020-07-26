@@ -206,6 +206,11 @@ GAME
     margin: 20px 0 0 !important;
 }
 
+.card-info-container {
+    min-height: 195px;
+    align-items: center;
+}
+
 .hand-card {
     width: 177px;
     height: 75px;
@@ -214,9 +219,9 @@ GAME
 .built-container {
     width: 100%;
     background-color: #00000077;
-    padding: 70px 30px 30px;
+    padding: 80px 30px 20px;
     margin: 0;
-    max-height: 275px;
+    max-height: 295px;
 }
 
 .built-card {
@@ -228,6 +233,13 @@ GAME
 .card-wrapper {
     width: 177px;
     height: 35px;
+    transition: 0.15s ease-in;
+}
+
+.card-wrapper:hover, .card-wrapper:focus {
+    height: 60px;
+    margin-top: -25px !important;
+    transition: 0.2s ease-out;
 }
 
 .cost-met {
