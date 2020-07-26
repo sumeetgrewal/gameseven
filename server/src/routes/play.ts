@@ -2,7 +2,7 @@
 import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
 import { game } from '../models/game.model'
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions, ConditionData } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../models/playerData.model";
 const router = require('express').Router(); 
 let JWTHandlers = require('../middleware/jwt.authorization');
 let gameClients: any[] = [];
@@ -72,9 +72,22 @@ function sendTurnUpdate() {
         const buildOptions: BuildOptions = player.canBuild(cardID);
         handInfo[cardID] = buildOptions;
       })
+      let stageInfo: StageOptions;
+      if (player.stagesBuilt === 3) {
+        stageInfo = {
+          stage: -1,
+          cost: 0,
+          options: {costMet: false, coinCost: 0, purchaseOptions: []},
+        }
+       } else stageInfo = {
+        stage: player.stagesBuilt + 1,
+        cost: player.stageData[player.stagesBuilt + 1].cost,
+        options: player.canStage(),
+      } 
       game.players[client.id].handInfo = handInfo;
+      game.players[client.id].stageInfo = stageInfo;
       console.log(game.players[client.id]);
-      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo}), 'turnUpdate', [client])
+      pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo, stageInfo}), 'turnUpdate', [client])
     }
   })
 }
@@ -173,16 +186,18 @@ router.route('/').post((req: any, res: any) => {
 
 function validateSelection(username: string, card: string, action: string) {
   const handInfo = game.players[username].handInfo;
-  const cards = Object.keys(handInfo);
-  const isCardInHand: boolean = cards.includes(String(card));
+  const isCardInHand: boolean = Object.keys(handInfo).includes(String(card));
   const isCostMet: boolean = handInfo[card].costMet;
+  const isStageCostMet: boolean = game.players[username].stageInfo.options.costMet;
   if (action==='build') return (isCardInHand && isCostMet);
   else if (action==='discard') return (isCardInHand);
+  else if (action==='stage') return (isStageCostMet);
 }
 
 function handleCardSelect(player: Player, username: string, card: string, action: string, age: number, turn: number, purchase: PurchaseOptions) {
-    const options: BuildOptions = game.players[username].handInfo[card];
-    const {coinCost} = options;
+    const buildOptions: BuildOptions = game.players[username].handInfo[card];
+    const stageOptions: StageOptions = game.players[username].stageInfo;
+    const {coinCost} = buildOptions;
     const ageSelectedCards = game.selections[age];
     const numPlayers = Object.keys(game.players).length
     if (!ageSelectedCards[turn]) {
@@ -195,6 +210,8 @@ function handleCardSelect(player: Player, username: string, card: string, action
     } else if (action==="build") {
       const condition: ConditionData[] = player.selectCard(card, coinCost, purchase);
       if (condition) conditionsToRedeem.push({player, condition});
+    } else if (action==="stage") { 
+      player.buildStage(stageOptions, purchase)
     }
     removeCardFromHand(username, card)
     

@@ -27,6 +27,7 @@ export interface Card {
   CHAINS?: Array<any>;
   NUM_PLAYERS: number;
 }
+
 export interface PlayerData {
   board: Board | undefined;
   cards: Array<string>;
@@ -34,7 +35,8 @@ export interface PlayerData {
   resources: ResourceList;
   optionalResources?: Array<any>;
   personalResources?: Array<any>;
-  military?: MilitaryStats;
+  military: MilitaryStats;
+  stagesBuilt: number;
   coins: number;
   shields: number;
   points?: number;
@@ -52,11 +54,18 @@ export interface ConditionData  {
   player: any[],
   value: any[],
 }
+
 export interface PurchaseOptions {
   purchaseRight: any[],
   purchaseLeft: any[],
   costRight: number,
   costLeft: number
+}
+
+export interface StageOptions {
+  stage: number, 
+  cost: any, 
+  options: BuildOptions
 }
 
 export class ResourceList {
@@ -121,7 +130,14 @@ export interface gameModel {
     turn: number;
   };
   players: {
-    [index: string]: any;
+    [index: string]: {
+      status?: string,
+      board?: any,
+      boardID?: string,
+      handID?: number,
+      handInfo?: {[id: string] : BuildOptions},
+      stageInfo?: StageOptions,
+    };
   };
   cards: {
     [index: string]: Card;

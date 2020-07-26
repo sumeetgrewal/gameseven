@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList } from './GameAssets';
 
 interface GameProps {
   username: string,
@@ -26,6 +26,7 @@ interface GameState {
   }
   currentHand: Array<string>,
   handInfo: any,
+  stageInfo: any,
   metadata: {
     age: number,
     turn: number,
@@ -46,6 +47,7 @@ class Game extends React.Component<GameProps, GameState> {
       isLoaded: false,
       currentHand: [],
       handInfo: {},
+      stageInfo: {},
       // TODO lift metadata state to App if possible
       metadata: {
         age: 1, 
@@ -58,27 +60,10 @@ class Game extends React.Component<GameProps, GameState> {
       myData: {
         board : undefined,
         cards : [],
-        cardTypes : {
-          brown: [],
-          gray: [],
-          blue: [],
-          green: [],
-          red: [],
-          yellow: [],
-          purple: [],
-        },
-        resources : {
-          wood: 0,
-          ore: 0,
-          stone: 0,
-          clay: 0,
-          glass: 0,
-          papyrus: 0,
-          loom: 0,
-          compass: 0,
-          tablet: 0,
-          gear: 0,
-        },
+        cardTypes : new CardTypeList(),
+        resources : new ResourceList(0),
+        military: {loss: 0, one: 0, three: 0, five: 0},
+        stagesBuilt: 0,
         coins : 3,
         shields : 0,
         points : 0,
@@ -123,6 +108,7 @@ class Game extends React.Component<GameProps, GameState> {
           metadata: parsedData.metadata,
           currentHand: parsedData.hand,
           handInfo: parsedData.handInfo,
+          stageInfo: parsedData.stageInfo,
           isWaiting: false,
         });
       });
@@ -275,19 +261,23 @@ class Game extends React.Component<GameProps, GameState> {
       </div>
       )
     } else {
-      const info: BuildOptions = this.state.handInfo[selectedCard];
+      const buildInfo: BuildOptions = this.state.handInfo[selectedCard];
+      const stageInfo: {stage: number, options: BuildOptions} = this.state.stageInfo;
 
       if (!viewPurchaseOptions) {
-        return this.renderCardActions(card, info, selectedCard, age, turn)
+        return this.renderCardActions(card, buildInfo, stageInfo, selectedCard, age, turn)
       }
       else {
-        return this.renderPurchaseOptions(card, info, selectedCard, age, turn)
+        return this.renderPurchaseOptions(card, buildInfo, stageInfo, selectedCard, age, turn)
       }
     }
   }
 
-  private renderCardActions(card: Card, cardInfo: any, cardID: string, age: number, turn: number) {
+  private renderCardActions(card: Card, cardInfo: BuildOptions, stageInfo: {stage: number, options: BuildOptions}, 
+    cardID: string, age: number, turn: number) {
     const canBuild = (cardInfo) ? cardInfo.costMet : false;
+    const canStage = (stageInfo) ? stageInfo.options.costMet : false;
+
     const handleCardBuild = () => {
       if (cardInfo.coinCost > 0) {
         this.setState({viewPurchaseOptions: true})
@@ -310,8 +300,10 @@ class Game extends React.Component<GameProps, GameState> {
             </button>
           </div>
           <div className="col-12 col-md-6 col-lg-4">
-            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={true} value={card.CARD_ID}>
-                        STAGE
+            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canStage} 
+              onClick={() => this.selectCard(cardID, "stage", age, turn)}
+              value={card.CARD_ID}>
+              {(stageInfo.stage > 0) ? `STAGE ${stageInfo.stage}` : `ALL STAGES BUILT`}
             </button>
           </div>
           <div className="col-12 col-md-12 col-lg-4">
@@ -326,7 +318,7 @@ class Game extends React.Component<GameProps, GameState> {
     );
   }
 
-  private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, cardID: string, age: number, turn: number) {
+  private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, stageInfo: any, cardID: string, age: number, turn: number) {
     const purchaseOptions: PurchaseOptions[] = cardInfo.purchaseOptions;
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
     let result: any[] = [];
