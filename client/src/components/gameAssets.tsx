@@ -50,6 +50,13 @@ export interface PurchaseOptions {
   costLeft: number
 }
 
+export interface StageOptions {
+  stage: number, 
+  cost: any, 
+  value: any,
+  options: BuildOptions
+}
+
 export class ResourceList {
   [index: string]: number;
   wood: number;

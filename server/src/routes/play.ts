@@ -65,7 +65,6 @@ function sendTurnUpdate() {
     const handID = game.players[client.id].handID;
     const hand = game.hands[handID];
     const player = game.gameData.playerData[client.id];
-    console.log(client.id, hand);
     if (hand) {
       const handInfo: any= {};
       hand.forEach((cardID: any) => {
@@ -76,17 +75,19 @@ function sendTurnUpdate() {
       if (player.stagesBuilt === 3) {
         stageInfo = {
           stage: -1,
-          cost: 0,
+          cost: [],
+          value: [],
           options: {costMet: false, coinCost: 0, purchaseOptions: []},
         }
        } else stageInfo = {
         stage: player.stagesBuilt + 1,
         cost: player.stageData[player.stagesBuilt + 1].cost,
+        value: player.stageData[player.stagesBuilt + 1].value,
         options: player.canStage(),
       } 
       game.players[client.id].handInfo = handInfo;
       game.players[client.id].stageInfo = stageInfo;
-      console.log(game.players[client.id]);
+      console.log(client.id, game.players[client.id]);
       pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo, stageInfo}), 'turnUpdate', [client])
     }
   })
@@ -217,12 +218,13 @@ function handleCardSelect(player: Player, username: string, card: string, action
     
     if (ageSelectedCards[turn].length === numPlayers) {
       console.log("All players have selected cards");
-      for (let i = 0; i < conditionsToRedeem.length; i++) {
-        const data = conditionsToRedeem[i];
+      while (conditionsToRedeem.length > 0) {
+        const data = conditionsToRedeem.pop();
         for (let j = 0; j < data.condition.length; j++) {
           data.player.redeemCondition(data.condition[j])
         }
       }
+
       sendPlayerData(username, true);
       updateTurn();
       sendAllPlayerData();

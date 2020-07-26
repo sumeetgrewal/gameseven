@@ -56,9 +56,9 @@ export class Player implements PlayerData {
     }
   }
 
-  /* =======================
+  /* =================================================
   VALIDATION 
-  ======================= */   
+  ================================================= */ 
 
   canBuild(cardID: string): BuildOptions {
     const card = game.cards[cardID];
@@ -84,7 +84,6 @@ export class Player implements PlayerData {
     if (this.stageData) {
       nextStage = this.stageData[this.stagesBuilt + 1];
     }
-    console.log('Stage data', nextStage.value, nextStage.cost);
     if (this.stagesBuilt === 3) {
       return {costMet: false, coinCost: 0, purchaseOptions: []}
     }
@@ -386,14 +385,26 @@ export class Player implements PlayerData {
     }      
   }
 
-  /* =======================
+  /* =================================================
   CARD SELECTION
-  ======================= */ 
+  ================================================= */ 
 
   buildStage(stageOptions: StageOptions, purchase: PurchaseOptions) {
     const data = this.stageData[stageOptions.stage];
     console.log(`Building stage ${stageOptions.stage}. Will receive ${data.value}`); 
     // TODO add points/stage value
+    data.value.forEach((value: [number, string]) => {
+      if (value[1] === 'POINT') {
+        this.addPoints(value[0])
+      } else if (value[1] === 'COIN') {
+        this.addCoins(value[0])
+      } else if (value[1] === 'SHIELD') {
+        this.addShields(value[0])
+      } else if (Object.keys(this.resources).includes(value[1].toLowerCase())) {
+        this.addResources([value]);
+      }
+      else console.log("Couldn't build " + data.value);
+    })
     this.stagesBuilt += 1;
     this.coins -= stageOptions.options.coinCost;
     this.executePurchase(purchase);
@@ -538,8 +549,8 @@ export class Player implements PlayerData {
     }
   }
 
-  private addResources(cardValue: Array<[number, Resource]>) {
-    cardValue.forEach((value: [number, Resource]) => {
+  private addResources(cardValue: Array<[number, string]>) {
+    cardValue.forEach((value: [number, string]) => {
       const resource: string = value[1].toLowerCase();
       this.resources[resource] += value[0];
     })

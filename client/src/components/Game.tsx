@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList, StageOptions } from './GameAssets';
 
 interface GameProps {
   username: string,
@@ -26,7 +26,7 @@ interface GameState {
   }
   currentHand: Array<string>,
   handInfo: any,
-  stageInfo: any,
+  stageInfo: StageOptions,
   metadata: {
     age: number,
     turn: number,
@@ -47,7 +47,12 @@ class Game extends React.Component<GameProps, GameState> {
       isLoaded: false,
       currentHand: [],
       handInfo: {},
-      stageInfo: {},
+      stageInfo: {
+        stage: -1,
+        cost: [],
+        value: [],
+        options: {costMet: false, coinCost: 0, purchaseOptions: []}
+      },
       // TODO lift metadata state to App if possible
       metadata: {
         age: 1, 
@@ -262,7 +267,7 @@ class Game extends React.Component<GameProps, GameState> {
       )
     } else {
       const buildInfo: BuildOptions = this.state.handInfo[selectedCard];
-      const stageInfo: {stage: number, options: BuildOptions} = this.state.stageInfo;
+      const stageInfo: StageOptions = this.state.stageInfo;
 
       if (!viewPurchaseOptions) {
         return this.renderCardActions(card, buildInfo, stageInfo, selectedCard, age, turn)

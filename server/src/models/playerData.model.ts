@@ -65,6 +65,7 @@ export interface PurchaseOptions {
 export interface StageOptions {
   stage: number, 
   cost: any, 
+  value: any,
   options: BuildOptions
 }
 
