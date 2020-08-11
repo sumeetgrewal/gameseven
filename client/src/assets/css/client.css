@@ -164,7 +164,7 @@ BOARDSELECTOR
 }
 
 /* =======================
-BOARD
+PLAYERBOARD
 ======================= */ 
 
 .my-board {
@@ -193,6 +193,60 @@ BOARD
     width: 100%;
     position: absolute;
     bottom: 0;
+}
+
+/* =======================
+PLAYERBOARD > STAGEINFO
+======================= */ 
+
+.stage-built {
+    color: green;
+}
+
+.stage-icon-container {
+    height: 80px;
+    /* padding: 0 50px; */
+    margin: 0;
+}
+
+.stage-icon {
+    height: 80px;
+    width: 80px;
+}
+
+.gray-scale {
+    filter: grayscale(100%);
+}
+
+.popover {
+    background-color: rgba(0,0,0,0.4);
+    border: none;
+}
+.popover-header, .popover-body {
+    text-align: center;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    color: white;
+    background-color: rgba(0,0,0,0.2);
+    border: none;
+}
+
+.popover-header::before {
+    display: none !important;
+    width: 0;
+}
+
+.popover-header {
+    border-bottom: 1px solid #ffffff30;
+}
+
+.popover .arrow {
+    visibility: hidden;
+}
+
+.board-container {
+    margin: 0 !important;
+    min-width: 100vw;
 }
 
 /* =======================

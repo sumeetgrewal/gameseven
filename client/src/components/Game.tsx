@@ -204,25 +204,6 @@ class Game extends React.Component<GameProps, GameState> {
       })
     })
   }
-  
-  renderMyCards() {
-    const myCards = this.state.myData.cards;
-    let myCardArray: Array<any> = [];
-    if (myCards.length > 0) {
-      myCards.forEach((card: string) => {
-        myCardArray.push(
-          <div className="d-inline-block m-1 card-wrapper" key={card + '-container'}>
-            <img className="built-card" src={cardImages[card + '.png']} alt="card" key={card}/>
-          </div>
-        )
-      })
-    }
-    return (
-      <div className='col-12 built-container text-center d-flex flex-wrap flex-column justify-content-center'>
-        {myCardArray}
-      </div>
-    )
-  }
 
   renderHand() {
     const {currentHand, handInfo} = this.state;
@@ -368,31 +349,6 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
-  renderStageInfo() {
-    const stages: any = [];
-    const {stageData} = this.state.myData;
-    if (stageData) {
-      for (let i = 1; i <= 3; i++) {
-        console.log(stageData[i]);
-        stages.push(
-          <div className="col-4" key={`stage-${i}`}>
-
-            <h3 className="pb-2" key={`stage-${i}`}>{`${i}`}</h3>
-            <h6 key={`stage-${i}`}>{`COST: ${stageData[i].cost}`}</h6>
-            <h6 key={`stage-${i}`}>{`VALUE: ${stageData[i].value}`}</h6>
-          </div> 
-        )
-      }
-    }
-    return (
-      <div className='col-12 card-info-container container text-center justify-content-center'>
-        <div className="row text-white">
-          {stages}
-        </div>
-      </div>
-    )
-  }
-
   render() {
     const myBoard = this.state.myData.board;
     if (this.state.isLoaded && (myBoard !== undefined)) {
@@ -403,10 +359,8 @@ class Game extends React.Component<GameProps, GameState> {
         <div className="container d-flex align-items-center justify-content-center">
           <div className='row'>
             {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
-            {this.renderMyCards()}
             {this.renderCardInfo()}
             {this.renderHand()}
-            {this.renderStageInfo()}
           </div>
         </div>        
       </>)
