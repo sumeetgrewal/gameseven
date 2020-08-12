@@ -62,7 +62,7 @@ export class Player implements PlayerData {
 
   canBuild(cardID: string): BuildOptions {
     const card = game.cards[cardID];
-    console.log(card.CARD_ID + " " + card.NAME);
+    // console.log(card.CARD_ID + " " + card.NAME);
 
     // Is card free or is chain cost met ?
     if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
@@ -124,7 +124,7 @@ export class Player implements PlayerData {
           buildOptions.costMet = true;
           buildOptions.coinCost = bestPurchaseOptions[0].costLeft + bestPurchaseOptions[0].costRight;
           buildOptions.purchaseOptions = bestPurchaseOptions;
-          console.log("Purchase required: ", buildOptions.coinCost, buildOptions.purchaseOptions[0])
+          // console.log("Purchase required: ", buildOptions.coinCost, buildOptions.purchaseOptions[0])
         }
       }
     }
@@ -139,7 +139,7 @@ export class Player implements PlayerData {
     for (let i = 0; i < chainCost.length; i++) {
       const cardID: any = chainCost[i];
       if (this.cards.includes(cardID)) {
-        console.log("Chain cost is met");
+        // console.log("Chain cost is met");
         return true;
       }
     }

@@ -49,8 +49,10 @@ function updateTurn() {
       // TODO end game
     } else {
       // TODO handle military
+      handleMilitary()
       game.metadata.age++;
       game.metadata.turn = 1;
+      console.log(game.gameData.playerData)
       return beginAge();
     }
   } else {
@@ -59,6 +61,52 @@ function updateTurn() {
   rotateHands(!(game.metadata.age===2));
   sendTurnUpdate();
 }
+
+function handleMilitary() {
+  const allPlayerData = game.gameData.playerData;
+  Object.entries(allPlayerData).forEach((player: [string, Player]) => {
+    const leftBattle = militaryConflict(player[1], allPlayerData[player[1].playerLeft]);
+    game.gameData.playerData[player[1].playerLeft] = leftBattle[0];
+    game.gameData.playerData[player[0]] = leftBattle[1];
+  })
+
+  function militaryConflict(self: Player, opponent: Player) : [Player, Player] {
+    if (opponent.shields > self.shields) {
+      self.military.loss += 1;
+      switch (game.metadata.age) {
+        case 1:
+          opponent.military.one += 1;
+          break;
+        case 2:
+          opponent.military.three += 1;
+          break;
+        case 3:
+          opponent.military.five += 1;
+          break;
+        default:
+          break;
+      }
+    }
+    else if (opponent.shields < self.shields) {
+      opponent.military.loss += 1;
+      switch (game.metadata.age) {
+        case 1:
+          self.military.one += 1;
+          break;
+        case 2:
+          self.military.three += 1;
+          break;
+        case 3:
+          self.military.five += 1;
+          break;
+        default:
+          break;
+      }
+    }
+    return [opponent, self]
+  }
+}
+
 
 function sendTurnUpdate() {
   gameClients.forEach((client: any) => {
@@ -87,7 +135,7 @@ function sendTurnUpdate() {
       } 
       game.players[client.id].handInfo = handInfo;
       game.players[client.id].stageInfo = stageInfo;
-      console.log(client.id, game.players[client.id]);
+      // console.log(client.id, game.players[client.id]);
       pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo, stageInfo}), 'turnUpdate', [client])
     }
   })

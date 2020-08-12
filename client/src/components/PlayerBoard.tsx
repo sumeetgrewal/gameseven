@@ -47,24 +47,33 @@ export default function PlayerBoard (props: BoardProps) {
         const {stageData} = props.myData;
         if (stageData) {
             for (let i = 1; i <= 3; i++) {
+                const icons: any = stageData[i].cost.map((resource: [number, string]) => {
+                    const result: any = [];
+                    for (let j = 1; j <= resource[0]; j++) {
+                        result.push(<img className="cost-icon" src={iconImages[resource[1].toLowerCase() + '.png']} alt="cost-icon" key={j + " " + resource[1]}/>)
+                    }
+                    return result;
+                })
                 stageArray.push(
-                    <OverlayTrigger
-                        trigger={["hover"]}
-                        placement="bottom"
-                        delay={{ show: 250, hide: 150 }}
-                        overlay={<Popover id={"stage-" + i} {...props}>
-                            <Popover.Title as="h3">{"STAGE " + i}</Popover.Title>    
-                            <Popover.Content>
-                                <h6 key={`stage-${i}`}>{`COST: ${stageData[i].cost}`}</h6>
-                                <h6 key={`stage-${i}`}>{`VALUE: ${stageData[i].value}`}</h6>
-                                {/* <img src={iconImages[stageData[i].cost[0][1].toLowerCase() + '.png']}></img> */}
-                            </Popover.Content>          
-                        </Popover>}
-                    >
-                        <div className="stage-icon-container">
-                            <img src={images[i]} className={"stage-icon " + (numStages >= i ? "" : "gray-scale")}alt="stage-one-icon"/>
-                        </div>
-                    </OverlayTrigger>
+                    <div key={`stageData-${i}`}>
+                        <OverlayTrigger
+                            trigger={["hover", "focus"]}
+                            placement="bottom"
+                            delay={{ show: 100, hide: 100 }}
+                            overlay={<Popover id={"stage-" + i} {...props}>
+                                <Popover.Title as="h3">{"STAGE " + i}</Popover.Title>    
+                                <Popover.Content>
+                                    {/* <h6 key={`stage-${i}-cost`}>{`COST: ${stageData[i].cost}`}</h6>
+                                    <h6 key={`stage-${i}-val`}>{`VALUE: ${stageData[i].value}`}</h6> */}
+                                    <div key={`stage-${i}-cont`}>{icons}</div>
+                                </Popover.Content>          
+                            </Popover>}
+                        >
+                            <div className="stage-icon-container">
+                                <img src={images[i]} className={"stage-icon " + (numStages >= i ? "" : "gray-scale")}alt="stage-one-icon"/>
+                            </div>
+                        </OverlayTrigger>
+                    </div>
                 )
             }
         }
@@ -96,7 +105,7 @@ export default function PlayerBoard (props: BoardProps) {
                     {renderStageInfo()}
                 </div>
                 <div className="col-12 col-sm-4 col-md-4 d-flex justify-content-end flex-column align-items-end flex-wrap p-4 text-white">
-                    <h2>{props.board.SHORT_NAME}</h2>
+                    <h1 className="font-weight-bold">{props.board.SHORT_NAME}</h1>
                     <h4>{props.board.RESOURCE}</h4>
                 </div>
             </div>

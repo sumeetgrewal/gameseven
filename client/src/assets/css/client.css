@@ -319,3 +319,9 @@ GAME
 .option-btn:disabled {
     background-color: #615d5d;
 }
+
+.cost-icon {
+    height: 35px;
+    width: 35px;
+    padding: 5px;
+}
