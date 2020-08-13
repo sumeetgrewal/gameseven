@@ -1,22 +1,42 @@
-import * as React from 'react'
-import {boardImages, PlayerData, Board, iconImages, cardImages } from './GameAssets'
+import React, {useState, useEffect} from 'react'
+import {boardImages, PlayerData, Board, iconImages, cardImages, MilitaryStats } from './GameAssets'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Popover from 'react-bootstrap/Popover'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import ToggleButton from 'react-bootstrap/ToggleButton'
+import Carousel from 'react-bootstrap/Carousel'
+import Button from 'react-bootstrap/esm/Button'
 
 interface BoardProps {
     board: Board,
+    username: string,
     metadata: {
         age: number,
         turn: number,
-    }
-    myData: PlayerData
+    },
+    myData: PlayerData,
+    playerData: {
+    [username: string]: PlayerData
+    },
+    isMyBoard: boolean,
+    viewPlayerBoard: (username: string) => void,
 }
-
-
 
 export default function PlayerBoard (props: BoardProps) {
     const boardImage = boardImages[props.board.BOARD_ID + ".jpg"];
     const numStages = props.myData.stagesBuilt;
+    const [currentView, setCurrentView] = useState("cards")
+    const [index, setIndex] = useState(0);
+
+    useEffect(() => {
+        setCurrentView("cards");
+        setIndex(0);
+    }, [props]);
+    
+
+    const handleSelect = (selectedIndex: number, e: any) => {
+        setIndex(selectedIndex);
+    };
 
     const renderMyCards = () => {
         const myCards = props.myData.cards;
@@ -31,9 +51,9 @@ export default function PlayerBoard (props: BoardProps) {
           })
         }
         return (
-          <div className='col-12 built-container text-center d-flex flex-wrap flex-column justify-content-center'>
-            {myCardArray}
-          </div>
+            <div className='built-container text-center d-flex flex-wrap flex-column'>
+                {myCardArray}
+            </div>
         )
     }
     
@@ -80,6 +100,120 @@ export default function PlayerBoard (props: BoardProps) {
         return <>{stageArray}</>
     }
 
+    const renderMilitary = () => {
+        const myStats = props.myData.military;
+        return (
+            <div className="container info-container text-white">
+                <div className="row">
+                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
+                        {(props.myData.playerLeft && (props.myData.playerLeft !== props.username)) 
+                            && <h3>{props.myData.playerLeft}</h3>}
+                        {(props.myData.playerLeft && (props.myData.playerLeft !== props.username))
+                            && renderMilitaryIcons(props.playerData[props.myData.playerLeft].military)}
+                    </div>
+                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
+                        {(props.isMyBoard) ? <h3>ME</h3> : <h3>{props.myData.username}</h3>}
+                        {renderMilitaryIcons(myStats)}
+                    </div>
+                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
+                        {(props.myData.playerRight && (props.myData.playerRight !== props.username)) 
+                            && <h3>{props.myData.playerRight}</h3>}
+                        {(props.myData.playerRight && (props.myData.playerRight !== props.username)) 
+                            && renderMilitaryIcons(props.playerData[props.myData.playerRight].military)}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderMilitaryIcons = (stats: MilitaryStats) => {
+        let losses: any = []
+        let ones: any = []
+        let threes: any = []
+        let fives: any = []
+        for (let i = 0; i < stats.loss; i++) {
+            losses.push(<img className="military-icon" src={iconImages['lossmilitary.png']} alt="military-icon" key={`loss-${i}`}/>)
+        }
+        for (let i = 0; i < stats.one; i++) {
+            ones.push(<img className="military-icon" src={iconImages['onemilitary.png']} alt="military-icon" key={`one-military-${i}`}/>)
+        }
+        for (let i = 0; i < stats.three; i++) {
+            threes.push(<img className="military-icon" src={iconImages['threemilitary.png']} alt="military-icon" key={`three-military-${i}`}/>)
+        }
+        for (let i = 0; i < stats.five; i++) {
+            fives.push(<img className="military-icon" src={iconImages['fivemilitary.png']} alt="military-icon" key={`five-military-${i}`}/>)
+        }
+        return [
+            <div>{losses}</div>,
+            <div>{ones}</div>,
+            <div>{threes}</div>,
+            <div>{fives}</div>
+        ]
+    }
+    
+    const renderPlayers = () => {
+        const items: any = [];
+        if (!props.isMyBoard) {
+            items.push(
+                <Carousel.Item>
+                    <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
+                        <h3>MY BOARD</h3>
+                        <p>{props.board.NAME}</p>
+                        <Carousel.Caption>
+                            <Button className="view-btn" variant="outline-light" onClick={() => props.viewPlayerBoard(props.username)}>
+                                BACK
+                            </Button>
+                        </Carousel.Caption>
+                    </div>
+                </Carousel.Item>
+            )
+        } else {
+            Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {
+                items.push(
+                    <Carousel.Item>
+                        <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
+                            <h3>{player[0]}</h3>
+                            <p>{player[1].board ? player[1].board.NAME : ""}</p>
+                            <Carousel.Caption>
+                                <Button className="view-btn" variant="outline-light" onClick={() => props.viewPlayerBoard(player[0])}>
+                                    SELECT
+                                </Button>
+                            </Carousel.Caption>
+                        </div>
+                    </Carousel.Item>
+                )
+            })
+        }
+        return (
+            <div className="container info-container text-white">
+                <div className="row h-100">
+                    <div className="col-12">
+                        <Carousel 
+                            activeIndex={index} onSelect={handleSelect}
+                        >
+                            {items}
+                        </Carousel>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+    
+    const renderInfoPanel = () => {
+        let result: any;
+        switch (currentView) {
+            case "cards":
+                result = renderMyCards()
+                break;
+            case "military": 
+                result = renderMilitary()
+                break;
+            case "players":
+                result = renderPlayers()
+                break;
+        }
+        return (<div className='col-12 p-0'>{result}</div>);
+    }
     return (<>
         <div 
             className="my-board m-0 full-height" 
@@ -88,7 +222,7 @@ export default function PlayerBoard (props: BoardProps) {
             <div className="gradient-top" />
             <div className="gradient-bottom" />
         </div>
-        <div className="container board-container">
+        <div className="container-fluid">
             <div className="row">
                 <div className="col-12 col-sm-4 d-flex justify-content-start p-4">
                     <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
@@ -110,9 +244,22 @@ export default function PlayerBoard (props: BoardProps) {
                 </div>
             </div>
         </div>
-        <div className="container">
-            {renderMyCards()}
+        <div className="container d-flex justify-content-center">
+            <div className="row">
+                <ButtonGroup toggle className="col-12 view-options p-0" aria-label="view-options">
+                    <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="cards" value="cards" checked={currentView === "cards"} 
+                        onChange={(e) => setCurrentView(e.currentTarget.value)}>CARDS</ToggleButton>
+                    <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="military" value="military" checked={currentView === "military"} 
+                        onChange={(e) => setCurrentView(e.currentTarget.value)}>MILITARY</ToggleButton>
+                    {(props.isMyBoard) 
+                        ? <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="players" value="players" checked={currentView === "players"}
+                            onChange={(e) => setCurrentView(e.currentTarget.value)}>PLAYERS</ToggleButton>
+                        : <ToggleButton type="radio" variant="light" className="view-btn py-2" key="back" value="back" checked={currentView === "players"}
+                            onClick={() => props.viewPlayerBoard(props.username)}>BACK</ToggleButton>
+                    }
+                </ButtonGroup>
+                {renderInfoPanel()}
+            </div>
         </div>
     </>)  
-
 }

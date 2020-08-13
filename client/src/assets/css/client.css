@@ -244,11 +244,6 @@ PLAYERBOARD > STAGEINFO
     visibility: hidden;
 }
 
-.board-container {
-    margin: 0 !important;
-    min-width: 100vw;
-}
-
 /* =======================
 GAME
 ======================= */ 
@@ -275,7 +270,7 @@ GAME
     background-color: #00000077;
     padding: 80px 30px 20px;
     margin: 0;
-    max-height: 295px;
+    height: 290px;
 }
 
 .built-card {
@@ -324,4 +319,27 @@ GAME
     height: 35px;
     width: 35px;
     padding: 5px;
+}
+
+.view-btn {
+    border-radius: 0;
+}
+
+.military-icon {
+    height: 55px;
+    width: 55px;
+    padding: 5px;
+}
+
+.info-container {
+    height: 290px;
+    width: 100%;
+    background-color: #00000077;
+    padding: 20px;
+}
+
+.board-preview {
+    height: 200px;
+    margin: 25px;
+    background-color: #ffffff30;
 }

@@ -48,7 +48,6 @@ function updateTurn() {
     if (game.metadata.age === 3) {
       // TODO end game
     } else {
-      // TODO handle military
       handleMilitary()
       game.metadata.age++;
       game.metadata.turn = 1;
@@ -64,11 +63,15 @@ function updateTurn() {
 
 function handleMilitary() {
   const allPlayerData = game.gameData.playerData;
-  Object.entries(allPlayerData).forEach((player: [string, Player]) => {
-    const leftBattle = militaryConflict(player[1], allPlayerData[player[1].playerLeft]);
-    game.gameData.playerData[player[1].playerLeft] = leftBattle[0];
-    game.gameData.playerData[player[0]] = leftBattle[1];
-  })
+  const players = Object.entries(allPlayerData);
+  // Remove check for num players once minplayers constraint is enforced
+  if (players.length >= 3) {
+      players.forEach((player: [string, Player]) => {
+      const leftBattle = militaryConflict(player[1], allPlayerData[player[1].playerLeft]);
+      game.gameData.playerData[player[1].playerLeft] = leftBattle[0];
+      game.gameData.playerData[player[0]] = leftBattle[1];
+    })
+  }
 
   function militaryConflict(self: Player, opponent: Player) : [Player, Player] {
     if (opponent.shields > self.shields) {
@@ -135,7 +138,6 @@ function sendTurnUpdate() {
       } 
       game.players[client.id].handInfo = handInfo;
       game.players[client.id].stageInfo = stageInfo;
-      // console.log(client.id, game.players[client.id]);
       pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, hand, handInfo, stageInfo}), 'turnUpdate', [client])
     }
   })
@@ -148,6 +150,7 @@ function beginAge() {
   }
   generateHands(playerIDs.length)
   sendTurnUpdate();
+  sendAllPlayerData();
 }
 
 function sendPlayerData(username: string, sendToAll: boolean) {

@@ -112,6 +112,7 @@ export interface MilitaryStats {
 }
 
 export interface PlayerData {
+  username: string,
   board: Board | undefined,
   cards: Array<string>,
   cardTypes: CardTypeList,
@@ -124,4 +125,6 @@ export interface PlayerData {
   shields: number,
   points?: number,
   stageData?: {[id: number] : {cost: any, value: any}};
+  playerLeft?: string;
+  playerRight?: string;
 }

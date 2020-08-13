@@ -30,7 +30,8 @@ interface GameState {
   metadata: {
     age: number,
     turn: number,
-  }
+  },
+  currentView: string,
 } 
 
 class Game extends React.Component<GameProps, GameState> {
@@ -62,7 +63,9 @@ class Game extends React.Component<GameProps, GameState> {
       viewPurchaseOptions: false,
       isWaiting: false,
       playerData: {},
+      currentView: this.props.username,
       myData: {
+        username: this.props.username, 
         board : undefined,
         cards : [],
         cardTypes : new CardTypeList(),
@@ -74,6 +77,8 @@ class Game extends React.Component<GameProps, GameState> {
         points : 0,
       },
     }
+
+    this.viewPlayerBoard = this.viewPlayerBoard.bind(this);
   }
 
   componentDidMount() {
@@ -166,6 +171,10 @@ class Game extends React.Component<GameProps, GameState> {
 
   setWaiting () {
     this.setState({isWaiting: true});
+  }
+
+  viewPlayerBoard(username: string) {
+    this.setState({currentView: username})
   }
   
   selectCard (card: string, action: string,age: number, turn: number, purchaseOption?: PurchaseOptions)  {
@@ -351,19 +360,33 @@ class Game extends React.Component<GameProps, GameState> {
 
   render() {
     const myBoard = this.state.myData.board;
+    const viewingMyBoard = (this.state.currentView === this.props.username);
     if (this.state.isLoaded && (myBoard !== undefined)) {
-      return (<>
-        {myBoard && 
-          <PlayerBoard board={myBoard} metadata={this.state.metadata} myData={this.state.myData}/>
-        }
-        <div className="container d-flex align-items-center justify-content-center">
-          <div className='row'>
-            {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
-            {this.renderCardInfo()}
-            {this.renderHand()}
-          </div>
-        </div>        
-      </>)
+      if (viewingMyBoard) {
+        return (<>
+          {myBoard && 
+            <PlayerBoard playerData={this.state.playerData} board={myBoard} username={this.props.username}
+              metadata={this.state.metadata} myData={this.state.myData} isMyBoard={true}
+              viewPlayerBoard={this.viewPlayerBoard}/>
+          }
+          <div className="container d-flex align-items-center justify-content-center">
+            <div className='row'>
+              {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
+              {this.renderCardInfo()}
+              {this.renderHand()}
+            </div>
+          </div>        
+        </>)
+      } else {
+        const viewBoard = (this.state.playerData[this.state.currentView].board)
+        return (<>
+          {(viewBoard) && 
+            <PlayerBoard playerData={this.state.playerData} board={viewBoard} username={this.props.username}
+              metadata={this.state.metadata} myData={this.state.playerData[this.state.currentView]} isMyBoard={false}
+              viewPlayerBoard={this.viewPlayerBoard}/>          }
+          </>
+        )
+      }
     } else {
       return (
         <div className="container d-flex align-items-center justify-content-center full-height">
