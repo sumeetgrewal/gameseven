@@ -1,6 +1,9 @@
-import { gameCountdown } from "../routes/setup";
+import { gameCountdown, setupClients } from "../routes/setup";
 import { game } from '../models/game.model'
 let sseId: number = 2;
+const dbScan = require('../dbScan')
+
+export let gameAssetsReady: boolean = false;
 
 export function shuffle(a: number[]) {
   for (let i: number = a.length - 1; i > 0; i--) {
@@ -70,4 +73,46 @@ export function resetToLobby() {
     playerData: {},
     discardPile: []
   }
+}
+
+
+
+function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
+  return new Promise((resolve) => {
+    dbScan.tableScan(tableName, id, params)
+    .then((response: any) => {
+      game[tableName.toLowerCase()] = response;
+      resolve()
+    })
+  })
+}
+
+export function prepareGameAssets(): Promise<void> {
+  return new Promise((resolve) => {
+    let numPlayers: string;
+    if (!setupClients || setupClients.length < 3) {
+      numPlayers = '3';
+    }
+    else {
+      numPlayers = setupClients.length.toString();
+    }
+  
+    const cardFilter = {
+      FilterExpression: "#np <= :np",
+      ExpressionAttributeNames: {
+        "#np": "NUM_PLAYERS"
+      },
+      ExpressionAttributeValues: {
+        ":np": { N: numPlayers },
+      }
+    };
+    loadTable('BOARDS', 'BOARD_ID')
+      .then(() => {
+        loadTable('CARDS', 'CARD_ID', cardFilter)
+          .then(() => {
+            gameAssetsReady = true;
+            resolve();
+          });
+      });
+  })
 }

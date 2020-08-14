@@ -1,13 +1,11 @@
-import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle } from "../middleware/util";
+import { pushUpdateToPlayers, cleanupGame, resetToLobby, shuffle, prepareGameAssets, gameAssetsReady } from "../middleware/util";
 
 import { game } from '../models/game.model'
 import { Player } from '../models/player.model'
 const router = require('express').Router();
-const dbScan = require('../dbScan')
 let JWTHandlers = require('../middleware/jwt.authorization');
-let setupClients: any[] = [];
+export let setupClients: any[] = [];
 export let gameCountdown: any;
-let gameAssetsReady: boolean = false;
 
 function startBoardSelection() {
   const numPlayers: number = setupClients.length;
@@ -20,16 +18,6 @@ function startBoardSelection() {
   }
   game.setupData.turnToChoose = 0;
   pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'gameupdate', setupClients);
-}
-
-function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
-  return new Promise((resolve) => {
-    dbScan.tableScan(tableName, id, params)
-    .then((response: any) => {
-      game[tableName.toLowerCase()] = response;
-      resolve()
-    })
-  })
 }
 
 function startGame(){
@@ -72,25 +60,6 @@ function assignBoards(): string[] {
     };
   }
   return assignedBoards;
-}
-
-function prepareGameAssets() {
-  let numPlayers: string = setupClients.length.toString()
-  numPlayers = '3';
-  const cardFilter = {
-    FilterExpression: "#np <= :np",
-    ExpressionAttributeNames:{
-      "#np": "NUM_PLAYERS"
-    },
-    ExpressionAttributeValues: {
-      ":np": {N : numPlayers},
-    }
-  }
-  loadTable('BOARDS', 'BOARD_ID')
-  .then(() => {
-    loadTable('CARDS', 'CARD_ID', cardFilter)
-    .then(() => gameAssetsReady = true)
-  })
 }
 
 function updateBoard(req: any, username: string) {
