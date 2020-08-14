@@ -22,6 +22,7 @@ export class Player implements PlayerData {
     playerRight: ResourceList;
   }
   stageData?: {[id: number] : {cost: any, value: any}};
+  score: number;
 
   constructor(username: string, board: Board | undefined = undefined) {
     this.username = username;
@@ -41,6 +42,7 @@ export class Player implements PlayerData {
         three: 0,
         five: 0,
     }
+    this.score = -1;
     this.stagesBuilt = 0;
     this.purchaseCosts = {
       playerLeft : new ResourceList(2),

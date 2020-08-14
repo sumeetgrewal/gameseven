@@ -105,20 +105,20 @@ export default function PlayerBoard (props: BoardProps) {
         return (
             <div className="container info-container text-white">
                 <div className="row">
-                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
-                        {(props.myData.playerLeft && (props.myData.playerLeft !== props.username)) 
+                    <div className="col-4 d-flex align-items-center flex-column">
+                        {(props.myData.playerLeft) 
                             && <h3>{props.myData.playerLeft}</h3>}
-                        {(props.myData.playerLeft && (props.myData.playerLeft !== props.username))
+                        {(props.myData.playerLeft)
                             && renderMilitaryIcons(props.playerData[props.myData.playerLeft].military)}
                     </div>
-                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
+                    <div className="col-4 d-flex align-items-center flex-column">
                         {(props.isMyBoard) ? <h3>ME</h3> : <h3>{props.myData.username}</h3>}
                         {renderMilitaryIcons(myStats)}
                     </div>
-                    <div className="col-4 d-flex align-items-center flex-column justify-content-center">
-                        {(props.myData.playerRight && (props.myData.playerRight !== props.username)) 
+                    <div className="col-4 d-flex align-items-center flex-column">
+                        {(props.myData.playerRight) 
                             && <h3>{props.myData.playerRight}</h3>}
-                        {(props.myData.playerRight && (props.myData.playerRight !== props.username)) 
+                        {(props.myData.playerRight) 
                             && renderMilitaryIcons(props.playerData[props.myData.playerRight].military)}
                     </div>
                 </div>
@@ -153,22 +153,8 @@ export default function PlayerBoard (props: BoardProps) {
     
     const renderPlayers = () => {
         const items: any = [];
-        if (!props.isMyBoard) {
-            items.push(
-                <Carousel.Item>
-                    <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
-                        <h3>MY BOARD</h3>
-                        <p>{props.board.NAME}</p>
-                        <Carousel.Caption>
-                            <Button className="view-btn" variant="outline-light" onClick={() => props.viewPlayerBoard(props.username)}>
-                                BACK
-                            </Button>
-                        </Carousel.Caption>
-                    </div>
-                </Carousel.Item>
-            )
-        } else {
-            Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {
+        Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {
+            if (player[0] !== props.username) {
                 items.push(
                     <Carousel.Item>
                         <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
@@ -182,15 +168,13 @@ export default function PlayerBoard (props: BoardProps) {
                         </div>
                     </Carousel.Item>
                 )
-            })
-        }
+            }
+        })
         return (
             <div className="container info-container text-white">
                 <div className="row h-100">
                     <div className="col-12">
-                        <Carousel 
-                            activeIndex={index} onSelect={handleSelect}
-                        >
+                        <Carousel activeIndex={index} onSelect={handleSelect}>
                             {items}
                         </Carousel>
                     </div>

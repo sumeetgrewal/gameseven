@@ -127,4 +127,5 @@ export interface PlayerData {
   stageData?: {[id: number] : {cost: any, value: any}};
   playerLeft?: string;
   playerRight?: string;
+  score: number;
 }

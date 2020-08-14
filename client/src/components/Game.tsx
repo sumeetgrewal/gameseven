@@ -75,6 +75,7 @@ class Game extends React.Component<GameProps, GameState> {
         coins : 3,
         shields : 0,
         points : 0,
+        score : -1,
       },
     }
 
@@ -318,7 +319,7 @@ class Game extends React.Component<GameProps, GameState> {
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
     let result: any[] = [];
     if (purchaseCost === 0) {
-      result = [(<div key={"purchase-info-" + card.CARD_ID}>
+      result = [(<div className="col-12" key={"purchase-info-" + card.CARD_ID}>
         <h4 className="text-white" key={"purchase-info-" + card.CARD_ID}>{`Cost of card is ${cardInfo.coinCost}`}</h4>
         <button className="btn join-btn option-btn" 
           onClick={() => this.selectCard(cardID, "build", age, turn)}
@@ -329,11 +330,11 @@ class Game extends React.Component<GameProps, GameState> {
     } else {
       for(let i = 0; i < purchaseOptions.length; i++) {
         const purchase = purchaseOptions[i];
-        result.push(<div key={"purchase-info-" + card.CARD_ID}>
+        result.push(<div className="col-6" key={"purchase-info-" + card.CARD_ID}>
           {purchase.costLeft > 0 && 
-            <h4 className="text-white" key={"purchase-cost-l" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
+            <h4 className="text-white pt-1 pb-0" key={"purchase-cost-l" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
           {purchase.costRight > 0 && 
-            <h4 className="text-white" key={"purchase-cost-r" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
+            <h4 className="text-white pb-1 pt-0" key={"purchase-cost-r" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
           <button className="btn join-btn option-btn" 
             onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
             key={"purchase-btn-" + i}>
@@ -350,10 +351,32 @@ class Game extends React.Component<GameProps, GameState> {
           </div>
         </div>
         <div className="row">
-          <div className="col-12">
             {result}
-          </div> 
         </div>
+      </div>
+    )
+  }
+
+  renderResults() {
+    const results: any = [];
+    const players: [string, PlayerData][] = Object.entries(this.state.playerData);
+    players.push([this.props.username, this.state.myData]);
+    players.sort((a: [string, PlayerData], b: [string, PlayerData]) => {
+      return ((a[1].score > b[1].score) ? 1 : -1)
+    })
+    
+    for(let i= 0; i < players.length; i++) {
+      results.push(
+        <div className={"player-box w-100 text-white" + ((i===players.length - 1) ? " player-ready" : "")}>
+          <h4>{players[i][0] + " : " + players[i][1].score}</h4>
+        </div>
+      )
+    }
+
+    return (
+      <div className='col-12 hand-container text-center d-flex flex-column align-items-center justify-content-center '>
+          <h4 className="text-white">RESULTS</h4>
+          {results}
       </div>
     )
   }
@@ -372,16 +395,19 @@ class Game extends React.Component<GameProps, GameState> {
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
               {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
-              {this.renderCardInfo()}
-              {this.renderHand()}
+              {(this.state.myData.score >= 0) && this.renderResults()}
+              {(this.state.myData.score === -1) && this.renderCardInfo()}
+              {(this.state.myData.score === -1) && this.renderHand()}
             </div>
           </div>        
         </>)
       } else {
         const viewBoard = (this.state.playerData[this.state.currentView].board)
+        const players = {...this.state.playerData};
+        players[this.props.username] = this.state.myData
         return (<>
           {(viewBoard) && 
-            <PlayerBoard playerData={this.state.playerData} board={viewBoard} username={this.props.username}
+            <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
               metadata={this.state.metadata} myData={this.state.playerData[this.state.currentView]} isMyBoard={false}
               viewPlayerBoard={this.viewPlayerBoard}/>          }
           </>
