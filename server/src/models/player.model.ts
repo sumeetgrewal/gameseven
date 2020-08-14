@@ -64,7 +64,6 @@ export class Player implements PlayerData {
 
   canBuild(cardID: string): BuildOptions {
     const card = game.cards[cardID];
-    // console.log(card.CARD_ID + " " + card.NAME);
 
     // Is card free or is chain cost met ?
     if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
@@ -237,18 +236,14 @@ export class Player implements PlayerData {
         // Check optional resources
         const left: Player = game.gameData.playerData[this.playerLeft];
         const right: Player = game.gameData.playerData[this.playerRight];
-        let leftCards: object[] = [];
-        let rightCards: object[] = [];
-        if (left) {
-          leftCards = game.gameData.playerData[this.playerLeft].optionalResources.map((valueArray: [number, string]) => {
+        let leftCards: object[] = (!left) ? [] :
+          game.gameData.playerData[this.playerLeft].optionalResources.map((valueArray: [number, string]) => {
             return { player: 'left', value: valueArray }
           })
-        }
-        if (right) {
-          rightCards = game.gameData.playerData[this.playerRight].optionalResources.map((valueArray: [number, string]) => {
+        let rightCards: object[] = (!right) ? [] :
+          game.gameData.playerData[this.playerRight].optionalResources.map((valueArray: [number, string]) => {
             return { player: 'right', value: valueArray }
           })
-        } 
         const result = this.checkNeighbourAdditionalResources(purchaseOptions[0], leftCards.concat(rightCards), purchaseOptions[1])
         buildOptionsArray = buildOptionsArray.concat(result);
       }

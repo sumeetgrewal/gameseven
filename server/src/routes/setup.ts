@@ -7,8 +7,7 @@ let JWTHandlers = require('../middleware/jwt.authorization');
 export let setupClients: any[] = [];
 export let gameCountdown: any;
 
-function startBoardSelection() {
-  const numPlayers: number = setupClients.length;
+function startBoardSelection(numPlayers: number) {
   const randomOrder: number[] = shuffle([...Array(numPlayers).keys()]);
   let index: number = 0;
   game.metadata.playerOrder = new Array<string>(numPlayers);
@@ -88,8 +87,9 @@ function updateStatus(req: any, username: string) {
   pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', setupClients);
   game.metadata.gameStatus = (Object.values(game.players).every((player: any) => player.status === 'ready') && 'boardSelection') || 'lobby';
   if (game.metadata.gameStatus === 'boardSelection') {
-    startBoardSelection();
-    prepareGameAssets();
+    let numPlayers: number = setupClients.length;
+    prepareGameAssets(numPlayers)
+      .then(() => startBoardSelection(numPlayers));
   }
 }
 

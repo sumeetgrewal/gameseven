@@ -330,14 +330,14 @@ class Game extends React.Component<GameProps, GameState> {
     } else {
       for(let i = 0; i < purchaseOptions.length; i++) {
         const purchase = purchaseOptions[i];
-        result.push(<div className="col-6" key={"purchase-info-" + card.CARD_ID}>
+        result.push(<div className="col-6" key={"p-info-" + i + ' ' + card.CARD_ID}>
           {purchase.costLeft > 0 && 
-            <h4 className="text-white pt-1 pb-0" key={"purchase-cost-l" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
+            <h4 className="text-white pt-1 pb-0" key={"p-cost-l-" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
           {purchase.costRight > 0 && 
-            <h4 className="text-white pb-1 pt-0" key={"purchase-cost-r" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
+            <h4 className="text-white pb-1 pt-0" key={"p-cost-r-" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
           <button className="btn join-btn option-btn" 
             onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
-            key={"purchase-btn-" + i}>
+            key={"p-btn-" + i}>
               PURCHASE
           </button>
         </div>)
