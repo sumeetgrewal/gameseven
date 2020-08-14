@@ -1,4 +1,4 @@
-import { Board, Resource, CardTypeList, ResourceList, MilitaryStats, PlayerData, BuildOptions, ConditionData, PurchaseOptions, Card } from './playerData.model';
+import { Board, Resource, CardTypeList, ResourceList, MilitaryStats, PlayerData, BuildOptions, ConditionData, PurchaseOptions, Card, StageOptions } from './playerData.model';
 import { game } from './game.model'
 
 export class Player implements PlayerData {
@@ -12,14 +12,17 @@ export class Player implements PlayerData {
   points: number;
   optionalResources?: Array<any>;
   personalResources?: Array<any>;
-  military: MilitaryStats;
   conditionalResources?: Array<any>;
+  military: MilitaryStats;
+  stagesBuilt: number;
   playerLeft?: string;
   playerRight?: string;
   purchaseCosts: {
     playerLeft: ResourceList;
     playerRight: ResourceList;
   }
+  stageData?: {[id: number] : {cost: any, value: any}};
+  score: number;
 
   constructor(username: string, board: Board | undefined = undefined) {
     this.username = username;
@@ -39,20 +42,57 @@ export class Player implements PlayerData {
         three: 0,
         five: 0,
     }
+    this.score = -1;
+    this.stagesBuilt = 0;
     this.purchaseCosts = {
       playerLeft : new ResourceList(2),
       playerRight : new ResourceList(2),
     }
     if (board) {
        this.personalResources.push([[1, this.board.RESOURCE]]);
+       this.stageData = {
+          1 : {cost: board.S1_COST, value: board.S1_VALUE},
+          2 : {cost: board.S2_COST, value: board.S2_VALUE},
+          3 : {cost: board.S3_COST, value: board.S3_VALUE}
+       }
     }
   }
 
-  /* =======================
+  /* =================================================
   VALIDATION 
-  ======================= */   
+  ================================================= */ 
 
   canBuild(cardID: string): BuildOptions {
+    const card = game.cards[cardID];
+    // console.log(card.CARD_ID + " " + card.NAME);
+
+    // Is card free or is chain cost met ?
+    if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
+     return {
+        costMet: true,
+        coinCost: 0,
+        purchaseOptions: [{
+          costLeft: 0,
+          costRight: 0, 
+          purchaseLeft: [],
+          purchaseRight: [],
+        }],
+      }
+    } else return this.checkCost(card.RESOURCE_COST);
+  }
+
+  canStage(): BuildOptions {
+    let nextStage: {cost: any, value: any};
+    if (this.stageData) {
+      nextStage = this.stageData[this.stagesBuilt + 1];
+    }
+    if (this.stagesBuilt === 3) {
+      return {costMet: false, coinCost: 0, purchaseOptions: []}
+    }
+    return this.checkCost(nextStage.cost);
+  }
+
+  checkCost(resourceCost: any): BuildOptions {
     const buildOptions: BuildOptions = {
       costMet: false,
       coinCost: 0,
@@ -63,51 +103,45 @@ export class Player implements PlayerData {
         purchaseRight: [],
       }],
     }
-    const card = game.cards[cardID];
-    console.log(card.CARD_ID + " " + card.NAME);
-
-    // Is card free or is chain cost met ?
-    if ((card.RESOURCE_COST.length === 0) || (this.isChainCostMet(card.CHAIN_COST))) {
+    // Is cost free?
+    if ((resourceCost.length === 0)) {
       buildOptions.costMet = true;
       return buildOptions;
     }
 
-    const coinCost = this.getCoinCost(card.RESOURCE_COST);
+    const coinCost = this.getCoinCost(resourceCost);
     if (coinCost > 0) {
       buildOptions.costMet = true;
       buildOptions.coinCost = coinCost;
     } else {
 
       // Can I afford to build? 
-      let unmetCostArray: any = this.isResourceCostMet(card.RESOURCE_COST);
+      let unmetCostArray: any = this.isResourceCostMet(resourceCost);
       if (unmetCostArray.length === 0) {
         buildOptions.costMet = true;      
       } else {
-
         // Can I purchase from my neighbours? 
-        console.log("Can't afford to build, checking purchase options ...");
         const bestPurchaseOptions: PurchaseOptions[]= this.checkPurchaseOptions(unmetCostArray);
         if (bestPurchaseOptions.length > 0) {
           buildOptions.costMet = true;
           buildOptions.coinCost = bestPurchaseOptions[0].costLeft + bestPurchaseOptions[0].costRight;
           buildOptions.purchaseOptions = bestPurchaseOptions;
-          console.log("Purchase required: ", buildOptions.coinCost, buildOptions.purchaseOptions[0])
+          // console.log("Purchase required: ", buildOptions.coinCost, buildOptions.purchaseOptions[0])
         }
       }
     }
-    
     // Can I afford the cost? 
     if (buildOptions.coinCost > this.coins) {
       buildOptions.costMet = false;
     }
-    return buildOptions;
+    return buildOptions; 
   }
 
   isChainCostMet(chainCost: Array<any>) : boolean {
     for (let i = 0; i < chainCost.length; i++) {
       const cardID: any = chainCost[i];
       if (this.cards.includes(cardID)) {
-        console.log("Chain cost is met");
+        // console.log("Chain cost is met");
         return true;
       }
     }
@@ -353,9 +387,30 @@ export class Player implements PlayerData {
     }      
   }
 
-  /* =======================
+  /* =================================================
   CARD SELECTION
-  ======================= */ 
+  ================================================= */ 
+
+  buildStage(stageOptions: StageOptions, purchase: PurchaseOptions) {
+    const data = this.stageData[stageOptions.stage];
+    console.log(`Building stage ${stageOptions.stage}. Will receive ${data.value}`); 
+    // TODO add points/stage value
+    data.value.forEach((value: [number, string]) => {
+      if (value[1] === 'POINT') {
+        this.addPoints(value[0])
+      } else if (value[1] === 'COIN') {
+        this.addCoins(value[0])
+      } else if (value[1] === 'SHIELD') {
+        this.addShields(value[0])
+      } else if (Object.keys(this.resources).includes(value[1].toLowerCase())) {
+        this.addResources([value]);
+      }
+      else console.log("Couldn't build " + data.value);
+    })
+    this.stagesBuilt += 1;
+    this.coins -= stageOptions.options.coinCost;
+    this.executePurchase(purchase);
+  }
 
   selectCard(cardID: string, coinCost: number, purchaseOptions: PurchaseOptions): ConditionData[] {
     const card: Card = game.cards[cardID];
@@ -496,8 +551,8 @@ export class Player implements PlayerData {
     }
   }
 
-  private addResources(cardValue: Array<[number, Resource]>) {
-    cardValue.forEach((value: [number, Resource]) => {
+  private addResources(cardValue: Array<[number, string]>) {
+    cardValue.forEach((value: [number, string]) => {
       const resource: string = value[1].toLowerCase();
       this.resources[resource] += value[0];
     })

@@ -164,7 +164,7 @@ BOARDSELECTOR
 }
 
 /* =======================
-BOARD
+PLAYERBOARD
 ======================= */ 
 
 .my-board {
@@ -196,6 +196,55 @@ BOARD
 }
 
 /* =======================
+PLAYERBOARD > STAGEINFO
+======================= */ 
+
+.stage-built {
+    color: green;
+}
+
+.stage-icon-container {
+    height: 80px;
+    /* padding: 0 50px; */
+    margin: 0;
+}
+
+.stage-icon {
+    height: 80px;
+    width: 80px;
+}
+
+.gray-scale {
+    filter: grayscale(100%);
+}
+
+.popover {
+    background-color: rgba(0,0,0,0.4);
+    border: none;
+}
+.popover-header, .popover-body {
+    text-align: center;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    color: white;
+    background-color: rgba(0,0,0,0.2);
+    border: none;
+}
+
+.popover-header::before {
+    display: none !important;
+    width: 0;
+}
+
+.popover-header {
+    border-bottom: 1px solid #ffffff30;
+}
+
+.popover .arrow {
+    visibility: hidden;
+}
+
+/* =======================
 GAME
 ======================= */ 
 
@@ -206,6 +255,11 @@ GAME
     margin: 20px 0 0 !important;
 }
 
+.card-info-container {
+    min-height: 195px;
+    align-items: center;
+}
+
 .hand-card {
     width: 177px;
     height: 75px;
@@ -214,9 +268,9 @@ GAME
 .built-container {
     width: 100%;
     background-color: #00000077;
-    padding: 70px 30px 30px;
+    padding: 80px 30px 20px;
     margin: 0;
-    max-height: 275px;
+    height: 290px;
 }
 
 .built-card {
@@ -228,6 +282,13 @@ GAME
 .card-wrapper {
     width: 177px;
     height: 35px;
+    transition: 0.15s ease-in;
+}
+
+.card-wrapper:hover, .card-wrapper:focus {
+    height: 60px;
+    margin-top: -25px !important;
+    transition: 0.2s ease-out;
 }
 
 .cost-met {
@@ -252,4 +313,33 @@ GAME
 
 .option-btn:disabled {
     background-color: #615d5d;
+}
+
+.cost-icon {
+    height: 35px;
+    width: 35px;
+    padding: 5px;
+}
+
+.view-btn {
+    border-radius: 0;
+}
+
+.military-icon {
+    height: 55px;
+    width: 55px;
+    padding: 5px;
+}
+
+.info-container {
+    height: 290px;
+    width: 100%;
+    background-color: #00000077;
+    padding: 20px;
+}
+
+.board-preview {
+    height: 200px;
+    margin: 25px;
+    background-color: #ffffff30;
 }

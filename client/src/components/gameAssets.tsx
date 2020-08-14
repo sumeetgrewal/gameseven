@@ -1,11 +1,14 @@
 export const boardImages = importAll(require.context('../assets/images/boards', false, /\.jpg|png$/));
 export const cardImages = importAll(require.context('../assets/images/cards', false, /\.jpg|png$/));
+export const iconImages = importAll(require.context('../assets/images/icons', false, /\.jpg|png$/));
 
 function importAll(r: any) {
   let images: any = {};
   r.keys().forEach((item: any, index: any) => { images[item.replace('./', '')] = r(item); });
   return images;
 }
+
+export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
 
 export interface Board {
   BOARD_ID: number,  // Partition key
@@ -35,8 +38,6 @@ export interface Card {
   NUM_PLAYERS: number,
 }
 
-export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear"
-
 export interface BuildOptions {    
   costMet: boolean,
   coinCost: number,
@@ -50,29 +51,57 @@ export interface PurchaseOptions {
   costLeft: number
 }
 
-export interface ResourceList {
-  [index: string] : number,
-  wood: number,
-  ore: number,
-  stone: number,
-  clay: number,
-  glass: number,
-  papyrus: number,
-  loom: number,
-  compass: number,
-  tablet: number,
-  gear: number,
+export interface StageOptions {
+  stage: number, 
+  cost: any, 
+  value: any,
+  options: BuildOptions
 }
 
-export interface CardTypeList {
-  [index: string] : Array<string>,
-  brown: Array<string>,
-  gray: Array<string>,
-  blue: Array<string>,
-  green: Array<string>,
-  red: Array<string>,
-  yellow: Array<string>,
-  purple: Array<string>,
+export class ResourceList {
+  [index: string]: number;
+  wood: number;
+  ore: number;
+  stone: number;
+  clay: number;
+  glass: number;
+  papyrus: number;
+  loom: number;
+  compass: number;
+  tablet: number;
+  gear: number;
+  constructor(initValue: number = 0) {
+    this.wood = initValue;
+    this.ore = initValue;
+    this.stone = initValue;
+    this.clay = initValue;
+    this.glass = initValue;
+    this.papyrus = initValue;
+    this.loom = initValue;
+    this.compass = initValue;
+    this.tablet = initValue;
+    this.gear = initValue;
+  }
+}
+
+export class CardTypeList {
+  [index: string]: Array<string>;
+  brown: Array<string>;
+  gray: Array<string>;
+  blue: Array<string>;
+  green: Array<string>;
+  red: Array<string>;
+  yellow: Array<string>;
+  purple: Array<string>;
+  constructor() {
+      this.brown = [];
+      this.gray = [];
+      this.blue = [];
+      this.green = [];
+      this.red = [];
+      this.yellow = [];
+      this.purple = [];
+  }
 }
 
 export interface MilitaryStats {
@@ -83,14 +112,20 @@ export interface MilitaryStats {
 }
 
 export interface PlayerData {
+  username: string,
   board: Board | undefined,
   cards: Array<string>,
   cardTypes: CardTypeList,
   resources: ResourceList,
   optionalResources?: Array<any>,
   personalResources?: Array<any>,
-  military?: MilitaryStats,
+  military: MilitaryStats,
+  stagesBuilt: number;
   coins: number,
   shields: number,
   points?: number,
+  stageData?: {[id: number] : {cost: any, value: any}};
+  playerLeft?: string;
+  playerRight?: string;
+  score: number;
 }

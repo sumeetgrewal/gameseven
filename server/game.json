@@ -1,0 +1,1914 @@
+{
+    "metadata": {
+        "gameStatus": "game",
+        "playerOrder": ["B", "A", "C"],
+        "age": 3,
+        "turn": 6
+    },
+    "players": {
+        "A": {
+            "status": "ready",
+            "board": "HALIKARNASSÓS",
+            "boardID": "6",
+            "handID": 2,
+            "handInfo": {
+                "101": {
+                    "costMet": false,
+                    "coinCost": 4,
+                    "purchaseOptions": [{
+                        "purchaseRight": [
+                            [1, "CLAY"]
+                        ],
+                        "purchaseLeft": [
+                            [1, "wood"]
+                        ],
+                        "costRight": 2,
+                        "costLeft": 2
+                    }]
+                },
+                "106": {
+                    "costMet": false,
+                    "coinCost": 5,
+                    "purchaseOptions": [{
+                        "purchaseRight": [
+                            [1, "papyrus"]
+                        ],
+                        "purchaseLeft": [
+                            [1, "wood"],
+                            [1, "stone"]
+                        ],
+                        "costRight": 1,
+                        "costLeft": 4
+                    }, {
+                        "purchaseRight": [],
+                        "purchaseLeft": [
+                            [1, "wood"],
+                            [1, "stone"]
+                        ],
+                        "costRight": 0,
+                        "costLeft": 4
+                    }, {
+                        "purchaseRight": [
+                            [1, "papyrus"]
+                        ],
+                        "purchaseLeft": [
+                            [1, "wood"],
+                            [1, "stone"]
+                        ],
+                        "costRight": 1,
+                        "costLeft": 4
+                    }]
+                }
+            },
+            "stageInfo": {
+                "stage": 2,
+                "cost": [
+                    [3, "ORE"]
+                ],
+                "value": [
+                    [5, "POINT"]
+                ],
+                "options": {
+                    "costMet": false,
+                    "coinCost": 0,
+                    "purchaseOptions": [{
+                        "costLeft": 0,
+                        "costRight": 0,
+                        "purchaseLeft": [],
+                        "purchaseRight": []
+                    }]
+                }
+            }
+        },
+        "B": {
+            "status": "ready",
+            "board": "ALEXANDRIA",
+            "boardID": "2",
+            "handID": 0,
+            "handInfo": {
+                "129": {
+                    "costMet": false,
+                    "coinCost": 0,
+                    "purchaseOptions": [{
+                        "costLeft": 0,
+                        "costRight": 0,
+                        "purchaseLeft": [],
+                        "purchaseRight": []
+                    }]
+                },
+                "135": {
+                    "costMet": true,
+                    "coinCost": 0,
+                    "purchaseOptions": [{
+                        "costLeft": 0,
+                        "costRight": 0,
+                        "purchaseLeft": [],
+                        "purchaseRight": []
+                    }]
+                }
+            },
+            "stageInfo": {
+                "stage": -1,
+                "cost": [],
+                "value": [],
+                "options": {
+                    "costMet": false,
+                    "coinCost": 0,
+                    "purchaseOptions": []
+                }
+            }
+        },
+        "C": {
+            "status": "ready",
+            "board": "GIZA",
+            "boardID": "7",
+            "handID": 1,
+            "handInfo": {
+                "127": {
+                    "costMet": false,
+                    "coinCost": 0,
+                    "purchaseOptions": [{
+                        "costLeft": 0,
+                        "costRight": 0,
+                        "purchaseLeft": [],
+                        "purchaseRight": []
+                    }]
+                },
+                "146": {
+                    "costMet": true,
+                    "coinCost": 2,
+                    "purchaseOptions": [{
+                        "purchaseRight": [],
+                        "purchaseLeft": [
+                            [1, "ore"]
+                        ],
+                        "costRight": 0,
+                        "costLeft": 2
+                    }]
+                }
+            },
+            "stageInfo": {
+                "stage": 3,
+                "cost": [
+                    [4, "STONE"]
+                ],
+                "value": [
+                    [7, "POINT"]
+                ],
+                "options": {
+                    "costMet": false,
+                    "coinCost": 6,
+                    "purchaseOptions": [{
+                        "purchaseRight": [
+                            [3, "stone"]
+                        ],
+                        "purchaseLeft": [],
+                        "costRight": 6,
+                        "costLeft": 0
+                    }]
+                }
+            }
+        }
+    },
+    "cards": {
+        "1": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 1,
+            "NAME": "LUMBER YARD",
+            "VALUE": [
+                [1, "WOOD"]
+            ],
+            "AGE": 1
+        },
+        "3": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 3,
+            "NAME": "STONE PIT",
+            "VALUE": [
+                [1, "STONE"]
+            ],
+            "AGE": 1
+        },
+        "5": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 5,
+            "NAME": "CLAY POOL",
+            "VALUE": [
+                [1, "CLAY"]
+            ],
+            "AGE": 1
+        },
+        "7": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 7,
+            "NAME": "ORE VEIN",
+            "VALUE": [
+                [1, "ORE"]
+            ],
+            "AGE": 1
+        },
+        "11": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "OR",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 11,
+            "NAME": "CLAY PIT",
+            "VALUE": [
+                [1, "CLAY"],
+                [1, "ORE"]
+            ],
+            "AGE": 1
+        },
+        "12": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "OR",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 12,
+            "NAME": "TIMBER YARD",
+            "VALUE": [
+                [1, "STONE"],
+                [1, "WOOD"]
+            ],
+            "AGE": 1
+        },
+        "15": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 15,
+            "NAME": "LOOM",
+            "VALUE": [
+                [1, "LOOM"]
+            ],
+            "AGE": 1
+        },
+        "17": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 17,
+            "NAME": "GLASSWORKS",
+            "VALUE": [
+                [1, "GLASS"]
+            ],
+            "AGE": 1
+        },
+        "19": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 19,
+            "NAME": "PRESS",
+            "VALUE": [
+                [1, "PAPYRUS"]
+            ],
+            "AGE": 1
+        },
+        "23": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [64, 65],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "STONE"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 23,
+            "NAME": "BATHS",
+            "VALUE": [
+                [3, "POINT"]
+            ],
+            "AGE": 1
+        },
+        "25": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [66, 67],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 25,
+            "NAME": "ALTAR",
+            "VALUE": [
+                [2, "POINT"]
+            ],
+            "AGE": 1
+        },
+        "27": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [68, 69],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 27,
+            "NAME": "THEATER",
+            "VALUE": [
+                [2, "POINT"]
+            ],
+            "AGE": 1
+        },
+        "32": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [72, 73, 74],
+            "VALUE_TYPE": "DISCOUNT",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 32,
+            "NAME": "EAST TRADING POST",
+            "VALUE": [
+                ["RIGHT"],
+                ["WOOD", "ORE", "STONE", "CLAY"]
+            ],
+            "AGE": 1
+        },
+        "34": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [72, 73, 74],
+            "VALUE_TYPE": "DISCOUNT",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 34,
+            "NAME": "WEST TRADING POST",
+            "VALUE": [
+                ["LEFT"],
+                ["WOOD", "ORE", "STONE", "CLAY"]
+            ],
+            "AGE": 1
+        },
+        "36": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [75, 76, 77],
+            "VALUE_TYPE": "DISCOUNT",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 36,
+            "NAME": "MARKETPLACE",
+            "VALUE": [
+                ["LEFT", "RIGHT"],
+                ["GLASS", "PAPYRUS", "LOOM"]
+            ],
+            "AGE": 1
+        },
+        "38": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "WOOD"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 38,
+            "NAME": "STOCKADE",
+            "VALUE": [
+                [1, "SHIELD"]
+            ],
+            "AGE": 1
+        },
+        "40": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "ORE"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 40,
+            "NAME": "BARRACKS",
+            "VALUE": [
+                [1, "SHIELD"]
+            ],
+            "AGE": 1
+        },
+        "42": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "CLAY"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 42,
+            "NAME": "GUARD TOWER",
+            "VALUE": [
+                [1, "SHIELD"]
+            ],
+            "AGE": 1
+        },
+        "44": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [87, 88, 91, 92],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 44,
+            "NAME": "APOTHECARY",
+            "VALUE": [
+                [1, "COMPASS"]
+            ],
+            "AGE": 1
+        },
+        "46": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [89, 90, 93, 94],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 46,
+            "NAME": "WORKSHOP",
+            "VALUE": [
+                [1, "GEAR"]
+            ],
+            "AGE": 1
+        },
+        "48": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [70, 71, 95, 96],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 48,
+            "NAME": "SCRIPTORIUM",
+            "VALUE": [
+                [1, "TABLET"]
+            ],
+            "AGE": 1
+        },
+        "50": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 50,
+            "NAME": "SAWMILL",
+            "VALUE": [
+                [2, "WOOD"]
+            ],
+            "AGE": 2
+        },
+        "52": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 52,
+            "NAME": "QUARRY",
+            "VALUE": [
+                [2, "STONE"]
+            ],
+            "AGE": 2
+        },
+        "54": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 54,
+            "NAME": "BRICKYARD",
+            "VALUE": [
+                [2, "CLAY"]
+            ],
+            "AGE": 2
+        },
+        "56": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BROWN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "COIN"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 56,
+            "NAME": "FOUNDRY",
+            "VALUE": [
+                [2, "ORE"]
+            ],
+            "AGE": 2
+        },
+        "58": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 58,
+            "NAME": "LOOM",
+            "VALUE": [
+                [1, "LOOM"]
+            ],
+            "AGE": 2
+        },
+        "60": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 60,
+            "NAME": "GLASSWORKS",
+            "VALUE": [
+                [1, "GLASS"]
+            ],
+            "AGE": 2
+        },
+        "62": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GRAY",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 62,
+            "NAME": "PRESS",
+            "VALUE": [
+                [1, "PAPYRUS"]
+            ],
+            "AGE": 2
+        },
+        "64": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [3, "STONE"]
+            ],
+            "CHAIN_COST": [23, 24],
+            "CARD_ID": 64,
+            "NAME": "AQUEDUCT",
+            "VALUE": [
+                [5, "POINT"]
+            ],
+            "AGE": 2
+        },
+        "66": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [99, 100],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "WOOD"],
+                [1, "CLAY"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [25, 26],
+            "CARD_ID": 66,
+            "NAME": "TEMPLE",
+            "VALUE": [
+                [3, "POINT"]
+            ],
+            "AGE": 2
+        },
+        "68": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [101, 102],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [1, "WOOD"]
+            ],
+            "CHAIN_COST": [27, 28],
+            "CARD_ID": 68,
+            "NAME": "STATUE",
+            "VALUE": [
+                [4, "POINT"]
+            ],
+            "AGE": 2
+        },
+        "70": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "CLAY"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [48, 49],
+            "CARD_ID": 70,
+            "NAME": "COURTHOUSE",
+            "VALUE": [
+                [4, "POINT"]
+            ],
+            "AGE": 2
+        },
+        "72": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [110, 111],
+            "VALUE_TYPE": "OR",
+            "RESOURCE_COST": [
+                [2, "CLAY"]
+            ],
+            "CHAIN_COST": [32, 33, 34, 35],
+            "CARD_ID": 72,
+            "NAME": "FORUM",
+            "VALUE": [
+                [1, "LOOM"],
+                [1, "GLASS"],
+                [1, "PAPYRUS"]
+            ],
+            "AGE": 2
+        },
+        "75": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [112, 113],
+            "VALUE_TYPE": "OR",
+            "RESOURCE_COST": [
+                [2, "WOOD"]
+            ],
+            "CHAIN_COST": [36, 37],
+            "CARD_ID": 75,
+            "NAME": "CARAVANSERY",
+            "VALUE": [
+                [1, "CLAY"],
+                [1, "STONE"],
+                [1, "ORE"],
+                [1, "WOOD"]
+            ],
+            "AGE": 2
+        },
+        "78": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [],
+            "CHAIN_COST": [],
+            "CARD_ID": 78,
+            "NAME": "VINEYARD",
+            "VALUE": [
+                ["BROWN"],
+                ["LEFT", "RIGHT", "SELF"],
+                [
+                    [1, "COIN"]
+                ]
+            ],
+            "AGE": 2
+        },
+        "82": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [119, 120],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [3, "STONE"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 82,
+            "NAME": "WALLS",
+            "VALUE": [
+                [2, "SHIELD"]
+            ],
+            "AGE": 2
+        },
+        "87": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "ORE"],
+                [1, "CLAY"],
+                [1, "WOOD"]
+            ],
+            "CHAIN_COST": [44, 45],
+            "CARD_ID": 87,
+            "NAME": "STABLES",
+            "VALUE": [
+                [2, "SHIELD"]
+            ],
+            "AGE": 2
+        },
+        "89": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "WOOD"],
+                [1, "ORE"]
+            ],
+            "CHAIN_COST": [46, 47],
+            "CARD_ID": 89,
+            "NAME": "ARCHERY RANGE",
+            "VALUE": [
+                [2, "SHIELD"]
+            ],
+            "AGE": 2
+        },
+        "91": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [116, 117, 118, 129, 130],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [44, 45],
+            "CARD_ID": 91,
+            "NAME": "DISPENSARY",
+            "VALUE": [
+                [1, "COMPASS"]
+            ],
+            "AGE": 2
+        },
+        "93": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [127, 128, 131, 132],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "CLAY"],
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [46, 47],
+            "CARD_ID": 93,
+            "NAME": "LABORATORY",
+            "VALUE": [
+                [1, "GEAR"]
+            ],
+            "AGE": 2
+        },
+        "95": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [108, 109, 133, 134],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "STONE"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [48, 49],
+            "CARD_ID": 95,
+            "NAME": "LIBRARY",
+            "VALUE": [
+                [1, "TABLET"]
+            ],
+            "AGE": 2
+        },
+        "97": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [135, 136, 137, 138],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "WOOD"],
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 97,
+            "NAME": "SCHOOL",
+            "VALUE": [
+                [1, "TABLET"]
+            ],
+            "AGE": 2
+        },
+        "99": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "CLAY"],
+                [1, "ORE"],
+                [1, "PAPYRUS"],
+                [1, "LOOM"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [66, 67],
+            "CARD_ID": 99,
+            "NAME": "PANTHEON",
+            "VALUE": [
+                [7, "POINT"]
+            ],
+            "AGE": 3
+        },
+        "101": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "CLAY"],
+                [1, "WOOD"]
+            ],
+            "CHAIN_COST": [68, 69],
+            "CARD_ID": 101,
+            "NAME": "GARDENS",
+            "VALUE": [
+                [5, "POINT"]
+            ],
+            "AGE": 3
+        },
+        "103": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "STONE"],
+                [1, "ORE"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 103,
+            "NAME": "TOWN HALL",
+            "VALUE": [
+                [6, "POINT"]
+            ],
+            "AGE": 3
+        },
+        "106": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "CLAY"],
+                [1, "WOOD"],
+                [1, "ORE"],
+                [1, "STONE"],
+                [1, "GLASS"],
+                [1, "PAPYRUS"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 106,
+            "NAME": "PALACE",
+            "VALUE": [
+                [8, "POINT"]
+            ],
+            "AGE": 3
+        },
+        "108": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "BLUE",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "WOOD"],
+                [1, "ORE"],
+                [1, "STONE"]
+            ],
+            "CHAIN_COST": [95, 96],
+            "CARD_ID": 108,
+            "NAME": "SENATE",
+            "VALUE": [
+                [6, "POINT"]
+            ],
+            "AGE": 3
+        },
+        "110": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [1, "ORE"],
+                [1, "WOOD"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [72, 73, 74],
+            "CARD_ID": 110,
+            "NAME": "HAVEN",
+            "VALUE": [
+                ["BROWN"],
+                ["SELF"],
+                [
+                    [1, "COIN"],
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "112": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [1, "STONE"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [75, 76, 77],
+            "CARD_ID": 112,
+            "NAME": "LIGHTHOUSE",
+            "VALUE": [
+                ["YELLOW"],
+                ["SELF"],
+                [
+                    [1, "COIN"],
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "116": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "YELLOW",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [2, "STONE"],
+                [1, "ORE"]
+            ],
+            "CHAIN_COST": [91, 92],
+            "CARD_ID": 116,
+            "NAME": "ARENA",
+            "VALUE": [
+                ["STAGE"],
+                ["SELF"],
+                [
+                    [3, "COIN"],
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "119": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [3, "ORE"],
+                [1, "STONE"]
+            ],
+            "CHAIN_COST": [82, 83],
+            "CARD_ID": 119,
+            "NAME": "FORTIFICATIONS",
+            "VALUE": [
+                [3, "SHIELD"]
+            ],
+            "AGE": 3
+        },
+        "124": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "ORE"],
+                [2, "WOOD"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 124,
+            "NAME": "ARSENAL",
+            "VALUE": [
+                [3, "SHIELD"]
+            ],
+            "AGE": 3
+        },
+        "127": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "RED",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "WOOD"],
+                [3, "CLAY"]
+            ],
+            "CHAIN_COST": [93, 94],
+            "CARD_ID": 127,
+            "NAME": "SIEGE WORKSHOP",
+            "VALUE": [
+                [3, "SHIELD"]
+            ],
+            "AGE": 3
+        },
+        "129": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "CLAY"],
+                [1, "LOOM"],
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [91, 92],
+            "CARD_ID": 129,
+            "NAME": "LODGE",
+            "VALUE": [
+                [1, "COMPASS"]
+            ],
+            "AGE": 3
+        },
+        "131": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [1, "GLASS"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [93, 94],
+            "CARD_ID": 131,
+            "NAME": "OBSERVATORY",
+            "VALUE": [
+                [1, "GEAR"]
+            ],
+            "AGE": 3
+        },
+        "133": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [2, "WOOD"],
+                [1, "PAPYRUS"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [95, 96],
+            "CARD_ID": 133,
+            "NAME": "UNIVERSITY",
+            "VALUE": [
+                [1, "TABLET"]
+            ],
+            "AGE": 3
+        },
+        "135": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [3, "STONE"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [97, 98],
+            "CARD_ID": 135,
+            "NAME": "ACADEMY",
+            "VALUE": [
+                [1, "COMPASS"]
+            ],
+            "AGE": 3
+        },
+        "137": {
+            "NUM_PLAYERS": 3,
+            "CATEGORY": "GREEN",
+            "CHAINS": [],
+            "VALUE_TYPE": "AND",
+            "RESOURCE_COST": [
+                [1, "WOOD"],
+                [1, "PAPYRUS"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [97, 98],
+            "CARD_ID": 137,
+            "NAME": "STUDY",
+            "VALUE": [
+                [1, "GEAR"]
+            ],
+            "AGE": 3
+        },
+        "139": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [1, "CLAY"],
+                [1, "STONE"],
+                [1, "WOOD"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 139,
+            "NAME": "WORKERS GUILD",
+            "VALUE": [
+                ["BROWN"],
+                ["LEFT", "RIGHT"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "140": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [2, "STONE"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 140,
+            "NAME": "CRAFTMENS GUILD",
+            "VALUE": [
+                ["GRAY"],
+                ["LEFT", "RIGHT"],
+                [
+                    [2, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "141": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [1, "LOOM"],
+                [1, "PAPYRUS"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 141,
+            "NAME": "TRADERS GUILD",
+            "VALUE": [
+                ["YELLOW"],
+                ["LEFT", "RIGHT"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "142": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [3, "CLAY"],
+                [1, "LOOM"],
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 142,
+            "NAME": "PHILOSOPHERS GUILD",
+            "VALUE": [
+                ["GREEN"],
+                ["LEFT", "RIGHT"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "143": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [3, "CLAY"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 143,
+            "NAME": "SPY GUILD",
+            "VALUE": [
+                ["RED"],
+                ["LEFT", "RIGHT"],
+                [
+                    [2, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "144": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [2, "ORE"],
+                [1, "STONE"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 144,
+            "NAME": "STRATEGY GUILD",
+            "VALUE": [
+                ["MILITARY_LOSS"],
+                ["LEFT", "RIGHT"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "145": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [3, "WOOD"],
+                [1, "PAPYRUS"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 145,
+            "NAME": "SHIPOWNERS GUILD",
+            "VALUE": [
+                ["BROWN", "GRAY", "PURPLE"],
+                ["SELF"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "146": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "OR",
+            "RESOURCE_COST": [
+                [2, "WOOD"],
+                [2, "ORE"],
+                [1, "PAPYRUS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 146,
+            "NAME": "SCIENTISTS GUILD",
+            "VALUE": [
+                [1, "COMPASS"],
+                [1, "GEAR"],
+                [1, "TABLET"]
+            ],
+            "AGE": 3
+        },
+        "147": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [3, "WOOD"],
+                [1, "STONE"],
+                [1, "LOOM"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 147,
+            "NAME": "MAGISTRATES GUILD",
+            "VALUE": [
+                ["BLUE"],
+                ["LEFT", "RIGHT"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        },
+        "148": {
+            "NUM_PLAYERS": 0,
+            "CATEGORY": "PURPLE",
+            "CHAINS": [],
+            "VALUE_TYPE": "CONDITION",
+            "RESOURCE_COST": [
+                [2, "STONE"],
+                [2, "CLAY"],
+                [1, "GLASS"]
+            ],
+            "CHAIN_COST": [],
+            "CARD_ID": 148,
+            "NAME": "BUILDERS GUILD",
+            "VALUE": [
+                ["STAGE"],
+                ["LEFT", "RIGHT", "SELF"],
+                [
+                    [1, "POINT"]
+                ]
+            ],
+            "AGE": 3
+        }
+    },
+    "boards": {
+        "2": {
+            "S1_COST": [
+                [2, "STONE"]
+            ],
+            "S2_VALUE": [
+                [5, "POINT"]
+            ],
+            "BOARD_ID": 2,
+            "RESOURCE": "GLASS",
+            "S3_VALUE": [
+                [7, "POINT"]
+            ],
+            "SHORT_NAME": "ALEXANDRIA",
+            "SIDE": "A",
+            "S3_COST": [
+                [2, "GLASS"]
+            ],
+            "NAME": "The Lighthouse of Alexandria",
+            "S1_VALUE": [
+                [3, "POINT"]
+            ],
+            "S2_COST": [
+                [2, "ORE"]
+            ],
+            "PLAYER": "B"
+        },
+        "6": {
+            "S1_COST": [
+                [2, "CLAY"]
+            ],
+            "S2_VALUE": [
+                [5, "POINT"]
+            ],
+            "BOARD_ID": 6,
+            "RESOURCE": "LOOM",
+            "S3_VALUE": [
+                [7, "POINT"]
+            ],
+            "SHORT_NAME": "HALIKARNASSÓS",
+            "SIDE": "A",
+            "S3_COST": [
+                [2, "LOOM"]
+            ],
+            "NAME": "The Mausoleum of Halicarnassus ",
+            "S1_VALUE": [
+                [3, "POINT"]
+            ],
+            "S2_COST": [
+                [3, "ORE"]
+            ],
+            "PLAYER": "A"
+        },
+        "7": {
+            "S1_COST": [
+                [2, "STONE"]
+            ],
+            "S2_VALUE": [
+                [5, "POINT"]
+            ],
+            "BOARD_ID": 7,
+            "S3_VALUE": [
+                [7, "POINT"]
+            ],
+            "RESOURCE": "STONE",
+            "SHORT_NAME": "GIZA",
+            "SIDE": "A",
+            "S3_COST": [
+                [4, "STONE"]
+            ],
+            "NAME": "The Pyramids of Giza",
+            "S1_VALUE": [
+                [3, "POINT"]
+            ],
+            "S2_COST": [
+                [3, "WOOD"]
+            ],
+            "PLAYER": "C"
+        }
+    },
+    "selections": {
+        "1": {
+            "1": [36, 12, 23],
+            "2": [11, 7, 1],
+            "3": [42, 44, 38],
+            "4": [17, 5, 34],
+            "5": [3, 40, 19],
+            "6": [32, 48, 25]
+        },
+        "2": {
+            "1": [72, 75, 50],
+            "2": [87, 68, 82],
+            "3": [78, 95, 97],
+            "4": [52, 91, 66],
+            "5": [54, 70, 89],
+            "6": [93, 60, 62]
+        },
+        "3": {
+            "1": [110, 112, 145],
+            "2": [119, 133, 148],
+            "3": [116, 137, 99],
+            "4": [141, 140, 131],
+            "5": [108, 103, 124],
+            "6": [146, 106, 135]
+        }
+    },
+    "gameData": {
+        "playerData": {
+            "A": {
+                "username": "A",
+                "board": {
+                    "S1_COST": [
+                        [2, "CLAY"]
+                    ],
+                    "S2_VALUE": [
+                        [5, "POINT"]
+                    ],
+                    "BOARD_ID": 6,
+                    "RESOURCE": "LOOM",
+                    "S3_VALUE": [
+                        [7, "POINT"]
+                    ],
+                    "SHORT_NAME": "HALIKARNASSÓS",
+                    "SIDE": "A",
+                    "S3_COST": [
+                        [2, "LOOM"]
+                    ],
+                    "NAME": "The Mausoleum of Halicarnassus ",
+                    "S1_VALUE": [
+                        [3, "POINT"]
+                    ],
+                    "S2_COST": [
+                        [3, "ORE"]
+                    ],
+                    "PLAYER": "A"
+                },
+                "cards": [36, 7, 44, 5, 40, 48, 72, 87, 95, 91, 60, 110, 133, 137, 141, 108],
+                "cardTypes": {
+                    "brown": [7, 5],
+                    "gray": [60],
+                    "blue": [108],
+                    "green": [44, 48, 95, 91, 133, 137],
+                    "red": [40, 87],
+                    "yellow": [36, 72, 110],
+                    "purple": [141]
+                },
+                "resources": {
+                    "wood": 0,
+                    "ore": 1,
+                    "stone": 0,
+                    "clay": 1,
+                    "glass": 1,
+                    "papyrus": 0,
+                    "loom": 0,
+                    "compass": 2,
+                    "tablet": 3,
+                    "gear": 1
+                },
+                "coins": 8,
+                "shields": 3,
+                "points": 9,
+                "optionalResources": [],
+                "personalResources": [
+                    [
+                        [1, "LOOM"]
+                    ],
+                    [
+                        [1, "LOOM"],
+                        [1, "GLASS"],
+                        [1, "PAPYRUS"]
+                    ]
+                ],
+                "conditionalResources": [{
+                    "category": ["BROWN"],
+                    "player": ["SELF"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }, {
+                    "category": ["YELLOW"],
+                    "player": ["LEFT", "RIGHT"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }],
+                "military": {
+                    "loss": 1,
+                    "one": 0,
+                    "three": 1,
+                    "five": 0
+                },
+                "stagesBuilt": 1,
+                "purchaseCosts": {
+                    "playerLeft": {
+                        "wood": 2,
+                        "ore": 2,
+                        "stone": 2,
+                        "clay": 2,
+                        "glass": 1,
+                        "papyrus": 1,
+                        "loom": 1,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    },
+                    "playerRight": {
+                        "wood": 2,
+                        "ore": 2,
+                        "stone": 2,
+                        "clay": 2,
+                        "glass": 1,
+                        "papyrus": 1,
+                        "loom": 1,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    }
+                },
+                "stageData": {
+                    "1": {
+                        "cost": [
+                            [2, "CLAY"]
+                        ],
+                        "value": [
+                            [3, "POINT"]
+                        ]
+                    },
+                    "2": {
+                        "cost": [
+                            [3, "ORE"]
+                        ],
+                        "value": [
+                            [5, "POINT"]
+                        ]
+                    },
+                    "3": {
+                        "cost": [
+                            [2, "LOOM"]
+                        ],
+                        "value": [
+                            [7, "POINT"]
+                        ]
+                    }
+                },
+                "playerLeft": "B",
+                "playerRight": "C"
+            },
+            "B": {
+                "username": "B",
+                "board": {
+                    "S1_COST": [
+                        [2, "STONE"]
+                    ],
+                    "S2_VALUE": [
+                        [5, "POINT"]
+                    ],
+                    "BOARD_ID": 2,
+                    "RESOURCE": "GLASS",
+                    "S3_VALUE": [
+                        [7, "POINT"]
+                    ],
+                    "SHORT_NAME": "ALEXANDRIA",
+                    "SIDE": "A",
+                    "S3_COST": [
+                        [2, "GLASS"]
+                    ],
+                    "NAME": "The Lighthouse of Alexandria",
+                    "S1_VALUE": [
+                        [3, "POINT"]
+                    ],
+                    "S2_COST": [
+                        [2, "ORE"]
+                    ],
+                    "PLAYER": "B"
+                },
+                "cards": [12, 1, 42, 34, 3, 25, 75, 68, 78, 52, 112, 148, 116, 140, 135],
+                "cardTypes": {
+                    "brown": [12, 1, 3, 52],
+                    "gray": [],
+                    "blue": [25, 68],
+                    "green": [135],
+                    "red": [42],
+                    "yellow": [34, 75, 78, 112, 116],
+                    "purple": [148, 140]
+                },
+                "resources": {
+                    "wood": 1,
+                    "ore": 0,
+                    "stone": 3,
+                    "clay": 0,
+                    "glass": 0,
+                    "papyrus": 0,
+                    "loom": 0,
+                    "compass": 1,
+                    "tablet": 0,
+                    "gear": 0
+                },
+                "coins": 7,
+                "shields": 1,
+                "points": 21,
+                "optionalResources": [
+                    [
+                        [1, "STONE"],
+                        [1, "WOOD"]
+                    ]
+                ],
+                "personalResources": [
+                    [
+                        [1, "GLASS"]
+                    ],
+                    [
+                        [1, "CLAY"],
+                        [1, "STONE"],
+                        [1, "ORE"],
+                        [1, "WOOD"]
+                    ]
+                ],
+                "conditionalResources": [{
+                    "category": ["BROWN"],
+                    "player": ["LEFT", "RIGHT", "SELF"],
+                    "value": []
+                }, {
+                    "category": ["YELLOW"],
+                    "player": ["SELF"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }, {
+                    "category": ["STAGE"],
+                    "player": ["LEFT", "RIGHT", "SELF"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }, {
+                    "category": ["STAGE"],
+                    "player": ["SELF"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }, {
+                    "category": ["GRAY"],
+                    "player": ["LEFT", "RIGHT"],
+                    "value": [
+                        [2, "POINT"]
+                    ]
+                }],
+                "military": {
+                    "loss": 2,
+                    "one": 0,
+                    "three": 0,
+                    "five": 0
+                },
+                "stagesBuilt": 3,
+                "purchaseCosts": {
+                    "playerLeft": {
+                        "wood": 1,
+                        "ore": 1,
+                        "stone": 1,
+                        "clay": 1,
+                        "glass": 2,
+                        "papyrus": 2,
+                        "loom": 2,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    },
+                    "playerRight": {
+                        "wood": 2,
+                        "ore": 2,
+                        "stone": 2,
+                        "clay": 2,
+                        "glass": 2,
+                        "papyrus": 2,
+                        "loom": 2,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    }
+                },
+                "stageData": {
+                    "1": {
+                        "cost": [
+                            [2, "STONE"]
+                        ],
+                        "value": [
+                            [3, "POINT"]
+                        ]
+                    },
+                    "2": {
+                        "cost": [
+                            [2, "ORE"]
+                        ],
+                        "value": [
+                            [5, "POINT"]
+                        ]
+                    },
+                    "3": {
+                        "cost": [
+                            [2, "GLASS"]
+                        ],
+                        "value": [
+                            [7, "POINT"]
+                        ]
+                    }
+                },
+                "playerLeft": "C",
+                "playerRight": "A"
+            },
+            "C": {
+                "username": "C",
+                "board": {
+                    "S1_COST": [
+                        [2, "STONE"]
+                    ],
+                    "S2_VALUE": [
+                        [5, "POINT"]
+                    ],
+                    "BOARD_ID": 7,
+                    "S3_VALUE": [
+                        [7, "POINT"]
+                    ],
+                    "RESOURCE": "STONE",
+                    "SHORT_NAME": "GIZA",
+                    "SIDE": "A",
+                    "S3_COST": [
+                        [4, "STONE"]
+                    ],
+                    "NAME": "The Pyramids of Giza",
+                    "S1_VALUE": [
+                        [3, "POINT"]
+                    ],
+                    "S2_COST": [
+                        [3, "WOOD"]
+                    ],
+                    "PLAYER": "C"
+                },
+                "cards": [23, 11, 38, 17, 19, 50, 82, 97, 66, 89, 145, 119, 99, 146],
+                "cardTypes": {
+                    "brown": [11, 50],
+                    "gray": [17, 19],
+                    "blue": [23, 66, 99],
+                    "green": [97],
+                    "red": [38, 82, 89, 119],
+                    "yellow": [],
+                    "purple": [145, 146]
+                },
+                "resources": {
+                    "wood": 2,
+                    "ore": 0,
+                    "stone": 0,
+                    "clay": 0,
+                    "glass": 1,
+                    "papyrus": 1,
+                    "loom": 0,
+                    "compass": 0,
+                    "tablet": 1,
+                    "gear": 0
+                },
+                "coins": 0,
+                "shields": 8,
+                "points": 21,
+                "optionalResources": [
+                    [
+                        [1, "CLAY"],
+                        [1, "ORE"]
+                    ]
+                ],
+                "personalResources": [
+                    [
+                        [1, "STONE"]
+                    ],
+                    [
+                        [1, "COMPASS"],
+                        [1, "GEAR"],
+                        [1, "TABLET"]
+                    ]
+                ],
+                "conditionalResources": [{
+                    "category": ["BROWN", "GRAY", "PURPLE"],
+                    "player": ["SELF"],
+                    "value": [
+                        [1, "POINT"]
+                    ]
+                }],
+                "military": {
+                    "loss": 0,
+                    "one": 0,
+                    "three": 2,
+                    "five": 0
+                },
+                "stagesBuilt": 2,
+                "purchaseCosts": {
+                    "playerLeft": {
+                        "wood": 2,
+                        "ore": 2,
+                        "stone": 2,
+                        "clay": 2,
+                        "glass": 2,
+                        "papyrus": 2,
+                        "loom": 2,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    },
+                    "playerRight": {
+                        "wood": 2,
+                        "ore": 2,
+                        "stone": 2,
+                        "clay": 2,
+                        "glass": 2,
+                        "papyrus": 2,
+                        "loom": 2,
+                        "compass": 2,
+                        "tablet": 2,
+                        "gear": 2
+                    }
+                },
+                "stageData": {
+                    "1": {
+                        "cost": [
+                            [2, "STONE"]
+                        ],
+                        "value": [
+                            [3, "POINT"]
+                        ]
+                    },
+                    "2": {
+                        "cost": [
+                            [3, "WOOD"]
+                        ],
+                        "value": [
+                            [5, "POINT"]
+                        ]
+                    },
+                    "3": {
+                        "cost": [
+                            [4, "STONE"]
+                        ],
+                        "value": [
+                            [7, "POINT"]
+                        ]
+                    }
+                },
+                "playerLeft": "A",
+                "playerRight": "B"
+            }
+        },
+        "discardPile": [93, 131, 106]
+    },
+    "hands": {
+        "0": [129],
+        "1": [127],
+        "2": [101]
+    }
+}
