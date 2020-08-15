@@ -1,22 +1,28 @@
 import * as gp from '../middleware/gameplay'
 import { game } from '../models/game.model'
-import { gameModel, ResourceList } from '../models/playerData.model';
+import { gameModel, ResourceList, PurchaseOptions } from '../models/playerData.model';
 import { cleanupGame, prepareGameAssets } from '../middleware/util';
 import { Player } from '../models/player.model';
 
 let A = new Player('A');
 let B = new Player('B');
 let C = new Player('C');
+let D = new Player('D');
+let E = new Player('E');
+let F = new Player('F');
+let G = new Player('G');
+
 let sampleGame: gameModel = game;
+const emptyPO: PurchaseOptions = {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0}
 
 beforeAll(() => {
     return new Promise((resolve) => {
         cleanupGame();
-        prepareGameAssets()
+        prepareGameAssets(7)
         .then(() => {
             sampleGame.metadata = {
                 gameStatus: 'game',
-                playerOrder: ['A', 'B', 'C'],
+                playerOrder: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
                 age: 3,
                 turn: 1,
             }
@@ -24,6 +30,10 @@ beforeAll(() => {
                 'A': {},
                 'B': {},
                 'C': {},
+                'D': {},
+                'E': {},
+                'F': {},
+                'G': {},
             }
             sampleGame.selections = {}
             sampleGame.boards = game.boards;
@@ -33,6 +43,10 @@ beforeAll(() => {
                     'A': A,
                     'B': B,
                     'C': C,
+                    'D': D,
+                    'E': E,
+                    'F': F,
+                    'G': G,
                 },
                 discardPile: []
             }
@@ -45,9 +59,20 @@ test('Game setup', () => {
     expect(sampleGame.gameData.playerData['A'].coins === 3);
 })
 
+
 test('A selects a card', () => {
-    A.selectCard('1', 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0})
+    A.selectCard('1', 0, emptyPO)
     expect(A.cards.length).toEqual(1);
+})
+
+test('A selects resource cards', () => {
+    [3, 9, 10].forEach((cardID: number) => A.selectCard(cardID.toString(), 0, emptyPO))
+    expect(A.resources.wood).toEqual(1);
+    expect(A.resources.stone).toEqual(1);
+    expect(A.optionalResources).toEqual([
+        [[1, 'WOOD'], [1, 'CLAY']],
+        [[1, 'STONE'], [1, 'CLAY']]
+    ])
 })
 
 // test ('A selects cards: [36, 7, 44, 5, 40, 48, 72, 87, 95, 91, 60, 110, 133, 137, 141, 108]', () => {

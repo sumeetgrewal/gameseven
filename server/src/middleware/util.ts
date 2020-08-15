@@ -87,16 +87,9 @@ function loadTable(tableName: string, id: string, params: {} = {}): Promise<void
   })
 }
 
-export function prepareGameAssets(): Promise<void> {
+export function prepareGameAssets(playerCount: number): Promise<void> {
   return new Promise((resolve) => {
-    let numPlayers: string;
-    if (!setupClients || setupClients.length < 3) {
-      numPlayers = '3';
-    }
-    else {
-      numPlayers = setupClients.length.toString();
-    }
-  
+    let numPlayers: string = (playerCount <= 3) ? '3' : playerCount.toString()
     const cardFilter = {
       FilterExpression: "#np <= :np",
       ExpressionAttributeNames: {

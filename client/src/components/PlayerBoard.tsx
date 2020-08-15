@@ -158,8 +158,10 @@ export default function PlayerBoard (props: BoardProps) {
                 items.push(
                     <Carousel.Item>
                         <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
-                            <h3>{player[0]}</h3>
-                            <p>{player[1].board ? player[1].board.NAME : ""}</p>
+                            <h2 className="font-weight-bold">{player[0]}</h2>
+                            <h5 className="mb-1">{player[1].board ? player[1].board.NAME : ""}</h5>
+                            {(player[0] === props.myData.playerLeft) && <p className="pb-3">(LEFT)</p>}
+                            {(player[0] === props.myData.playerRight) && <p className="pb-3">(RIGHT)</p>}
                             <Carousel.Caption>
                                 <Button className="view-btn" variant="outline-light" onClick={() => props.viewPlayerBoard(player[0])}>
                                     SELECT
