@@ -7,11 +7,14 @@
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "build": "tsc",
     "test": "jest",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "deploy": "gulp && cd ../prod-build && yarn && yarn start"
   },
   "devDependencies": {
     "@types/express": "^4.17.6",
     "@types/node": "^14.0.9",
+    "gulp": "^4.0.2",
+    "gulp-zip": "^5.0.2",
     "jest": "^26.4.0",
     "nodemon": "^2.0.4",
     "ts-jest": "^26.2.0",
