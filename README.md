@@ -12,34 +12,46 @@ Figma : https://www.figma.com/file/Z8zXzJePxaCViBKFMkycgA/7-Wonders?node-id=0%3A
 ## Setup
 
 ### Server
-1. Navigate to /server
-2. Run `Yarn`
-3. Run `Yarn dev`
+
+``` 
+cd server
+yarn
+yarn dev
+```
 
 ### Client
-1. Navigate to /client
-2. Run `Yarn`
-3. Run `Yarn start`
+
+``` 
+cd client
+yarn
+yarn start
+```
+
 
 ### Starting both server & client
-1. Navigate to /client
-2. Run `Yarn dev`
+``` 
+cd client
+yarn dev
+```
 
-## Build
-1. Navigate to /server
-2. Run `Yarn deploy`
+## Build & Deploy
 
-## Deploy
+### EB CLI Setup 
 AWS credentials must be configured and EB CLI must be installed
-1. Navigate to /prod-build
+1. Navigate to /server
 2. Run `eb init` and select the appropriate region and app
 3. Navigate to /.elasticbeanstalk
 4. In the config.yml file, add 
 ```
 deploy:
-  artifact: react-nodejs.zip
+  artifact: ./../prod-build/react-nodejs.zip
 ```
-5. Run `eb deploy`
+
+### Deploy
+``` 
+cd server
+yarn deploy
+```
 
 ## Collaborators
 [@vinielk](https://github.com/vinielk)
