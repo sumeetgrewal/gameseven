@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "jest",
     "start": "node dist/index.js",
-    "deploy": "gulp"
+    "deploy": "gulp && eb deploy"
   },
   "devDependencies": {
     "@types/express": "^4.17.6",

@@ -73,6 +73,7 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       
       source.addEventListener('error', (error: any) => {
         console.log(error);
+        this.props.setListening(false);
       });
     }
     this.props.setListening(true);
