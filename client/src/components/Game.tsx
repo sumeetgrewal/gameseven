@@ -382,7 +382,7 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   render() {
-    const myBoard = this.state.myData.board;
+    const myBoard = (this.state.myData) ? this.state.myData.board : undefined;
     const viewingMyBoard = (this.state.currentView === this.props.username);
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
