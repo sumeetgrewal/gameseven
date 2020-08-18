@@ -38,6 +38,13 @@ router.route('/').get((req: any, res: any) => {
       beginAge();
     }
 
+    const keepAliveMS = 45000;
+    function keepAlive() {
+      pushUpdateToPlayers('keep-alive', 'keepalive', [newClient]);
+      setTimeout(keepAlive, keepAliveMS);
+    }
+    setTimeout(keepAlive, keepAliveMS);
+
     req.on('close', () => {
       res.end();
       if (gameClients.length === 0) {

@@ -70,6 +70,10 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
         }
         this.props.setGameStatus(gameStatus);
       });
+
+      source.addEventListener('keepalive', (event: any) => {
+        console.log(event.data);
+      })
       
       source.addEventListener('error', (error: any) => {
         console.log(error);

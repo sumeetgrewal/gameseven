@@ -146,6 +146,9 @@ class Game extends React.Component<GameProps, GameState> {
         this.setState({playerData});
       })
 
+      source.addEventListener('keepalive', (event: any) => {
+        console.log(event.data);
+      })
 
       this.setState({isListening: true}, resolve);
     })
