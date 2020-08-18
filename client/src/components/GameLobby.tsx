@@ -72,7 +72,7 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       });
 
       source.addEventListener('keepalive', (event: any) => {
-        console.log(JSON.parse(event.data));
+        console.log(event.data);
       })
       
       source.addEventListener('error', (error: any) => {

@@ -147,7 +147,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
 
       source.addEventListener('keepalive', (event: any) => {
-        console.log(JSON.parse(event.data));
+        console.log(event.data);
       })
 
       this.setState({isListening: true}, resolve);
