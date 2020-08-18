@@ -40,7 +40,7 @@ router.route('/').get((req: any, res: any) => {
 
     const keepAliveMS = 45000;
     function keepAlive() {
-      res.write(':\n\n');
+      pushUpdateToPlayers('keep-alive', 'keepalive', gameClients);
       setTimeout(keepAlive, keepAliveMS);
     }
     setTimeout(keepAlive, keepAliveMS);
