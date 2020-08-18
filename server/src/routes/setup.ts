@@ -116,6 +116,13 @@ router.route('/setup').get((req: any, res: any) => {
     }
     setupClients.push(newClient);
 
+    const keepAliveMS = 4500;
+    function keepAlive() {
+      res.write(':\n\n');
+      setTimeout(keepAlive, keepAliveMS);
+    }
+    setTimeout(keepAlive, keepAliveMS);
+
     req.on('close', () => {
       res.end();
       const gameStatus = game.metadata.gameStatus;
