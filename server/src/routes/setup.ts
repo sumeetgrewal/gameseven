@@ -118,7 +118,7 @@ router.route('/setup').get((req: any, res: any) => {
 
     const keepAliveMS = 45000;
     function keepAlive() {
-      res.write(':\n\n');
+      pushUpdateToPlayers('keep-alive', 'keepalive', setupClients);
       setTimeout(keepAlive, keepAliveMS);
     }
     setTimeout(keepAlive, keepAliveMS);
