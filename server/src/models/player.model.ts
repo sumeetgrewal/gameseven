@@ -389,7 +389,6 @@ export class Player implements PlayerData {
   buildStage(stageOptions: StageOptions, purchase: PurchaseOptions) {
     const data = this.stageData[stageOptions.stage];
     console.log(`Building stage ${stageOptions.stage}. Will receive ${data.value}`); 
-    // TODO add points/stage value
     data.value.forEach((value: [number, string]) => {
       if (value[1] === 'POINT') {
         this.addPoints(value[0])
@@ -498,7 +497,7 @@ export class Player implements PlayerData {
               count += playerData.military.loss
               break;
             case 'STAGE': 
-              // TODO
+              count += playerData.stagesBuilt
             default:
               const cardType: Array<string> = playerData.cardTypes[category.toLowerCase()];
               if (cardType) count += cardType.length;
@@ -521,7 +520,7 @@ export class Player implements PlayerData {
   }
   
   private buildOrCard(card: Card) {
-    if (card.CATEGORY === 'BROWN' || card.CATEGORY === 'GRAY') {
+    if (card.CATEGORY === 'BROWN' || card.CATEGORY === 'GRAY' || card.CATEGORY === 'PURPLE') {
       this.optionalResources.push(card.VALUE);
       console.log(this.optionalResources);
     }

@@ -75,12 +75,23 @@ test('A selects resource cards', () => {
     ])
 })
 
-// test ('A selects cards: [36, 7, 44, 5, 40, 48, 72, 87, 95, 91, 60, 110, 133, 137, 141, 108]', () => {
-//     [36, 7, 44, 5, 40, 48, 72, 87, 95, 91, 60, 110, 133, 137, 141, 108].map((cardId: number) => {
+test('B selects cards: [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ]', () => {
+    B.coins = 9;
+    B.stagesBuilt = 2;
+    [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ].map((cardId: number) => {
+        B.selectCard(cardId.toString(), 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0});
+    })
+    expect(gp.calculatePoints(B)).toEqual(44)
+})
+
+// test ('B selects cards: [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ]', () => {
+//     [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ].map((cardId: number) => {
 //         A.selectCard(cardId.toString(), 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0});
 //     })
 //     // expect(A.score === ??? )
 // })
+
+
 
 describe('Calculate Science', () => {
     let resources: ResourceList
