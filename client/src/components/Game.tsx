@@ -1,12 +1,14 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList, StageOptions } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList, StageOptions, GameMetadata } from './GameAssets';
 
 interface GameProps {
   username: string,
   players: any,
+  metadata: GameMetadata,
   setPlayers: (players: any) => Promise<void>,
   setGameStatus: (gameStatus: string) => Promise<void>
+  setMetadata: (metadata: GameMetadata) => Promise<void>
 }
 
 interface GameState {
@@ -23,14 +25,10 @@ interface GameState {
   myData: PlayerData, 
   playerData: {
     [username: string]: PlayerData
-  }
+  },
   currentHand: Array<string>,
   handInfo: any,
   stageInfo: StageOptions,
-  metadata: {
-    age: number,
-    turn: number,
-  },
   currentView: string,
 } 
 
@@ -53,11 +51,6 @@ class Game extends React.Component<GameProps, GameState> {
         cost: [],
         value: [],
         options: {costMet: false, coinCost: 0, purchaseOptions: []}
-      },
-      // TODO lift metadata state to App if possible
-      metadata: {
-        age: 1, 
-        turn: 1,
       },
       selectedCard: "",
       viewPurchaseOptions: false,
@@ -115,8 +108,8 @@ class Game extends React.Component<GameProps, GameState> {
       source.addEventListener('turnUpdate', (event: any) =>  {
         const parsedData = JSON.parse(event.data);
         console.log('new hand', parsedData);
+        this.props.setMetadata(parsedData.metadata);
         this.setState({
-          metadata: parsedData.metadata,
           currentHand: parsedData.hand,
           handInfo: parsedData.handInfo,
           stageInfo: parsedData.stageInfo,
@@ -249,9 +242,11 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  // TODO GS-56 Show purchase options when building a stage
+  // TODO GS-57 UI improvements - move container? smaller buttons?
   renderCardInfo() {
     const {selectedCard, viewPurchaseOptions} = this.state;
-    const {age, turn} = this.state.metadata;
+    const {age, turn} = this.props.metadata;
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
@@ -272,6 +267,7 @@ class Game extends React.Component<GameProps, GameState> {
     }
   }
 
+  // TODO GS-56 - Show purchase information earlier
   private renderCardActions(card: Card, cardInfo: BuildOptions, stageInfo: {stage: number, options: BuildOptions}, 
     cardID: string, age: number, turn: number) {
     const canBuild = (cardInfo) ? cardInfo.costMet : false;
@@ -317,6 +313,7 @@ class Game extends React.Component<GameProps, GameState> {
     );
   }
 
+  // TODO GS-56 Show purchase icons 
   private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, stageInfo: any, cardID: string, age: number, turn: number) {
     const purchaseOptions: PurchaseOptions[] = cardInfo.purchaseOptions;
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
@@ -392,7 +389,7 @@ class Game extends React.Component<GameProps, GameState> {
         return (<>
           {myBoard && 
             <PlayerBoard playerData={this.state.playerData} board={myBoard} username={this.props.username}
-              metadata={this.state.metadata} myData={this.state.myData} isMyBoard={true}
+              metadata={this.props.metadata} myData={this.state.myData} isMyBoard={true}
               viewPlayerBoard={this.viewPlayerBoard}/>
           }
           <div className="container d-flex align-items-center justify-content-center">
@@ -411,7 +408,7 @@ class Game extends React.Component<GameProps, GameState> {
         return (<>
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
-              metadata={this.state.metadata} myData={this.state.playerData[this.state.currentView]} isMyBoard={false}
+              metadata={this.props.metadata} myData={this.state.playerData[this.state.currentView]} isMyBoard={false}
               viewPlayerBoard={this.viewPlayerBoard}/>          }
           </>
         )

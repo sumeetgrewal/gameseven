@@ -151,6 +151,7 @@ export default function PlayerBoard (props: BoardProps) {
         ]
     }
     
+    // TODO GS-51
     const renderPlayers = () => {
         const items: any = [];
         Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {

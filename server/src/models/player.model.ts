@@ -221,6 +221,7 @@ export class Player implements PlayerData {
     }      
   }
 
+  // TODO 56 - review purchase options being returned - not optimal
   private checkPurchaseOptions(unmetCostArray: [number, string][][]) : PurchaseOptions[] {
     let buildOptionsArray: BuildOptions[] = [];
     for (let i = 0; i< unmetCostArray.length; i++) {
@@ -422,7 +423,6 @@ export class Player implements PlayerData {
     }
     this.coins -= coinCost;
     this.executePurchase(purchaseOptions);
-    // return condition to be redeemed at end of turn
     return condData;
   }
 

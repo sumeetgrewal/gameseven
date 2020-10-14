@@ -20,10 +20,14 @@ function shouldCompress (req: any, res: any) {
   return compression.filter(req, res)
 }
 
+const gameConnectRouter = require('./routes/connect');
 const gameSetupRouter = require('./routes/setup');
+const gameAssetsRouter = require('./routes/assets');
 const gamePlayRouter = require('./routes/play');
 
-app.use('/game', gameSetupRouter);
+app.use('/game/connect', gameConnectRouter);
+app.use('/game/setup', gameSetupRouter);
+app.use('/game/assets', gameAssetsRouter);
 app.use('/game/play', gamePlayRouter);
 
 app.get('/', (req, res) => {

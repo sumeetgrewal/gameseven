@@ -6,10 +6,12 @@ interface GameLobbyProps {
   username: string,
   players: any,
   isListening: boolean,
+  isLoading: boolean,
   setGameStatus: (gameStatus: string) => Promise<void>,
   setUsername: (username: string) => Promise<void>,
   setPlayers: (players: any) => Promise<void>,
   setListening: (isListening: boolean) => Promise<void>,
+  registerSSE: () => Promise<void>,
 }
 
 interface GameLobbyState {
@@ -17,7 +19,6 @@ interface GameLobbyState {
   assignedBoards: Array<string>,
   playerOrder: Array<string>,
   turnToChoose: number,
-  isLoading: boolean,
 }
 
 class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
@@ -29,22 +30,21 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       assignedBoards: [],
       playerOrder: [],
       turnToChoose: -1,
-      isLoading: false,
     }
   }
 
   componentDidMount() {
-    if (!this.props.isListening) {
+    this.props.registerSSE();
 
+    if (!this.props.isListening) {
       const source = new EventSource('/game/setup');
-      source.addEventListener('joined', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('joined', parsedData);
-        this.props.setUsername(parsedData.username);
-        this.props.setPlayers(parsedData.players);
-        this.props.setGameStatus(parsedData.gameStatus);
-        this.setState({isLoading: false});
-      });
+      // source.addEventListener('joined', (event: any) => {
+      //   const parsedData = JSON.parse(event.data);
+      //   console.log('joined', parsedData);
+      //   this.props.setUsername(parsedData.username);
+      //   this.props.setPlayers(parsedData.players);
+      //   this.props.setGameStatus(parsedData.gameStatus);
+      // });
       
       source.addEventListener('playerupdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
@@ -150,8 +150,8 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
   }
 
   render () {
-    const {isLoading, assignedBoards, boards, playerOrder, turnToChoose } = this.state;
-    if (isLoading) {
+    const {assignedBoards, boards, playerOrder, turnToChoose } = this.state;
+    if (this.props.isLoading) {
       return (
         <div className="container d-flex align-items-center justify-content-center full-height">
           <h3 className="text-white">Connecting to game...</h3>
@@ -184,7 +184,6 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
       );
     }
   }
-
 }
 
 export default GameLobby;

@@ -74,7 +74,7 @@ function updateBoard(req: any, username: string) {
     game.setupData.assignedBoards = assignBoards();
     gameCountdown = setTimeout(() => {
       startGame();
-    }, 2000);
+    }, 4000);
   }
   console.log("Selected a board, sending data", setupData)
   pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', setupClients);
@@ -93,7 +93,7 @@ function updateStatus(req: any, username: string) {
   }
 }
 
-router.route('/setup').get((req: any, res: any) => {
+router.route('/').get((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     res.status(400).json({status: 'Error', message: 'Invalid token'});
@@ -144,7 +144,7 @@ router.route('/setup').get((req: any, res: any) => {
   }
 });
 
-router.route('/setup').post((req: any, res: any) => {
+router.route('/').post((req: any, res: any) => {
   if (game.players.length === 7){
     res.status(400).json({status: 'Error', message: 'Game full'});
   } else if (game.metadata.gameStatus !== 'lobby') {
@@ -162,7 +162,7 @@ router.route('/setup').post((req: any, res: any) => {
   }
 });
 
-router.route('/setup').put((req: any, res: any) => {
+router.route('/').put((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     return res.status(400).json({status: 'Error', message: 'Invalid token'});
@@ -192,7 +192,7 @@ router.route('/setup').put((req: any, res: any) => {
   }
 });
 
-router.route('/setup').delete((req: any, res: any) => {
+router.route('/').delete((req: any, res: any) => {
   const decodedToken: any = JWTHandlers.checkToken(req);
   if (!decodedToken) {
     res.status(400).json({status: 'Error', message: 'Invalid token'});
@@ -205,17 +205,6 @@ router.route('/setup').delete((req: any, res: any) => {
     resetToLobby();
     pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', setupClients );
     res.json({status: 'success'});
-  }
-});
-
-router.route('/assets').get((req: any, res: any) => {
-  const decodedToken: any = JWTHandlers.checkToken(req);
-  if(!decodedToken) {
-    res.status(400).json({status: 'Error', message: 'Invalid token'});
-  } else if (!(decodedToken.username in game.players)) {
-    res.status(400).json({status:'Error', message: 'Player not found'});
-  } else {
-    res.status(200).json({boards: game.boards, cards: game.cards})
   }
 });
 
