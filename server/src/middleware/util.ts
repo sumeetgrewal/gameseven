@@ -1,4 +1,4 @@
-import { gameCountdown, setupClients } from "../routes/setup";
+import { gameCountdown } from "../routes/setup";
 import { game } from '../models/game.model'
 let sseId: number = 2;
 const dbScan = require('../dbScan')
@@ -23,7 +23,6 @@ export function pushUpdateToPlayers(data: string, event: string = 'message', cli
 }
 
 export function cleanupGame() {
-  console.log("Cleanup");
   game.metadata = {
     gameStatus: 'lobby',
     playerOrder: [],
@@ -76,8 +75,6 @@ export function resetToLobby() {
   clearTimeout(gameCountdown);
   console.log("Game Reset to Lobby")
 }
-
-
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
   return new Promise((resolve) => {

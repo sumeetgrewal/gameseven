@@ -2,9 +2,8 @@ import { pushUpdateToPlayers, shuffle } from "./util";
 import { game } from '../models/game.model';
 import { Player } from "../models/player.model";
 import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, ResourceList, MilitaryStats } from "../models/playerData.model";
-import { gameClients } from "../routes/play";
+import { clients } from "../routes/connect";
 let conditionsToRedeem: {player: Player, condition: ConditionData[]}[] = [];
-const fs = require('fs');
 
 // --------------------
 // CARD MANAGEMENT
@@ -144,7 +143,7 @@ function endGame() {
 }
 
 function sendTurnUpdate() {
-  gameClients.forEach((client: any) => {
+  clients.forEach((client: any) => {
     const handID = game.players[client.id].handID;
     const hand = game.hands[handID];
     const player = game.gameData.playerData[client.id];
@@ -178,11 +177,11 @@ function sendTurnUpdate() {
 }
 
 function sendAllPlayerData() {
-    pushUpdateToPlayers(JSON.stringify({ playerData: game.gameData.playerData }), 'allPlayerDataUpdate', gameClients);
+    pushUpdateToPlayers(JSON.stringify({ playerData: game.gameData.playerData }), 'allPlayerDataUpdate', clients);
 }
   
 export function sendPlayerData(username: string, sendToAll: boolean): void {
-  gameClients.forEach((client: any) => {
+  clients.forEach((client: any) => {
     if (sendToAll || client.id === username) {
       pushUpdateToPlayers(JSON.stringify({ myData: game.gameData.playerData[client.id] }), 'playerDataUpdate', [client]);
     }

@@ -26,13 +26,31 @@ router.route('/').get((req: any, res: any) => {
     addClient(username, res);
 
     req.on('close', () => {
+      console.log("Closed connection", username);
       res.end();
       removeClient(username);
     })
   }
 })
 
+router.route('/').delete((req: any, res: any) => {
+  const decodedToken: any = JWTHandlers.checkToken(req);
+  if (!decodedToken) {
+    res.status(400).json({status: 'Error', message: 'Invalid token'});
+  } else if (!(decodedToken.username in game.players)) {
+    res.status(400).json({status: 'Error', message: 'Player not found'});
+  } else {
+    const username: string = decodedToken.username;
+    clients = clients.filter((client: any) => client.id !== username);
+    delete game.players[username];
+    resetToLobby();
+    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+    res.json({status: 'success'});
+  }
+});
+
 function addClient(username: string, res: any) {
+  clients = clients.filter((client: any) => client.id !== username);
   const newClient: any = {
     id: username,
     res
@@ -49,11 +67,13 @@ function removeClient(username: string) {
   const gameStatus = game.metadata.gameStatus;
   clients = clients.filter((client: any) => client.id !== username);
   if (clients.length === 0) {
+    console.log("Clients empty : ", clients);
     cleanupGame();
   } else if (gameStatus === 'game') {
     delete game.players[username];
     resetToLobby();
     pushUpdateToPlayers( JSON.stringify({metadata: game.metadata, players: game.players}), 'gameUpdate', clients);
+    pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, setupData: game.setupData}), 'setupUpdate', clients);
   } else if (gameStatus === 'lobby') {
     delete game.players[username];
     pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', clients);
@@ -61,7 +81,7 @@ function removeClient(username: string) {
     delete game.players[username];
     resetToLobby();
     pushUpdateToPlayers(JSON.stringify({players: game.players}), 'playerupdate', clients);
-    pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, setupData: game.setupData}), 'gameupdate', clients);
+    pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, setupData: game.setupData}), 'setupUpdate', clients);
   }
 }
 

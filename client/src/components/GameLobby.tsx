@@ -5,87 +5,32 @@ interface GameLobbyProps {
   gameStatus: string,
   username: string,
   players: any,
-  isListening: boolean,
   isLoading: boolean,
+  boards: Array<string>,
+  assignedBoards: Array<string>,
+  playerOrder: Array<string>,
+  turnToChoose: number,
   setGameStatus: (gameStatus: string) => Promise<void>,
-  setUsername: (username: string) => Promise<void>,
-  setPlayers: (players: any) => Promise<void>,
   setListening: (isListening: boolean) => Promise<void>,
   registerSSE: () => Promise<void>,
 }
 
 interface GameLobbyState {
-  boards: Array<string>,
-  assignedBoards: Array<string>,
-  playerOrder: Array<string>,
-  turnToChoose: number,
+// TODO Convert to functional component
 }
 
 class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
   constructor(props: GameLobbyProps) {
     super(props)
-  
-    this.state = {
-      boards: [],
-      assignedBoards: [],
-      playerOrder: [],
-      turnToChoose: -1,
-    }
   }
 
   componentDidMount() {
     this.props.registerSSE();
-
-    if (!this.props.isListening) {
-      const source = new EventSource('/game/setup');
-      // source.addEventListener('joined', (event: any) => {
-      //   const parsedData = JSON.parse(event.data);
-      //   console.log('joined', parsedData);
-      //   this.props.setUsername(parsedData.username);
-      //   this.props.setPlayers(parsedData.players);
-      //   this.props.setGameStatus(parsedData.gameStatus);
-      // });
-      
-      source.addEventListener('playerupdate', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('playerupdate', parsedData);
-        this.props.setPlayers(parsedData.players);
-      });
-      
-      source.addEventListener('gameupdate', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        const {playerOrder, gameStatus} = parsedData.metadata;
-        console.log('gameupdate', parsedData);
-        if (gameStatus !== 'game' && parsedData.setupData) {
-          const {turnToChoose, boards, assignedBoards} = parsedData.setupData;
-          this.setState({ 
-            playerOrder, 
-            turnToChoose, 
-            boards, 
-            assignedBoards
-          })
-        } else {
-          source.close();
-          this.props.setListening(false);
-        }
-        this.props.setGameStatus(gameStatus);
-      });
-
-      source.addEventListener('keepalive', (event: any) => {
-        console.log(event.data);
-      })
-      
-      source.addEventListener('error', (error: any) => {
-        console.log(error);
-        this.props.setListening(false);
-      });
-    }
-    this.props.setListening(true);
   }
 
   async exitGame () {
     try {
-      let response = await fetch('/game/setup', {
+      let response = await fetch('/game/connect', {
         credentials: 'include',
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
@@ -150,7 +95,7 @@ class GameLobby extends React.Component<GameLobbyProps, GameLobbyState>  {
   }
 
   render () {
-    const {assignedBoards, boards, playerOrder, turnToChoose } = this.state;
+    const {assignedBoards, boards, playerOrder, turnToChoose } = this.props;
     if (this.props.isLoading) {
       return (
         <div className="container d-flex align-items-center justify-content-center full-height">
