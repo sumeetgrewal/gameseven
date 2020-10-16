@@ -1,7 +1,6 @@
-import { gameCountdown, setupClients } from "../routes/setup";
-import { game } from '../models/game.model'
+import { game, serverData } from '../models/game.model';
 let sseId: number = 2;
-const dbScan = require('../dbScan')
+const dbScan = require('../dbScan');
 
 export let gameAssetsReady: boolean = false;
 
@@ -23,7 +22,6 @@ export function pushUpdateToPlayers(data: string, event: string = 'message', cli
 }
 
 export function cleanupGame() {
-  console.log("Cleanup");
   game.metadata = {
     gameStatus: 'lobby',
     playerOrder: [],
@@ -45,8 +43,10 @@ export function cleanupGame() {
     playerData: {},
     discardPile: []
   }
-  clearTimeout(gameCountdown);
-  console.log("game reset");
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Cleanup");
 }
 
 export function resetToLobby() {
@@ -73,9 +73,11 @@ export function resetToLobby() {
     playerData: {},
     discardPile: []
   }
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Reset to Lobby")
 }
-
-
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
   return new Promise((resolve) => {

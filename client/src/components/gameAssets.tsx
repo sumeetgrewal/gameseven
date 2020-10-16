@@ -129,3 +129,10 @@ export interface PlayerData {
   playerRight?: string;
   score: number;
 }
+
+export interface GameMetadata {
+  gameStatus: string;
+  playerOrder: string[];
+  age: number;
+  turn: number;
+}

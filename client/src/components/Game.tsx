@@ -1,12 +1,22 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard'
-import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, CardTypeList, ResourceList, StageOptions } from './GameAssets';
+import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, StageOptions, GameMetadata } from './GameAssets';
 
 interface GameProps {
   username: string,
   players: any,
-  setPlayers: (players: any) => Promise<void>,
+  metadata: GameMetadata,
+  currentHand: Array<string>,
+  handInfo: any,
+  stageInfo: StageOptions,
+  isWaiting: boolean,
+  myData: PlayerData, 
+  playerData: {
+    [username: string]: PlayerData
+  },
   setGameStatus: (gameStatus: string) => Promise<void>
+  setWaiting: (isWaiting: boolean) => Promise<void>
+  setCurrentHand: (currentHand: Array<string>) => Promise<void>
 }
 
 interface GameState {
@@ -15,22 +25,9 @@ interface GameState {
     cards: {[index: string]: Card},
   },
   error: string,
-  isListening: boolean,
   isLoaded: boolean,
   selectedCard: string,
   viewPurchaseOptions: boolean;
-  isWaiting: boolean,
-  myData: PlayerData, 
-  playerData: {
-    [username: string]: PlayerData
-  }
-  currentHand: Array<string>,
-  handInfo: any,
-  stageInfo: StageOptions,
-  metadata: {
-    age: number,
-    turn: number,
-  },
   currentView: string,
 } 
 
@@ -44,114 +41,30 @@ class Game extends React.Component<GameProps, GameState> {
         cards: {}
       },
       error: "", 
-      isListening: false,
       isLoaded: false,
-      currentHand: [],
-      handInfo: {},
-      stageInfo: {
-        stage: -1,
-        cost: [],
-        value: [],
-        options: {costMet: false, coinCost: 0, purchaseOptions: []}
-      },
-      // TODO lift metadata state to App if possible
-      metadata: {
-        age: 1, 
-        turn: 1,
-      },
       selectedCard: "",
       viewPurchaseOptions: false,
-      isWaiting: false,
-      playerData: {},
       currentView: this.props.username,
-      myData: {
-        username: this.props.username, 
-        board : undefined,
-        cards : [],
-        cardTypes : new CardTypeList(),
-        resources : new ResourceList(0),
-        military: {loss: 0, one: 0, three: 0, five: 0},
-        stagesBuilt: 0,
-        coins : 3,
-        shields : 0,
-        points : 0,
-        score : -1,
-      },
     }
 
     this.viewPlayerBoard = this.viewPlayerBoard.bind(this);
   }
 
   componentDidMount() {
-    this.registerSSEListeners()
+  this.cacheData()
     .then(() => {
-    this.cacheData()
-      .then(() => {
-        this.setState({isLoaded: true});
-        console.log(this.state.cache);
-      })
+      this.setState({isLoaded: true});
+      console.log(this.state.cache);
     }).catch((error) => {
       console.log(error);
     })
   }
 
   componentDidUpdate(oldProps: GameProps) {
-    if (oldProps.players !== this.props.players) {
+    if (Object.keys(oldProps.players).length !== Object.keys(this.props.players).length) {
+      console.log("Players are different, exiting game");
       this.props.setGameStatus("lobby");
     }
-  }
-
-  registerSSEListeners() : Promise<void> {
-    return new Promise((resolve) => {
-      if (this.state.isListening) resolve();
-      
-      // TODO lift EventSource registration to App 
-      const source = new EventSource('/game/play');
-      source.addEventListener('joined', (event: any) =>  {
-          const parsedData = JSON.parse(event.data);
-          console.log('joined', parsedData);
-      });
-
-      source.addEventListener('turnUpdate', (event: any) =>  {
-        const parsedData = JSON.parse(event.data);
-        console.log('new hand', parsedData);
-        this.setState({
-          metadata: parsedData.metadata,
-          currentHand: parsedData.hand,
-          handInfo: parsedData.handInfo,
-          stageInfo: parsedData.stageInfo,
-          isWaiting: false,
-        });
-      });
-
-      source.addEventListener('gameUpdate', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('Game: gameUpdate', parsedData);
-        this.props.setPlayers(parsedData.players);
-        this.props.setGameStatus(parsedData.metadata.gameStatus);
-      })
-
-      source.addEventListener('playerDataUpdate', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('playerDataUpdate', parsedData);
-        const myData = parsedData.myData;
-        this.setState({myData}, () => console.log(this.state.myData));
-      })
-
-      source.addEventListener('allPlayerDataUpdate', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('allPlayerDataUpdate', parsedData);
-        const playerData = parsedData.playerData;
-        delete playerData[this.props.username];
-        this.setState({playerData});
-      })
-
-      source.addEventListener('keepalive', (event: any) => {
-        console.log(event.data);
-      })
-
-      this.setState({isListening: true}, resolve);
-    })
   }
 
   cacheData(): Promise<void> {
@@ -173,10 +86,6 @@ class Game extends React.Component<GameProps, GameState> {
     })
   }
 
-  setWaiting () {
-    this.setState({isWaiting: true});
-  }
-
   viewPlayerBoard(username: string) {
     this.setState({currentView: username})
   }
@@ -190,8 +99,9 @@ class Game extends React.Component<GameProps, GameState> {
           purchaseLeft: [],
           purchaseRight : [],
         }
-      const oldHand = this.state.currentHand;
-      this.setState({currentHand: [], selectedCard: "", viewPurchaseOptions: false})
+      const oldHand = this.props.currentHand;
+      this.props.setCurrentHand([]);
+      this.setState({selectedCard: "", viewPurchaseOptions: false})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
@@ -203,11 +113,15 @@ class Game extends React.Component<GameProps, GameState> {
         if (res.status >= 500) throw new Error(res.status + " " + res.statusText);
         res.json()
         .then((result: any) => {
-            const newHandLoaded: boolean = this.state.currentHand.length > 1;
+            const newHandLoaded: boolean = this.props.currentHand.length > 1;
             console.log(res.status + " " + result.message);
-            (res.status === 200) && this.setState({isWaiting: (!newHandLoaded), error: ""}, resolve);
+            (res.status === 200) && this.setState({error: ""}, () => {
+              this.props.setWaiting(!newHandLoaded)
+              .then(resolve)
+            });
             if (res.status === 400) {
-              this.setState({currentHand: oldHand, error: res.status + " " + result.message})
+              this.props.setCurrentHand(oldHand);
+              this.setState({error: res.status + " " + result.message})
             };
           })  
         })
@@ -219,14 +133,14 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderHand() {
-    const {currentHand, handInfo} = this.state;
+    const {currentHand, handInfo} = this.props;
     let cardArray: Array<any> = [];
     const handleCardSelect = (selectedCard: string)  => {
       this.setState({selectedCard, viewPurchaseOptions: false});
       console.log(selectedCard);
     }
 
-    if (currentHand.length > 0) {
+    if (currentHand && currentHand.length > 0) {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
         cardArray.push(
@@ -241,7 +155,7 @@ class Game extends React.Component<GameProps, GameState> {
     }
     return (
       <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
-        {(this.state.isWaiting) ? 
+        {(this.props.isWaiting) ? 
           <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
           : cardArray
         }
@@ -249,19 +163,21 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  // TODO GS-56 Show purchase options when building a stage
+  // TODO GS-57 UI improvements - move container? smaller buttons?
   renderCardInfo() {
     const {selectedCard, viewPurchaseOptions} = this.state;
-    const {age, turn} = this.state.metadata;
+    const {age, turn} = this.props.metadata;
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
       <div className="col-12 card-info-container text-center d-flex justify-content-center">
-        {(this.state.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
+        {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
     } else {
-      const buildInfo: BuildOptions = this.state.handInfo[selectedCard];
-      const stageInfo: StageOptions = this.state.stageInfo;
+      const buildInfo: BuildOptions = this.props.handInfo[selectedCard];
+      const stageInfo: StageOptions = this.props.stageInfo;
 
       if (!viewPurchaseOptions) {
         return this.renderCardActions(card, buildInfo, stageInfo, selectedCard, age, turn)
@@ -272,6 +188,7 @@ class Game extends React.Component<GameProps, GameState> {
     }
   }
 
+  // TODO GS-56 - Show purchase information earlier
   private renderCardActions(card: Card, cardInfo: BuildOptions, stageInfo: {stage: number, options: BuildOptions}, 
     cardID: string, age: number, turn: number) {
     const canBuild = (cardInfo) ? cardInfo.costMet : false;
@@ -317,6 +234,7 @@ class Game extends React.Component<GameProps, GameState> {
     );
   }
 
+  // TODO GS-56 Show purchase icons 
   private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, stageInfo: any, cardID: string, age: number, turn: number) {
     const purchaseOptions: PurchaseOptions[] = cardInfo.purchaseOptions;
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
@@ -361,9 +279,10 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderResults() {
+    const { myData, playerData, username } = this.props
     const results: any = [];
-    const players: [string, PlayerData][] = Object.entries(this.state.playerData);
-    players.push([this.props.username, this.state.myData]);
+    const players: [string, PlayerData][] = Object.entries(playerData);
+    players.push([username, myData]);
     players.sort((a: [string, PlayerData], b: [string, PlayerData]) => {
       return ((a[1].score > b[1].score) ? 1 : -1)
     })
@@ -385,33 +304,34 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   render() {
-    const myBoard = (this.state.myData) ? this.state.myData.board : undefined;
+    const { myData, playerData } = this.props;
+    const myBoard = (myData) ? myData.board : undefined;
     const viewingMyBoard = (this.state.currentView === this.props.username);
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
         return (<>
           {myBoard && 
-            <PlayerBoard playerData={this.state.playerData} board={myBoard} username={this.props.username}
-              metadata={this.state.metadata} myData={this.state.myData} isMyBoard={true}
+            <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
+              metadata={this.props.metadata} myData={myData} isMyBoard={true}
               viewPlayerBoard={this.viewPlayerBoard}/>
           }
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
               {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
-              {(this.state.myData.score >= 0) && this.renderResults()}
-              {(this.state.myData.score === -1) && this.renderCardInfo()}
-              {(this.state.myData.score === -1) && this.renderHand()}
+              {(myData.score >= 0) && this.renderResults()}
+              {(myData.score === -1) && this.renderCardInfo()}
+              {(myData.score === -1) && this.renderHand()}
             </div>
           </div>        
         </>)
       } else {
-        const viewBoard = (this.state.playerData[this.state.currentView].board)
-        const players = {...this.state.playerData};
-        players[this.props.username] = this.state.myData
+        const viewBoard = (playerData[this.state.currentView].board)
+        const players = {...playerData};
+        players[this.props.username] = myData
         return (<>
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
-              metadata={this.state.metadata} myData={this.state.playerData[this.state.currentView]} isMyBoard={false}
+              metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
               viewPlayerBoard={this.viewPlayerBoard}/>          }
           </>
         )

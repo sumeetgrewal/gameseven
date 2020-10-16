@@ -27,3 +27,8 @@ export let game: gameModel = {
     discardPile: [],
   }
 }
+
+export let serverData: any = {
+  clients: [],
+  gameCountdown: undefined,
+}
