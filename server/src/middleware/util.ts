@@ -1,7 +1,7 @@
 import { gameCountdown } from "../routes/setup";
-import { game } from '../models/game.model'
+import { game } from '../models/game.model';
 let sseId: number = 2;
-const dbScan = require('../dbScan')
+const dbScan = require('../dbScan');
 
 export let gameAssetsReady: boolean = false;
 

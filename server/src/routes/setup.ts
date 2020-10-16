@@ -21,26 +21,28 @@ function startBoardSelection(numPlayers: number) {
 }
 
 function startGame(){
-  delete game.setupData
-  for (const username in game.players) {
-    const board = game.boards[game.players[username].boardID];
-    const player = new Player(username, board);
-    const {playerOrder} = game.metadata;
-    const playerIndex = playerOrder.indexOf(username);
-    if (playerIndex >= 0) {
-      const numPlayers: number = playerOrder.length;
-      const left = playerOrder[(playerIndex + (numPlayers - 1)) % numPlayers];
-      const right = playerOrder[(playerIndex + 1) % numPlayers];
-      if (left && (left !== username)) player.playerLeft = left;
-      if (right && (right !== username) && (right !== left)) player.playerRight = right;
+  if (game.metadata.gameStatus === 'boardSelection') {
+    delete game.setupData
+    for (const username in game.players) {
+      const board = game.boards[game.players[username].boardID];
+      const player = new Player(username, board);
+      const {playerOrder} = game.metadata;
+      const playerIndex = playerOrder.indexOf(username);
+      if (playerIndex >= 0) {
+        const numPlayers: number = playerOrder.length;
+        const left = playerOrder[(playerIndex + (numPlayers - 1)) % numPlayers];
+        const right = playerOrder[(playerIndex + 1) % numPlayers];
+        if (left && (left !== username)) player.playerLeft = left;
+        if (right && (right !== username) && (right !== left)) player.playerRight = right;
+      }
+      game.gameData.playerData[username] = player;
     }
-    game.gameData.playerData[username] = player;
+    console.log(game.gameData);
+    game.metadata.gameStatus = 'game';
+    pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'setupUpdate', clients);
+    sendPlayerData("", true)
+    beginAge();
   }
-  console.log(game.gameData);
-  game.metadata.gameStatus = 'game';
-  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'setupUpdate', clients);
-  sendPlayerData("", true)
-  beginAge();
 }
 
 function assignBoards(): string[] {

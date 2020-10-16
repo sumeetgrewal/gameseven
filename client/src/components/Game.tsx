@@ -16,7 +16,7 @@ interface GameProps {
   },
   setGameStatus: (gameStatus: string) => Promise<void>
   setWaiting: (isWaiting: boolean) => Promise<void>
-  setCurrentHand: (currentHand: string[]) => Promise<void>
+  setCurrentHand: (currentHand: Array<string>) => Promise<void>
 }
 
 interface GameState {
@@ -61,7 +61,8 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   componentDidUpdate(oldProps: GameProps) {
-    if (oldProps.players !== this.props.players) {
+    if (Object.keys(oldProps.players).length !== Object.keys(this.props.players).length) {
+      console.log("Players are different, exiting game");
       this.props.setGameStatus("lobby");
     }
   }
@@ -139,7 +140,7 @@ class Game extends React.Component<GameProps, GameState> {
       console.log(selectedCard);
     }
 
-    if (currentHand.length > 0) {
+    if (currentHand && currentHand.length > 0) {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
         cardArray.push(
@@ -171,7 +172,7 @@ class Game extends React.Component<GameProps, GameState> {
     if (selectedCard === "") {
       return (
       <div className="col-12 card-info-container text-center d-flex justify-content-center">
-        {(this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
+        {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
     } else {

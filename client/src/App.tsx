@@ -115,8 +115,6 @@ class App extends React.Component<{}, MyState> {
               boards, 
               assignedBoards
             })
-          } else {
-            this.setState({isListening: false})
           }
           this.setState({gameStatus})
         });
@@ -133,10 +131,10 @@ class App extends React.Component<{}, MyState> {
         source.addEventListener('turnUpdate', (event: any) =>  {
           const parsedData = JSON.parse(event.data);
           console.log('new hand', parsedData);
-          const {metadata, currentHand, handInfo, stageInfo} = parsedData;
+          const {metadata, hand, handInfo, stageInfo} = parsedData;
           this.setState({
             metadata,
-            currentHand,
+            currentHand: hand,
             handInfo,
             stageInfo,
             isWaiting: false,
@@ -200,7 +198,7 @@ class App extends React.Component<{}, MyState> {
   }
 
   renderGameStage() {
-    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData} = this.state;
+    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -209,6 +207,7 @@ class App extends React.Component<{}, MyState> {
         gameStatus={gameStatus} 
         username={username} 
         players={players} 
+        isListening={isListening} 
         isLoading={isLoading} 
         boards={boards}
         assignedBoards={assignedBoards}
