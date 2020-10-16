@@ -1,12 +1,11 @@
 import { beginAge, sendPlayerData } from "../middleware/gameplay";
 import { pushUpdateToPlayers, shuffle, prepareGameAssets, gameAssetsReady } from "../middleware/util";
-import { game } from '../models/game.model'
+import { game, serverData } from '../models/game.model'
 import { Player } from '../models/player.model'
-import { clients } from "./connect";
+
 
 const router = require('express').Router();
 let JWTHandlers = require('../middleware/jwt.authorization');
-export let gameCountdown: any;
 
 function startBoardSelection(numPlayers: number) {
   const randomOrder: number[] = shuffle([...Array(numPlayers).keys()]);
@@ -17,7 +16,7 @@ function startBoardSelection(numPlayers: number) {
     index++;
   }
   game.setupData.turnToChoose = 0;
-  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'setupUpdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata, setupData: game.setupData }), 'setupUpdate', serverData.clients);
 }
 
 function startGame(){
@@ -39,7 +38,7 @@ function startGame(){
     }
     console.log(game.gameData);
     game.metadata.gameStatus = 'game';
-    pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'setupUpdate', clients);
+    pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata }), 'setupUpdate',serverData.clients);
     sendPlayerData("", true)
     beginAge();
   }
@@ -74,22 +73,22 @@ function updateBoard(req: any, username: string) {
   game.players[username].board = board;
   game.setupData.boards[board] = username;
   game.setupData.turnToChoose++;
-  const allSelected = game.setupData.turnToChoose === clients.length;
+  const allSelected = game.setupData.turnToChoose ===serverData.clients.length;
   if (allSelected) {
     game.setupData.assignedBoards = assignBoards();
-    gameCountdown = setTimeout(() => {
+    serverData.gameCountdown = setTimeout(() => {
       startGame();
     }, 4000);
   }
   console.log("Selected a board, sending data", setupData)
-  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', clients);
-  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata , setupData }), 'setupUpdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate',serverData.clients);
+  pushUpdateToPlayers(JSON.stringify({ metadata: game.metadata , setupData }), 'setupUpdate',serverData.clients);
 }
 
 function updateStatus(req: any, username: string) {
   const status: string = req.body.status;
   game.players[username].status = status;
-  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', clients);
+  pushUpdateToPlayers(JSON.stringify({ players: game.players }), 'playerupdate', serverData.clients);
   game.metadata.gameStatus = (Object.values(game.players).every((player: any) => player.status === 'ready') && 'boardSelection') || 'lobby';
   if (game.metadata.gameStatus === 'boardSelection') {
     let numPlayers: number = Object.keys(game.players).length;
@@ -110,7 +109,7 @@ router.route('/').post((req: any, res: any) => {
   } else {
     const username: string = req.body.username    
     game.players[username] = {status: 'pending'};
-    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate',serverData.clients );
     const token: string = JWTHandlers.createToken(username);
     res.json({status: 'success', token});
   }

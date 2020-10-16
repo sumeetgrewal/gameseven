@@ -1,7 +1,6 @@
 import { cleanupGame, pushUpdateToPlayers, resetToLobby } from '../middleware/util';
-import { game } from '../models/game.model';
+import { game, serverData } from '../models/game.model';
 
-export let clients: any[] = [];
 let JWTHandlers = require('../middleware/jwt.authorization');
 const router = require('express').Router(); 
 const keepAliveMS = 50000;
@@ -41,21 +40,21 @@ router.route('/').delete((req: any, res: any) => {
     res.status(400).json({status: 'Error', message: 'Player not found'});
   } else {
     const username: string = decodedToken.username;
-    clients = clients.filter((client: any) => client.id !== username);
+    serverData.clients = serverData.clients.filter((client: any) => client.id !== username);
     delete game.players[username];
     resetToLobby();
-    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', clients );
+    pushUpdateToPlayers( JSON.stringify({players: game.players}), 'playerupdate', serverData.clients );
     res.json({status: 'success'});
   }
 });
 
 function addClient(username: string, res: any) {
-  clients = clients.filter((client: any) => client.id !== username);
+  serverData.clients = serverData.clients.filter((client: any) => client.id !== username);
   const newClient: any = {
     id: username,
     res
   }
-  clients.push(newClient);
+  serverData.clients.push(newClient);
   const keepAlive = () => {
     pushUpdateToPlayers('keep-alive', 'keepalive', [newClient]);
     setTimeout(keepAlive, keepAliveMS);
@@ -65,7 +64,8 @@ function addClient(username: string, res: any) {
 
 function removeClient(username: string) {
   const gameStatus = game.metadata.gameStatus;
-  clients = clients.filter((client: any) => client.id !== username);
+  serverData.clients = serverData.clients.filter((client: any) => client.id !== username);
+  const clients = serverData.clients;
   if (clients.length === 0) {
     console.log("Clients empty : ", clients);
     cleanupGame();

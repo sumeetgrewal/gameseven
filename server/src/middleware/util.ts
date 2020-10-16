@@ -1,5 +1,4 @@
-import { gameCountdown } from "../routes/setup";
-import { game } from '../models/game.model';
+import { game, serverData } from '../models/game.model';
 let sseId: number = 2;
 const dbScan = require('../dbScan');
 
@@ -44,7 +43,9 @@ export function cleanupGame() {
     playerData: {},
     discardPile: []
   }
-  clearTimeout(gameCountdown);
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
   console.log("Game Cleanup");
 }
 
@@ -72,7 +73,9 @@ export function resetToLobby() {
     playerData: {},
     discardPile: []
   }
-  clearTimeout(gameCountdown);
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
   console.log("Game Reset to Lobby")
 }
 
