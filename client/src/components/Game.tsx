@@ -1,6 +1,7 @@
 import * as React from 'react';
-import PlayerBoard  from './PlayerBoard'
+import PlayerBoard  from './PlayerBoard';
 import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, StageOptions, GameMetadata } from './GameAssets';
+import AgeTransition from './AgeTransition';
 
 interface GameProps {
   username: string,
@@ -25,6 +26,7 @@ interface GameState {
     cards: {[index: string]: Card},
   },
   error: string,
+  ageTransition: boolean,
   isLoaded: boolean,
   selectedCard: string,
   viewPurchaseOptions: boolean;
@@ -41,6 +43,7 @@ class Game extends React.Component<GameProps, GameState> {
         cards: {}
       },
       error: "", 
+      ageTransition: false,
       isLoaded: false,
       selectedCard: "",
       viewPurchaseOptions: false,
@@ -53,7 +56,7 @@ class Game extends React.Component<GameProps, GameState> {
   componentDidMount() {
   this.cacheData()
     .then(() => {
-      this.setState({isLoaded: true});
+      this.setState({isLoaded: true},() => this.startNewAge());
       console.log(this.state.cache);
     }).catch((error) => {
       console.log(error);
@@ -65,6 +68,14 @@ class Game extends React.Component<GameProps, GameState> {
       console.log("Players are different, exiting game");
       this.props.setGameStatus("lobby");
     }
+    if (oldProps.metadata.age !== this.props.metadata.age) {
+      this.startNewAge()
+    }
+  }
+
+  startNewAge(): void {
+    this.setState({ageTransition: true});
+    setTimeout(() => this.setState({ageTransition: false}), 6000);
   }
 
   cacheData(): Promise<void> {
@@ -310,6 +321,9 @@ class Game extends React.Component<GameProps, GameState> {
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
         return (<>
+          {(this.state.ageTransition) &&
+            <AgeTransition age={this.props.metadata.age} />
+          }
           {myBoard && 
             <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
