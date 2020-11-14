@@ -240,12 +240,8 @@ export default function PlayerBoard (props: BoardProps) {
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>CARDS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="military" value="military" checked={currentView === "military"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>MILITARY</ToggleButton>
-                    {(props.isMyBoard) 
-                        ? <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="players" value="players" checked={currentView === "players"}
-                            onChange={(e) => setCurrentView(e.currentTarget.value)}>PLAYERS</ToggleButton>
-                        : <ToggleButton type="radio" variant="light" className="view-btn py-2" key="back" value="back" checked={currentView === "players"}
-                            onClick={() => props.viewPlayerBoard(props.username)}>BACK</ToggleButton>
-                    }
+                    <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="feed" value="feed" checked={currentView === "feed"} 
+                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled>FEED</ToggleButton>
                 </ButtonGroup>
                 {renderInfoPanel()}
             </div>
