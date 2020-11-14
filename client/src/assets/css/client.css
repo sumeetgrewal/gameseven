@@ -205,7 +205,6 @@ PLAYERBOARD > STAGEINFO
 
 .stage-icon-container {
     height: 80px;
-    /* padding: 0 50px; */
     margin: 0;
 }
 
@@ -257,7 +256,7 @@ GAME
 }
 
 .card-info-container {
-    min-height: 100px;
+    min-height: 195px;
     align-items: center;
 }
 
@@ -349,7 +348,6 @@ GAME
 GAME -> PLAYER NAV
 ======================= */ 
 
-
 .player-nav { 
     position: absolute;
     width: 80px;
@@ -431,7 +429,6 @@ GAME -> PLAYER NAV
     padding: 0;
     height: 100%;
     width: 80px;
-    /* transition: none; */
 }
 
 /* =======================
@@ -500,7 +497,6 @@ GAME -> AGE TRANSITION
         opacity: 100%;
     }
 }
-
 
 @keyframes translate-a {
 	0% {

@@ -21,10 +21,6 @@ export default function PlayerNav (props: PlayerNavProps) {
     const renderHoverableTile = (player: [string, PlayerData]) => {
         const playerName = player[0];
         const selCards = player[1].cards;
-        const lastCard: any = selCards.length > 0 ? 
-            <img className="player-nav-card" src={cardImages[selCards[selCards.length - 1] + '.png']} alt="card"/>
-            : <></>;
-        
         return (
             <div key={playerName} className={"player-tile hoverable-tile"}>
                 <Button className="view-btn player-view" variant="outline-light" onClick={() => props.viewPlayerBoard(player[0])}>
@@ -39,7 +35,7 @@ export default function PlayerNav (props: PlayerNavProps) {
                     <img className="cost-icon" src={iconImages['shield.png']} alt="coin-icon" key={'coin-icon-'+playerName}/>                                
                     <p>{player[1].shields}</p>
                 </div>
-                {lastCard}
+                {(selCards.length > 0) && <img className="player-nav-card" src={cardImages[selCards[selCards.length - 1] + '.png']} alt="card"/>}
                 <div className="player-name">
                     <h3>{playerName.length >= 3 ? playerName.slice(0, 3) : playerName}</h3>
                 </div>
@@ -69,19 +65,16 @@ export default function PlayerNav (props: PlayerNavProps) {
         const playerTiles: any = [];
 
         Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {
-            const playerName = player[0];
+            let playerName = player[0];
             if (playerName !== props.username) {
-                playerTiles.push(renderHoverableTile(player))
+                playerTiles.push(renderHoverableTile(player));
+            } else {
+                playerTiles.push(renderBackButton());
             }
-            if (playerName === props.myData.playerLeft) {
-                if (!props.isMyBoard) {
-                    playerTiles.push(renderBackButton())
-                } else {
-                    playerTiles.push(renderMyTile())
-                }
+            if (props.isMyBoard && playerName === props.myData.playerLeft) {
+                playerTiles.push(renderMyTile());
             }
         })
-
         return playerTiles;
     }
     
