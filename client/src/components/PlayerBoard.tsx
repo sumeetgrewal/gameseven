@@ -6,6 +6,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import ToggleButton from 'react-bootstrap/ToggleButton'
 import Carousel from 'react-bootstrap/Carousel'
 import Button from 'react-bootstrap/esm/Button'
+import PlayerNav from './PlayerNav'
 
 interface BoardProps {
     board: Board,
@@ -207,7 +208,7 @@ export default function PlayerBoard (props: BoardProps) {
             style={{backgroundImage: `url(${boardImage})`}}
         >
             <div className="gradient-top" />
-            <div className="gradient-bottom" />
+        <div className="gradient-bottom" />
         </div>
         <div className="container-fluid">
             <div className="row">
@@ -231,6 +232,7 @@ export default function PlayerBoard (props: BoardProps) {
                 </div>
             </div>
         </div>
+        <PlayerNav playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
         <div className="container d-flex justify-content-center">
             <div className="row">
                 <ButtonGroup toggle className="col-12 view-options p-0" aria-label="view-options">
@@ -248,5 +250,5 @@ export default function PlayerBoard (props: BoardProps) {
                 {renderInfoPanel()}
             </div>
         </div>
-    </>)  
+    </>)   
 }
