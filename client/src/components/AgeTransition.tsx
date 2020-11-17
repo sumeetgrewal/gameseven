@@ -27,6 +27,7 @@ export default function AgeTransition (props: AgeTransitionProps) {
             : 
                 <div /> 
             }
+            <div className="spacer-card" />
         </div>
     )
 }
