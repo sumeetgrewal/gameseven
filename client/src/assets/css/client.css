@@ -274,7 +274,7 @@ GAME
 .hand-container, .card-info-container {
     width: 100%;
     background-color: #00000077;
-    padding: 8px 15px;
+    padding: 30px 15px;
     margin: 0 0 10px;
 }
 
@@ -404,6 +404,11 @@ GAME
 
     .card-info-container {
         min-height: 125px;
+    }
+
+    .hand-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
     }
 }
 
