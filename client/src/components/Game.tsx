@@ -75,7 +75,7 @@ class Game extends React.Component<GameProps, GameState> {
 
   startNewAge(): void {
     this.setState({ageTransition: true});
-    setTimeout(() => this.setState({ageTransition: false}), 6000);
+    setTimeout(() => this.setState({ageTransition: false}), 4000);
   }
 
   cacheData(): Promise<void> {
@@ -182,7 +182,7 @@ class Game extends React.Component<GameProps, GameState> {
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
-      <div className="col-12 card-info-container text-center d-flex justify-content-center">
+      <div className="col-12 card-info-container text-center d-flex justify-content-center align-items-center">
         {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
@@ -213,27 +213,27 @@ class Game extends React.Component<GameProps, GameState> {
       }
     }
     return (
-      <div className='col-12 container card-info-container text-center justify-content-center'>
+      <div className='col-12 container card-info-container text-center'>
         <div className="row">
           <div className="col-12">
             <h4 className="text-white">{card.NAME}</h4>
           </div>
         </div>
         <div className="row">
-          <div className="col-12 col-md-6 col-lg-4">
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <button className="btn join-btn option-btn" key={card.CARD_ID} value={card.CARD_ID}
               onClick={() => this.selectCard(cardID, "discard", age, turn)}>
               DISCARD
             </button>
           </div>
-          <div className="col-12 col-md-6 col-lg-4">
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canStage} 
               onClick={() => this.selectCard(cardID, "stage", age, turn)}
               value={card.CARD_ID}>
               {(stageInfo.stage > 0) ? `STAGE ${stageInfo.stage}` : `ALL STAGES BUILT`}
             </button>
           </div>
-          <div className="col-12 col-md-12 col-lg-4">
+          <div className="col-12 col-md-12 col-lg-4 d-flex justify-content-center">
             <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canBuild}
               onClick={handleCardBuild}
               value={card.CARD_ID}>
@@ -252,7 +252,7 @@ class Game extends React.Component<GameProps, GameState> {
     let result: any[] = [];
     if (purchaseCost === 0) {
       result = [(<div className="col-12" key={"purchase-info-" + card.CARD_ID}>
-        <h4 className="text-white" key={"purchase-info-" + card.CARD_ID}>{`Cost of card is ${cardInfo.coinCost}`}</h4>
+        <h5 className="text-white" key={"purchase-info-" + card.CARD_ID}>{`Cost of card is ${cardInfo.coinCost}`}</h5>
         <button className="btn join-btn option-btn" 
           onClick={() => this.selectCard(cardID, "build", age, turn)}
           key={"purchase-btn-" + card.CARD_ID}>
@@ -264,9 +264,9 @@ class Game extends React.Component<GameProps, GameState> {
         const purchase = purchaseOptions[i];
         result.push(<div className="col-6" key={"p-info-" + i + ' ' + card.CARD_ID}>
           {purchase.costLeft > 0 && 
-            <h4 className="text-white pt-1 pb-0" key={"p-cost-l-" + i}>{`Pay left ${purchase.costLeft} coins`}</h4>}
+            <h5 className="text-white pt-1 pb-0" key={"p-cost-l-" + i}>{`Pay left ${purchase.costLeft} coins`}</h5>}
           {purchase.costRight > 0 && 
-            <h4 className="text-white pb-1 pt-0" key={"p-cost-r-" + i}>{`Pay right ${purchase.costRight} coins`}</h4>}
+            <h5 className="text-white pb-1 pt-0" key={"p-cost-r-" + i}>{`Pay right ${purchase.costRight} coins`}</h5>}
           <button className="btn join-btn option-btn" 
             onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
             key={"p-btn-" + i}>

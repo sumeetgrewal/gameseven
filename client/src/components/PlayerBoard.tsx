@@ -1,11 +1,9 @@
 import React, {useState, useEffect} from 'react'
-import {boardImages, PlayerData, Board, iconImages, cardImages, MilitaryStats } from './GameAssets'
+import {boardImages, PlayerData, Board, iconImages, cardImages, MilitaryStats, CardTypeList } from './GameAssets'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Popover from 'react-bootstrap/Popover'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import ToggleButton from 'react-bootstrap/ToggleButton'
-import Carousel from 'react-bootstrap/Carousel'
-import Button from 'react-bootstrap/esm/Button'
 import PlayerNav from './PlayerNav'
 
 interface BoardProps {
@@ -27,30 +25,47 @@ export default function PlayerBoard (props: BoardProps) {
     const boardImage = boardImages[props.board.BOARD_ID + ".jpg"];
     const numStages = props.myData.stagesBuilt;
     const [currentView, setCurrentView] = useState("cards")
-    const [index, setIndex] = useState(0);
 
     useEffect(() => {
         setCurrentView("cards");
-        setIndex(0);
     }, [props]);
-    
-
-    const handleSelect = (selectedIndex: number, e: any) => {
-        setIndex(selectedIndex);
-    };
 
     const renderMyCards = () => {
-        const myCards = props.myData.cards;
         let myCardArray: Array<any> = [];
-        if (myCards.length > 0) {
-          myCards.forEach((card: string) => {
-            myCardArray.push(
-              <div className="d-inline-block m-1 card-wrapper" key={card + '-container'}>
-                <img className="built-card" src={cardImages[card + '.png']} alt="card" key={card}/>
-              </div>
-            )
-          })
+        const cardTypeNames: any = {
+            "brown":"Raw Materials", 
+            "gray":"Manufactured",
+            "blue": "Civilian",
+            "green": "Scientific",
+            "yellow": "Commercial",
+            "red": "Military",
+            "purple": "Guilds",
         }
+        let cardTypes: CardTypeList = props.myData.cardTypes;
+        Object.keys(cardTypes).forEach((cType: string) => {
+            const cardTypeArray = [];
+            const cards = cardTypes[cType];
+            if (cards.length > 0) {
+                cardTypeArray.push(
+                    <div className="mx-1" key={cType}>
+                        <h5 className="card-type-label">{cardTypeNames[cType]}</h5>
+                    </div>
+                )
+                cards.forEach((card: string) => {
+                const isLast: boolean = (card === props.myData.cards[props.myData.cards.length-1])
+                  cardTypeArray.push(
+                    <div className={"card-wrapper" + ((cards.length >= 3) ? " m-0" : " mb-1")} key={card + '-container'}>
+                      <img className={"built-card" + (isLast ? " last-card": "")} src={cardImages[card + '.png']} alt="card" key={card}/>
+                    </div>
+                  )
+                })
+                myCardArray.push(
+                    <div className="card-type-container">
+                        {cardTypeArray}
+                    </div>
+                )
+              }
+        });
         return (
             <div className='built-container text-center d-flex flex-wrap flex-column'>
                 {myCardArray}
@@ -104,7 +119,7 @@ export default function PlayerBoard (props: BoardProps) {
     const renderMilitary = () => {
         const myStats = props.myData.military;
         return (
-            <div className="container info-container text-white">
+            <div className="container info-container military-container text-white">
                 <div className="row">
                     <div className="col-4 d-flex align-items-center flex-column">
                         {(props.myData.playerLeft) 
@@ -152,37 +167,10 @@ export default function PlayerBoard (props: BoardProps) {
         ]
     }
     
-    // TODO GS-51
-    const renderPlayers = () => {
-        const items: any = [];
-        Object.entries(props.playerData).forEach((player: [string, PlayerData]) => {
-            if (player[0] !== props.username) {
-                items.push(
-                    <Carousel.Item>
-                        <div className="board-preview d-flex flex-column justify-content-center align-items-center p-2">
-                            <h2 className="font-weight-bold">{player[0]}</h2>
-                            <h5 className="mb-1">{player[1].board ? player[1].board.NAME : ""}</h5>
-                            {(player[0] === props.myData.playerLeft) && <p className="pb-3">(LEFT)</p>}
-                            {(player[0] === props.myData.playerRight) && <p className="pb-3">(RIGHT)</p>}
-                            <Carousel.Caption>
-                                <Button className="view-btn" variant="outline-light" onClick={() => props.viewPlayerBoard(player[0])}>
-                                    SELECT
-                                </Button>
-                            </Carousel.Caption>
-                        </div>
-                    </Carousel.Item>
-                )
-            }
-        })
+    // TODO Game Feed
+    const renderFeed = () => {
         return (
             <div className="container info-container text-white">
-                <div className="row h-100">
-                    <div className="col-12">
-                        <Carousel activeIndex={index} onSelect={handleSelect}>
-                            {items}
-                        </Carousel>
-                    </div>
-                </div>
             </div>
         )
     }
@@ -196,8 +184,8 @@ export default function PlayerBoard (props: BoardProps) {
             case "military": 
                 result = renderMilitary()
                 break;
-            case "players":
-                result = renderPlayers()
+            case "feed":
+                result = renderFeed()
                 break;
         }
         return (<div className='col-12 p-0'>{result}</div>);
@@ -210,7 +198,7 @@ export default function PlayerBoard (props: BoardProps) {
             <div className="gradient-top" />
         <div className="gradient-bottom" />
         </div>
-        <div className="container-fluid">
+        <div className="container-fluid board-header">
             <div className="row">
                 <div className="col-12 col-sm-4 d-flex justify-content-start p-4">
                     <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
