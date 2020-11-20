@@ -56,7 +56,7 @@ ol li {
     transition: 0.1s ease-in-out;
 }
 
-@media (max-width:1300px) {
+@media (max-height:800px) {
     .board-header {
         margin-top: -10px;
         margin-bottom: -25px;
@@ -272,15 +272,22 @@ GAME
 ======================= */ 
 
 .hand-container, .card-info-container {
-    width: 100%;
-    background-color: #00000077;
-    padding: 30px 15px;
+    /* width: 100%; */
+    background-color: #00000099;
+    padding: 25px 15px;
     margin: 0 0 10px;
+    min-height: 230px;
+    display: flex;
+}
+
+.hand-container {
+    padding-right: 0;
 }
 
 .card-info-container {
-    padding: 20px 0 0 15px;
-    min-height: 145px;
+    padding: 0 15px 0 0;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .hand-card {
@@ -288,12 +295,19 @@ GAME
     height: 75px;
 }
 
+.action-btn {
+    border-radius: 0 !important;
+    width: 100% !important;
+    margin: 10px 0;
+    padding: 10px 5px;
+}
+
 .built-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: auto;
     width: 100%;
-    background-color: #00000077;
+    background-color: #00000099;
     padding: 10px 30px 20px;
     margin: 0 0 10px;
     height: 290px;
@@ -332,6 +346,7 @@ GAME
     justify-content: center;
     flex-direction: column;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .last-card {
@@ -392,7 +407,7 @@ GAME
     background-color: #ffffff30;
 }
 
-@media (max-width:1300px) {
+@media (max-height:800px) {
     .hand-card {
         width: 165px;
         height: 70px;

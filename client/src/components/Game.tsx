@@ -2,6 +2,7 @@ import * as React from 'react';
 import PlayerBoard  from './PlayerBoard';
 import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, StageOptions, GameMetadata } from './GameAssets';
 import AgeTransition from './AgeTransition';
+import Button from 'react-bootstrap/esm/Button';
 
 interface GameProps {
   username: string,
@@ -155,9 +156,9 @@ class Game extends React.Component<GameProps, GameState> {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
         cardArray.push(
-          <div className={"d-inline-block m-1 " + (info.costMet ? "cost-met" : "cost-not-met")} 
+          <div className={"d-inline-block m-1"} 
             key={card + '-hand-container'}>
-            <button className="p-0 btn" key={card} onClick={() => handleCardSelect(card)}>
+            <button className={"p-0 btn " +  (info.costMet ? "cost-met" : "cost-not-met")} key={card} onClick={() => handleCardSelect(card)}>
                 <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
           </div>
@@ -165,7 +166,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
     }
     return (
-      <div className='col-12 hand-container text-center d-flex flex-wrap-reverse justify-content-center '>
+      <div className='col-9 hand-container text-center d-flex flex-wrap-reverse justify-content-center align-items-center'>
         {(this.props.isWaiting) ? 
           <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
           : cardArray
@@ -182,7 +183,7 @@ class Game extends React.Component<GameProps, GameState> {
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
-      <div className="col-12 card-info-container text-center d-flex justify-content-center align-items-center">
+      <div className="col-3 card-info-container text-center d-flex justify-content-center align-items-center">
         {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
@@ -213,34 +214,21 @@ class Game extends React.Component<GameProps, GameState> {
       }
     }
     return (
-      <div className='col-12 container card-info-container text-center'>
-        <div className="row">
-          <div className="col-12">
-            <h4 className="text-white">{card.NAME}</h4>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-            <button className="btn join-btn option-btn" key={card.CARD_ID} value={card.CARD_ID}
-              onClick={() => this.selectCard(cardID, "discard", age, turn)}>
-              DISCARD
-            </button>
-          </div>
-          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canStage} 
-              onClick={() => this.selectCard(cardID, "stage", age, turn)}
-              value={card.CARD_ID}>
-              {(stageInfo.stage > 0) ? `STAGE ${stageInfo.stage}` : `ALL STAGES BUILT`}
-            </button>
-          </div>
-          <div className="col-12 col-md-12 col-lg-4 d-flex justify-content-center">
-            <button className="btn join-btn option-btn" key={card.CARD_ID} disabled={!canBuild}
-              onClick={handleCardBuild}
-              value={card.CARD_ID}>
-              BUILD
-            </button>
-          </div>
-        </div>
+      <div className='col-3 card-info-container'>
+        <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-discard"} value={card.CARD_ID}
+          onClick={() => this.selectCard(cardID, "discard", age, turn)}>
+          DISCARD
+        </Button>
+        <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-stage"} disabled={!canStage} 
+          onClick={() => this.selectCard(cardID, "stage", age, turn)}
+          value={card.CARD_ID}>
+          {(stageInfo.stage > 0) ? `STAGE ${stageInfo.stage}` : `ALL STAGES BUILT`}
+        </Button>
+        <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-build"} disabled={!canBuild}
+          onClick={handleCardBuild}
+          value={card.CARD_ID}>
+          BUILD
+        </Button>
       </div>
     );
   }
@@ -251,40 +239,29 @@ class Game extends React.Component<GameProps, GameState> {
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
     let result: any[] = [];
     if (purchaseCost === 0) {
-      result = [(<div className="col-12" key={"purchase-info-" + card.CARD_ID}>
-        <h5 className="text-white" key={"purchase-info-" + card.CARD_ID}>{`Cost of card is ${cardInfo.coinCost}`}</h5>
-        <button className="btn join-btn option-btn" 
+      result = [(
+        <Button variant="outline-light" className="action-btn" 
           onClick={() => this.selectCard(cardID, "build", age, turn)}
           key={"purchase-btn-" + card.CARD_ID}>
-            PURCHASE
-        </button>
-      </div>)]
+            {`Pay ${cardInfo.coinCost} coins`}
+        </Button>
+      )]
     } else {
       for(let i = 0; i < purchaseOptions.length; i++) {
         const purchase = purchaseOptions[i];
-        result.push(<div className="col-6" key={"p-info-" + i + ' ' + card.CARD_ID}>
-          {purchase.costLeft > 0 && 
-            <h5 className="text-white pt-1 pb-0" key={"p-cost-l-" + i}>{`Pay left ${purchase.costLeft} coins`}</h5>}
-          {purchase.costRight > 0 && 
-            <h5 className="text-white pb-1 pt-0" key={"p-cost-r-" + i}>{`Pay right ${purchase.costRight} coins`}</h5>}
-          <button className="btn join-btn option-btn" 
+        result.push(
+          <Button className="action-btn"  variant="outline-warning"
             onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
             key={"p-btn-" + i}>
-              PURCHASE
-          </button>
-        </div>)
+              {purchase.costLeft > 0 && `Pay left ${purchase.costLeft} coins`}
+              {purchase.costRight > 0 && `Pay right ${purchase.costRight} coins`}
+          </Button>
+        )
       }
     }
     return (
-      <div className='col-12 container card-info-container text-center justify-content-center'>
-        <div className="row">
-          <div className="col-12">
-            <h4 className="text-white">{card.NAME}</h4>
-          </div>
-        </div>
-        <div className="row">
+      <div className='col-3 card-info-container'>
             {result}
-        </div>
       </div>
     )
   }
@@ -333,8 +310,8 @@ class Game extends React.Component<GameProps, GameState> {
             <div className='row'>
               {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
               {(myData.score >= 0) && this.renderResults()}
-              {(myData.score === -1) && this.renderCardInfo()}
               {(myData.score === -1) && this.renderHand()}
+              {(myData.score === -1) && this.renderCardInfo()}
             </div>
           </div>        
         </>)
