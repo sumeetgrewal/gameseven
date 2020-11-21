@@ -14,9 +14,7 @@ interface PlayerNavProps {
 
 export default function PlayerNav (props: PlayerNavProps) {
     
-    /* TODO ------------
-        Player Ready Status - game feed SSE GS-?? 
-    */
+    // TODO GS-53 Player Ready Status - game feed SSE GS-?? 
 
     const renderHoverableTile = (player: [string, PlayerData]) => {
         const playerName = player[0];

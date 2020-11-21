@@ -30,7 +30,7 @@ interface GameState {
   ageTransition: boolean,
   isLoaded: boolean,
   selectedCard: string,
-  viewPurchaseOptions: boolean;
+  viewPurchaseOptions: string; // "build" or "stage"
   currentView: string,
 } 
 
@@ -47,7 +47,7 @@ class Game extends React.Component<GameProps, GameState> {
       ageTransition: false,
       isLoaded: false,
       selectedCard: "",
-      viewPurchaseOptions: false,
+      viewPurchaseOptions: "",
       currentView: this.props.username,
     }
 
@@ -113,7 +113,7 @@ class Game extends React.Component<GameProps, GameState> {
         }
       const oldHand = this.props.currentHand;
       this.props.setCurrentHand([]);
-      this.setState({selectedCard: "", viewPurchaseOptions: false})
+      this.setState({selectedCard: "", viewPurchaseOptions: ""})
       console.log("Selected card " + card)
       fetch("game/play", {
         method: 'POST',
@@ -148,7 +148,7 @@ class Game extends React.Component<GameProps, GameState> {
     const {currentHand, handInfo} = this.props;
     let cardArray: Array<any> = [];
     const handleCardSelect = (selectedCard: string)  => {
-      this.setState({selectedCard, viewPurchaseOptions: false});
+      this.setState({selectedCard, viewPurchaseOptions: ""});
       console.log(selectedCard);
     }
 
@@ -167,16 +167,11 @@ class Game extends React.Component<GameProps, GameState> {
     }
     return (
       <div className='col-9 hand-container text-center d-flex flex-wrap-reverse justify-content-center align-items-center'>
-        {(this.props.isWaiting) ? 
-          <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
-          : cardArray
-        }
+        {cardArray}
       </div>
     )
   }
 
-  // TODO GS-56 Show purchase options when building a stage
-  // TODO GS-57 UI improvements - move container? smaller buttons?
   renderCardInfo() {
     const {selectedCard, viewPurchaseOptions} = this.state;
     const {age, turn} = this.props.metadata;
@@ -191,28 +186,29 @@ class Game extends React.Component<GameProps, GameState> {
       const buildInfo: BuildOptions = this.props.handInfo[selectedCard];
       const stageInfo: StageOptions = this.props.stageInfo;
 
-      if (!viewPurchaseOptions) {
+      if (viewPurchaseOptions === "") {
         return this.renderCardActions(card, buildInfo, stageInfo, selectedCard, age, turn)
-      }
-      else {
-        return this.renderPurchaseOptions(card, buildInfo, stageInfo, selectedCard, age, turn)
+      } else if (viewPurchaseOptions === "build") {
+        return this.renderPurchaseOptions(card, buildInfo, selectedCard, age, turn)
+      } else if (viewPurchaseOptions === "stage") {
+        return this.renderPurchaseOptions(card, stageInfo.options, selectedCard, age, turn)
       }
     }
   }
 
-  // TODO GS-56 - Show purchase information earlier
   private renderCardActions(card: Card, cardInfo: BuildOptions, stageInfo: {stage: number, options: BuildOptions}, 
     cardID: string, age: number, turn: number) {
     const canBuild = (cardInfo) ? cardInfo.costMet : false;
     const canStage = (stageInfo) ? stageInfo.options.costMet : false;
 
-    const handleCardBuild = () => {
-      if (cardInfo.coinCost > 0) {
-        this.setState({viewPurchaseOptions: true})
+    const handlePurchaseOptions = (action: string, cost: number) => {
+      if (cost > 0) {
+        this.setState({viewPurchaseOptions: action})
       } else {
-        this.selectCard(cardID, "build", age, turn)
+        this.selectCard(cardID, action, age, turn)
       }
     }
+
     return (
       <div className='col-3 card-info-container'>
         <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-discard"} value={card.CARD_ID}
@@ -220,30 +216,34 @@ class Game extends React.Component<GameProps, GameState> {
           DISCARD
         </Button>
         <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-stage"} disabled={!canStage} 
-          onClick={() => this.selectCard(cardID, "stage", age, turn)}
+          onClick={() => handlePurchaseOptions("stage", stageInfo.options.coinCost)}
           value={card.CARD_ID}>
-          {(stageInfo.stage > 0) ? `STAGE ${stageInfo.stage}` : `ALL STAGES BUILT`}
+          {(stageInfo.stage > 0) ? 
+            ((stageInfo.options.coinCost > 0) ? `STAGE ${stageInfo.stage} for ${stageInfo.options.coinCost} COINS` : `STAGE ${stageInfo.stage}`)
+            : `ALL STAGES BUILT`}
         </Button>
         <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-build"} disabled={!canBuild}
-          onClick={handleCardBuild}
+          onClick={() => handlePurchaseOptions("build", cardInfo.coinCost)}
           value={card.CARD_ID}>
-          BUILD
+          {(cardInfo.coinCost > 0) ? `BUILD for ${cardInfo.coinCost} COINS` : 'BUILD'}
         </Button>
       </div>
     );
   }
 
-  // TODO GS-56 Show purchase icons 
-  private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, stageInfo: any, cardID: string, age: number, turn: number) {
+  private renderPurchaseOptions(card: Card, cardInfo: BuildOptions, cardID: string, age: number, turn: number) {
     const purchaseOptions: PurchaseOptions[] = cardInfo.purchaseOptions;
     const purchaseCost: number = purchaseOptions[0].costLeft + purchaseOptions[0].costRight;
+    const action = this.state.viewPurchaseOptions;
     let result: any[] = [];
+
     if (purchaseCost === 0) {
+      // Just select card? Should user be presented with option anyway? 
       result = [(
-        <Button variant="outline-light" className="action-btn" 
-          onClick={() => this.selectCard(cardID, "build", age, turn)}
+        <Button variant="outline-warning" className="action-btn" 
+          onClick={() => this.selectCard(cardID, action, age, turn)}
           key={"purchase-btn-" + card.CARD_ID}>
-            {`Pay ${cardInfo.coinCost} coins`}
+            {(cardInfo.coinCost > 1) ? `Pay ${cardInfo.coinCost} coins` :`Pay ${cardInfo.coinCost} coin` }
         </Button>
       )]
     } else {
@@ -251,7 +251,7 @@ class Game extends React.Component<GameProps, GameState> {
         const purchase = purchaseOptions[i];
         result.push(
           <Button className="action-btn"  variant="outline-warning"
-            onClick={() => this.selectCard(cardID, "build", age, turn, purchase)}
+            onClick={() => this.selectCard(cardID, action, age, turn, purchase)}
             key={"p-btn-" + i}>
               {purchase.costLeft > 0 && `Pay left ${purchase.costLeft} coins`}
               {purchase.costRight > 0 && `Pay right ${purchase.costRight} coins`}
@@ -259,6 +259,7 @@ class Game extends React.Component<GameProps, GameState> {
         )
       }
     }
+
     return (
       <div className='col-3 card-info-container'>
             {result}
@@ -291,6 +292,21 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  renderInfo() {
+    if (this.props.myData.score >= 0) {
+      return this.renderResults()
+    } else if (this.props.isWaiting) {
+      return (<div className='col-12 hand-container justify-content-center align-items-center'>
+            <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
+        </div>)
+    } else {
+      return (<>
+        {this.renderHand()}
+        {this.renderCardInfo()}
+      </>)
+    }
+  }
+
   render() {
     const { myData, playerData } = this.props;
     const myBoard = (myData) ? myData.board : undefined;
@@ -309,9 +325,7 @@ class Game extends React.Component<GameProps, GameState> {
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
               {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
-              {(myData.score >= 0) && this.renderResults()}
-              {(myData.score === -1) && this.renderHand()}
-              {(myData.score === -1) && this.renderCardInfo()}
+              {this.renderInfo()}
             </div>
           </div>        
         </>)

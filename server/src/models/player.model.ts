@@ -221,7 +221,7 @@ export class Player implements PlayerData {
     }      
   }
 
-  // TODO 56 - review purchase options being returned - not optimal
+  // TODO GS-56 - review purchase options being returned - not optimal
   private checkPurchaseOptions(unmetCostArray: [number, string][][]) : PurchaseOptions[] {
     let buildOptionsArray: BuildOptions[] = [];
     for (let i = 0; i< unmetCostArray.length; i++) {

@@ -272,20 +272,15 @@ GAME
 ======================= */ 
 
 .hand-container, .card-info-container {
-    /* width: 100%; */
-    background-color: #00000099;
+    background-color: #000000a0;
     padding: 25px 15px;
     margin: 0 0 10px;
     min-height: 230px;
     display: flex;
 }
 
-.hand-container {
-    padding-right: 0;
-}
-
 .card-info-container {
-    padding: 0 15px 0 0;
+    padding: 10px 15px 10px 0;
     flex-direction: column;
     justify-content: space-evenly;
 }
@@ -298,8 +293,7 @@ GAME
 .action-btn {
     border-radius: 0 !important;
     width: 100% !important;
-    margin: 10px 0;
-    padding: 10px 5px;
+    height: 55px;
 }
 
 .built-container {

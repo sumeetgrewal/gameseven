@@ -167,7 +167,7 @@ export default function PlayerBoard (props: BoardProps) {
         ]
     }
     
-    // TODO Game Feed
+    // TODO GS-53 Game Feed
     const renderFeed = () => {
         return (
             <div className="container info-container text-white">
