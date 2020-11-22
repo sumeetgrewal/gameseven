@@ -316,12 +316,12 @@ GAME
     background-color: #00000099;
     padding: 10px 30px 20px;
     margin: 0 0 10px;
-    height: 290px;
+    height: 300px;
 }
 
 .built-card {
-    width: 142px;
-    height: 60px;
+    width: 154px;
+    height: 65px;
 }
 
 .card-type-label {
@@ -334,13 +334,13 @@ GAME
 }
 
 .card-wrapper {
-    width: 142px;
-    height: 30px;
+    width: 154px;
+    height: 35px;
     transition: 0.15s ease-in;
 }
 
 .card-wrapper:hover, .card-wrapper:focus {
-    height: 50px;
+    height: 55px;
     margin-top: -20px !important;
     transition: 0.2s ease-out;
     cursor: pointer;
