@@ -275,7 +275,7 @@ GAME
     background-color: #000000a0;
     padding: 25px 15px;
     margin: 0 0 10px;
-    min-height: 230px;
+    min-height: 250px;
     display: flex;
 }
 
@@ -288,6 +288,18 @@ GAME
 .hand-card {
     width: 177px;
     height: 75px;
+    transition: 0.1s ease-in-out;
+}
+
+.selected-card {
+    transform: scale(1.1);
+    transition: 0.1s ease-in-out;
+    margin: 0 8px;
+}
+
+.not-selected-card {
+    opacity: 0.9;
+    transition: 0.1s ease-in-out;
 }
 
 .action-btn {

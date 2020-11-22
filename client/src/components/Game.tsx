@@ -55,7 +55,7 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   componentDidMount() {
-  this.cacheData()
+    this.cacheData()
     .then(() => {
       this.setState({isLoaded: true},() => this.startNewAge());
       console.log(this.state.cache);
@@ -155,10 +155,14 @@ class Game extends React.Component<GameProps, GameState> {
     if (currentHand && currentHand.length > 0) {
       currentHand.forEach((card: string) => {
         const info: BuildOptions = handInfo[card]
+        let classes: string = (info.costMet ? "cost-met" : "cost-not-met");
+        if (this.state.selectedCard !== "") {
+          classes = (card === this.state.selectedCard) ? classes.concat(" selected-card") : classes.concat(" not-selected-card")
+        }
         cardArray.push(
           <div className={"d-inline-block m-1"} 
             key={card + '-hand-container'}>
-            <button className={"p-0 btn " +  (info.costMet ? "cost-met" : "cost-not-met")} key={card} onClick={() => handleCardSelect(card)}>
+            <button className={"p-0 btn " +  classes} key={card} onClick={() => handleCardSelect(card)}>
                 <img className="hand-card" src={cardImages[card + '.png']} alt="card"/>
             </button>
           </div>
