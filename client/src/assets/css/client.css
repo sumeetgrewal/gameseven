@@ -56,6 +56,29 @@ ol li {
     transition: 0.1s ease-in-out;
 }
 
+@media (max-height:800px) {
+    .board-header {
+        margin-top: -10px;
+        margin-bottom: -25px;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+
+    h2, h3 {
+        font-size: 1.5em;
+    }
+
+    h4 {
+        font-size: 1.2em;
+    }
+
+    h5 {
+        font-size: 1.1em;
+    }
+}
+
 /* =======================
 JOINGAME 
 ======================= */ 
@@ -249,46 +272,91 @@ GAME
 ======================= */ 
 
 .hand-container, .card-info-container {
-    width: 100%;
-    background-color: #00000077;
-    padding: 40px;
-    margin: 10px 0 0 !important;
+    background-color: #000000a0;
+    padding: 25px 15px;
+    margin: 0 0 10px;
+    min-height: 250px;
+    display: flex;
 }
 
 .card-info-container {
-    min-height: 195px;
-    align-items: center;
+    padding: 10px 15px 10px 0;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .hand-card {
     width: 177px;
     height: 75px;
+    transition: 0.1s ease-in-out;
+}
+
+.selected-card {
+    transform: scale(1.1);
+    transition: 0.1s ease-in-out;
+    margin: 0 8px;
+}
+
+.not-selected-card {
+    opacity: 0.9;
+    transition: 0.1s ease-in-out;
+}
+
+.action-btn {
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: 55px;
 }
 
 .built-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
     width: 100%;
-    background-color: #00000077;
-    padding: 80px 30px 20px;
-    margin: 0;
-    height: 290px;
+    background-color: #00000099;
+    padding: 10px 30px 20px;
+    margin: 0 0 10px;
+    height: 300px;
 }
 
 .built-card {
-    margin-top: -40px;
-    width: 177px;
-    height: 75px;
+    width: 154px;
+    height: 65px;
+}
+
+.card-type-label {
+    text-align: left;
+    z-index: 5;
+    font-size: 0.8em;
+    color: white;
+    padding: 7px 0 3px;
+    margin: 0;
 }
 
 .card-wrapper {
-    width: 177px;
+    width: 154px;
     height: 35px;
     transition: 0.15s ease-in;
 }
 
 .card-wrapper:hover, .card-wrapper:focus {
-    height: 60px;
-    margin-top: -25px !important;
+    height: 55px;
+    margin-top: -20px !important;
     transition: 0.2s ease-out;
+    cursor: pointer;
+}
+
+.card-type-container {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.last-card {
+    border: 1px solid white;
 }
 
 .cost-met {
@@ -300,12 +368,12 @@ GAME
 }
 
 .option-btn {
-    margin: 20px 0 0;
-    min-width: 250px;
+    margin: 5px 15px 0;
+    min-width: 200px;
     width: 100%;
-    padding: 10px 30px;
-    font-weight: bold;
-    font-size: 1.3em;
+    font-weight: normal;
+    font-size: 1em;
+    padding: 10px;
     color: #d6d6d6;
     background-color: rgb(2, 97, 2);
     border-radius: 0;
@@ -336,12 +404,33 @@ GAME
     width: 100%;
     background-color: #00000077;
     padding: 20px;
+    margin-bottom: 10px;
 }
 
 .board-preview {
     height: 200px;
     margin: 25px;
     background-color: #ffffff30;
+}
+
+@media (max-height:800px) {
+    .hand-card {
+        width: 165px;
+        height: 70px;
+    }
+
+    .view-btn {
+        font-size: 12px;
+    }
+
+    .card-info-container {
+        min-height: 125px;
+    }
+
+    .hand-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
 }
 
 /* =======================
