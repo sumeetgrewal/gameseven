@@ -306,7 +306,7 @@ GAME
 
 .action-btn {
     width: 100% !important;
-    height: 55px;
+    min-height: 55px;
 }
 
 .info-container {
@@ -399,6 +399,14 @@ GAME
     padding: 5px;
 }
 
+.info-container {
+    height: 330px;
+    width: 100%;
+    background-color: #00000077;
+    padding: 20px;
+    margin-bottom: 10px;
+}
+
 .board-preview {
     height: 200px;
     margin: 25px;
@@ -406,7 +414,11 @@ GAME
 }
 
 .card-chain {
-    margin: 30px;
+    padding: 20px 0;
+    display: flex;
+    align-items:center;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.5);
+    margin: 0 !important;
 }
 
 .chain-container {
@@ -421,10 +433,6 @@ GAME
 
     .view-btn {
         font-size: 12px;
-    }
-
-    .card-info-container {
-        min-height: 125px;
     }
 
     .hand-container {

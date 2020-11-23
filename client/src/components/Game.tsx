@@ -258,6 +258,7 @@ class Game extends React.Component<GameProps, GameState> {
             onClick={() => this.selectCard(cardID, action, age, turn, purchase)}
             key={"p-btn-" + i}>
               {purchase.costLeft > 0 && `Pay left ${purchase.costLeft} coins`}
+              {(purchase.costLeft > 0 && purchase.costRight > 0) ? <br /> : ""}
               {purchase.costRight > 0 && `Pay right ${purchase.costRight} coins`}
           </Button>
         )
@@ -321,10 +322,10 @@ class Game extends React.Component<GameProps, GameState> {
           {(this.state.ageTransition) &&
             <AgeTransition age={this.props.metadata.age} />
           }
-          {myBoard && 
+          {myBoard &&  
             <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} handInfo={this.props.handInfo} />
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} cardCache={this.state.cache.cards} />
           }
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
@@ -341,7 +342,7 @@ class Game extends React.Component<GameProps, GameState> {
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} handInfo={{}} />          
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} />          
           }</>
         )
       }
