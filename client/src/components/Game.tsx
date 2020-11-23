@@ -324,7 +324,7 @@ class Game extends React.Component<GameProps, GameState> {
           {myBoard && 
             <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
-              viewPlayerBoard={this.viewPlayerBoard}/>
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} handInfo={this.props.handInfo} />
           }
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
@@ -341,8 +341,8 @@ class Game extends React.Component<GameProps, GameState> {
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
-              viewPlayerBoard={this.viewPlayerBoard}/>          }
-          </>
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} handInfo={{}} />          
+          }</>
         )
       }
     } else {

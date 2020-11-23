@@ -18,6 +18,8 @@ interface BoardProps {
     [username: string]: PlayerData
     },
     isMyBoard: boolean,
+    currentHand: string[],
+    handInfo: any,
     viewPlayerBoard: (username: string) => void,
 }
 
@@ -67,12 +69,34 @@ export default function PlayerBoard (props: BoardProps) {
               }
         });
         return (
-            <div className='built-container text-center d-flex flex-wrap flex-column'>
+            <div className='info-container built-container text-center d-flex flex-wrap flex-column'>
                 {myCardArray}
             </div>
         )
     }
     
+    const renderChains = () => {
+        const {currentHand, handInfo} = props;
+        const chainArray: any = [];
+        if (!props.isMyBoard) return (<> </>);
+
+        if (currentHand && currentHand.length > 0) {
+            currentHand.forEach((card: string) => {
+                chainArray.push(
+                    <div className="row card-chain">
+                        <img className={"built-card"} src={cardImages[card + '.png']} alt={"card-" + card} key={card + "-chain"}/>
+                    </div>
+                )
+            })
+        }
+        return (
+            <div className='container info-container text-white chain-container'>
+                {chainArray}
+            </div>
+        )
+
+    }
+
     const renderStageInfo = () => {
         const stageArray: any = [];
         const images: any = {
@@ -119,7 +143,7 @@ export default function PlayerBoard (props: BoardProps) {
     const renderMilitary = () => {
         const myStats = props.myData.military;
         return (
-            <div className="container info-container military-container text-white">
+            <div className="container info-container text-white">
                 <div className="row">
                     <div className="col-4 d-flex align-items-center flex-column">
                         {(props.myData.playerLeft) 
@@ -184,6 +208,9 @@ export default function PlayerBoard (props: BoardProps) {
             case "military": 
                 result = renderMilitary()
                 break;
+            case "chains":
+                result = renderChains()
+                break;
             case "feed":
                 result = renderFeed()
                 break;
@@ -228,6 +255,8 @@ export default function PlayerBoard (props: BoardProps) {
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>CARDS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="military" value="military" checked={currentView === "military"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>MILITARY</ToggleButton>
+                    <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="chains" value="chains" checked={currentView === "chains"} 
+                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>CHAINS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="feed" value="feed" checked={currentView === "feed"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)} disabled>FEED</ToggleButton>
                 </ButtonGroup>

@@ -23,6 +23,10 @@ body {
     width: 100%;
 }
 
+.btn {
+    border-radius: 0 !important;
+}
+
 input {
     background-color: #D6D6D6;
     border: none;
@@ -47,7 +51,6 @@ ol li {
     font-size: 1em;
     color: #d6d6d6;
     background-color: #585555;
-    border-radius: 0;
 }
 
 .small-btn:hover, .join-btn:focus {
@@ -102,7 +105,6 @@ JOINGAME
     font-size: 1.2em;
     color: #d6d6d6;
     background-color: #585555;
-    border-radius: 0;
 }
 
 .join-btn:hover, .join-btn:focus {
@@ -303,20 +305,23 @@ GAME
 }
 
 .action-btn {
-    border-radius: 0 !important;
     width: 100% !important;
     height: 55px;
+}
+
+.info-container {
+    height: 300px;
+    width: 100%;
+    background-color: #000000a0;
+    padding: 20px;
+    margin-bottom: 10px;
 }
 
 .built-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: auto;
-    width: 100%;
-    background-color: #00000099;
     padding: 10px 30px 20px;
-    margin: 0 0 10px;
-    height: 300px;
 }
 
 .built-card {
@@ -376,7 +381,6 @@ GAME
     padding: 10px;
     color: #d6d6d6;
     background-color: rgb(2, 97, 2);
-    border-radius: 0;
 }
 
 .option-btn:disabled {
@@ -389,28 +393,24 @@ GAME
     padding: 5px;
 }
 
-.view-btn {
-    border-radius: 0;
-}
-
 .military-icon {
     height: 55px;
     width: 55px;
     padding: 5px;
 }
 
-.info-container {
-    height: 290px;
-    width: 100%;
-    background-color: #00000077;
-    padding: 20px;
-    margin-bottom: 10px;
-}
-
 .board-preview {
     height: 200px;
     margin: 25px;
     background-color: #ffffff30;
+}
+
+.card-chain {
+    margin: 30px;
+}
+
+.chain-container {
+    overflow: auto;
 }
 
 @media (max-height:800px) {
