@@ -301,3 +301,37 @@ export function handleCardSelect(player: Player, username: string, card: string,
     sendAllPlayerData();
   }
 }
+
+// --------------------
+// GAME FEED
+// --------------------
+
+let gameFeed: logItem[] = [];
+
+type logItem = {
+  age: number,
+  turn: number,
+  playerName: string,
+  action: string,
+  cardId?: number,
+  message: string
+}
+
+export function addToFeed(playerName: string, action: string, message: string, age: number = game.metadata.age, turn: number = game.metadata.turn, cardId : number = 0) {
+  let item: logItem = {
+    age,
+    turn,
+    playerName,
+    action, // build
+    cardId,
+    message
+  }
+  gameFeed.push(item);
+}
+
+function sendFeedUpdate() {
+  serverData.clients.forEach((client: any) => {
+    pushUpdateToPlayers(JSON.stringify({gameFeed}), 'feedUpdate', [client]);
+  })
+  gameFeed = [];
+}
