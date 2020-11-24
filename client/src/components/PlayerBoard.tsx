@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import {boardImages, PlayerData, Board, iconImages, cardImages, MilitaryStats, CardTypeList } from './GameAssets'
+import {boardImages, PlayerData, Board, iconImages, cardImages, MilitaryStats, CardTypeList, Card } from './GameAssets'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Popover from 'react-bootstrap/Popover'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import ToggleButton from 'react-bootstrap/ToggleButton'
 import PlayerNav from './PlayerNav'
+import CardChains from './CardChains'
 
 interface BoardProps {
     board: Board,
@@ -18,6 +19,8 @@ interface BoardProps {
     [username: string]: PlayerData
     },
     isMyBoard: boolean,
+    currentHand: string[],
+    cardCache: {[index: string]: Card},
     viewPlayerBoard: (username: string) => void,
 }
 
@@ -60,19 +63,19 @@ export default function PlayerBoard (props: BoardProps) {
                   )
                 })
                 myCardArray.push(
-                    <div className="card-type-container">
+                    <div key={cType+"-container"} className="card-type-container">
                         {cardTypeArray}
                     </div>
                 )
               }
         });
         return (
-            <div className='built-container text-center d-flex flex-wrap flex-column'>
+            <div className='info-container built-container text-center d-flex flex-wrap flex-column'>
                 {myCardArray}
             </div>
         )
     }
-    
+
     const renderStageInfo = () => {
         const stageArray: any = [];
         const images: any = {
@@ -99,8 +102,6 @@ export default function PlayerBoard (props: BoardProps) {
                             overlay={<Popover id={"stage-" + i} {...props}>
                                 <Popover.Title as="h3">{"STAGE " + i}</Popover.Title>    
                                 <Popover.Content>
-                                    {/* <h6 key={`stage-${i}-cost`}>{`COST: ${stageData[i].cost}`}</h6>
-                                    <h6 key={`stage-${i}-val`}>{`VALUE: ${stageData[i].value}`}</h6> */}
                                     <div key={`stage-${i}-cont`}>{icons}</div>
                                 </Popover.Content>          
                             </Popover>}
@@ -119,7 +120,7 @@ export default function PlayerBoard (props: BoardProps) {
     const renderMilitary = () => {
         const myStats = props.myData.military;
         return (
-            <div className="container info-container military-container text-white">
+            <div className="container info-container text-white">
                 <div className="row">
                     <div className="col-4 d-flex align-items-center flex-column">
                         {(props.myData.playerLeft) 
@@ -184,12 +185,22 @@ export default function PlayerBoard (props: BoardProps) {
             case "military": 
                 result = renderMilitary()
                 break;
+            case "chains":
+                result = <CardChains
+                    classes={'container info-container text-white chain-container'}
+                    age={props.metadata.age} 
+                    isMyBoard={props.isMyBoard}
+                    currentHand={props.currentHand}
+                    cardCache={props.cardCache}
+                />
+                break;
             case "feed":
                 result = renderFeed()
                 break;
         }
         return (<div className='col-12 p-0'>{result}</div>);
     }
+    
     return (<>
         <div 
             className="my-board m-0 full-height" 
@@ -228,6 +239,8 @@ export default function PlayerBoard (props: BoardProps) {
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>CARDS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="military" value="military" checked={currentView === "military"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)}>MILITARY</ToggleButton>
+                    <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="chains" value="chains" checked={currentView === "chains"} 
+                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>CHAINS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="feed" value="feed" checked={currentView === "feed"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)} disabled>FEED</ToggleButton>
                 </ButtonGroup>
