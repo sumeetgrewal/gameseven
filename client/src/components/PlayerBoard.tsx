@@ -5,6 +5,7 @@ import Popover from 'react-bootstrap/Popover'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import ToggleButton from 'react-bootstrap/ToggleButton'
 import PlayerNav from './PlayerNav'
+import CardChains from './CardChains'
 
 interface BoardProps {
     board: Board,
@@ -62,7 +63,7 @@ export default function PlayerBoard (props: BoardProps) {
                   )
                 })
                 myCardArray.push(
-                    <div className="card-type-container">
+                    <div key={cType+"-container"} className="card-type-container">
                         {cardTypeArray}
                     </div>
                 )
@@ -71,107 +72,6 @@ export default function PlayerBoard (props: BoardProps) {
         return (
             <div className='info-container built-container text-center d-flex flex-wrap flex-column'>
                 {myCardArray}
-            </div>
-        )
-    }
-    
-    const filterUniqueCards = (cardArray: number[]) => {
-        const result: number[] = [];
-        const uniqueValues: {[key: string]: any}= {};
-        cardArray.forEach((id: number) => {
-            const cardName = (props.cardCache[id]) ? props.cardCache[id].NAME : "";
-            if (cardName !== "") {
-                if (uniqueValues[cardName] !== id) {
-                    uniqueValues[cardName] = id;
-                    result.push(id);
-                }
-            }
-        })
-        return result;
-    }
-
-    const getPreviousCards = (cardIds: number[]) => {
-        let result: number[] = [];
-        cardIds.forEach((card: number) => {
-            const data: Card = props.cardCache[card];
-            const chainCost = (data.CHAIN_COST) ? filterUniqueCards(data.CHAIN_COST) : [];
-            result = result.concat(chainCost);
-        })
-        return result;
-    }
-
-    const getNextCards = (cardIds: number[]) => {
-        let result: number[] = [];
-        cardIds.forEach((card: number) => {
-            const data: Card = props.cardCache[card];
-            const chain = (data.CHAINS) ? filterUniqueCards(data.CHAINS) : [];
-            result = result.concat(chain);
-        })
-        return result;
-    }
-
-    const generateChains = () => {
-        const {currentHand} = props;
-        const age = props.metadata.age;
-        const chainArray: any = [];
-        const classes:string = "col-4 d-flex flex-column align-items-center";
-        if (currentHand && currentHand.length > 0) {
-            chainArray.push(
-                <div className="row card-chain">
-                        <h3 className={classes}>AGE 1</h3>
-                        <h3 className={classes}>AGE 2</h3>
-                        <h3 className={classes}>AGE 3</h3>
-                </div>
-            )
-            currentHand.forEach((cardId: string) => {
-                let age1, age2, age3;
-                if (age === 1) {
-                    age1 = [Number(cardId)];
-                    age2 = getNextCards(age1);
-                    age3 = getNextCards(age2);
-                } else if (age === 2) {
-                    age2 = [Number(cardId)];
-                    age1 = getPreviousCards(age2);
-                    age3 = getNextCards(age2);
-                } else {
-                    age3 = [Number(cardId)];
-                    age2 = getPreviousCards(age3);
-                    age1 = getPreviousCards(age2);
-                }
-                if (!(age2.length === 0) && !(age1.length === 0 && age3.length === 0)) {
-                    const age1Cards = (age1.length > 0) ? age1.map((card: number) => {
-                        return (<img className={"built-card"} src={cardImages[card + '.png']} alt={"card-" + card} key={card + "-chain-one"}/>)
-                    }) : [];
-                    const age2Cards = (age2.length > 0) ? age2.map((card: number) => {
-                        return (<img className={"built-card"} src={cardImages[card + '.png']} alt={"card-" + card} key={card + "-chain-two"}/>)
-                    }) : [];
-                    const age3Cards = (age3.length > 0) ? age3.map((card: number) => {
-                        return (<img className={"built-card"} src={cardImages[card + '.png']} alt={"card-" + card} key={card + "-chain-three"}/>)
-                    }) : [];
-                    chainArray.push(
-                        <div className="row card-chain">
-                            <div className={classes}> {age1Cards}</div>
-                            <div className={classes}> {age2Cards}</div>
-                            <div className={classes}> {age3Cards}</div>
-                        </div>
-                    )
-                }
-            })
-            return chainArray;
-        }
-    }
-
-    const renderChains = () => {
-        const {currentHand} = props;
-        let chainArray: any = [];
-        if (!props.isMyBoard) return (<> </>);
-
-        if (currentHand && currentHand.length > 0) {
-            chainArray = generateChains();
-        }
-        return (
-            <div className='container info-container text-white chain-container'>
-                {chainArray}
             </div>
         )
     }
@@ -286,7 +186,13 @@ export default function PlayerBoard (props: BoardProps) {
                 result = renderMilitary()
                 break;
             case "chains":
-                result = renderChains()
+                result = <CardChains
+                    classes={'container info-container text-white chain-container'}
+                    age={props.metadata.age} 
+                    isMyBoard={props.isMyBoard}
+                    currentHand={props.currentHand}
+                    cardCache={props.cardCache}
+                />
                 break;
             case "feed":
                 result = renderFeed()
@@ -294,6 +200,7 @@ export default function PlayerBoard (props: BoardProps) {
         }
         return (<div className='col-12 p-0'>{result}</div>);
     }
+    
     return (<>
         <div 
             className="my-board m-0 full-height" 
