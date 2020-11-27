@@ -1,5 +1,6 @@
 import { Board, Resource, CardTypeList, ResourceList, MilitaryStats, PlayerData, BuildOptions, ConditionData, PurchaseOptions, Card, StageOptions } from './playerData.model';
 import { game } from './game.model'
+import { addToFeed } from '../middleware/gameFeed';
 
 export class Player implements PlayerData {
   username: string;
@@ -139,7 +140,6 @@ export class Player implements PlayerData {
     for (let i = 0; i < chainCost.length; i++) {
       const cardID: any = chainCost[i];
       if (this.cards.includes(cardID)) {
-        // console.log("Chain cost is met");
         return true;
       }
     }
@@ -430,6 +430,7 @@ export class Player implements PlayerData {
   buildStage(stageOptions: StageOptions, purchase: PurchaseOptions) {
     const data = this.stageData[stageOptions.stage];
     console.log(`Building stage ${stageOptions.stage}. Will receive ${data.value}`); 
+    addToFeed(this.username, 'stage', `${this.username} built stage ${stageOptions.stage}`, {stage: stageOptions.stage});
     data.value.forEach((value: [number, string]) => {
       if (value[1] === 'POINT') {
         this.addPoints(value[0])
@@ -447,10 +448,10 @@ export class Player implements PlayerData {
     this.executePurchase(purchase);
   }
 
-  selectCard(cardID: string, coinCost: number, purchaseOptions: PurchaseOptions): ConditionData[] {
-    const card: Card = game.cards[cardID];
-    this.cardTypes[card.CATEGORY.toLowerCase()].push(cardID);
-    this.cards.push(cardID);
+  selectCard(cardId: string, coinCost: number, purchaseOptions: PurchaseOptions): ConditionData[] {
+    const card: Card = game.cards[cardId];
+    this.cardTypes[card.CATEGORY.toLowerCase()].push(cardId);
+    this.cards.push(cardId);
     let condData: ConditionData[];
     if (card.VALUE_TYPE === "AND") {
       this.buildAndCard(card);
@@ -461,6 +462,9 @@ export class Player implements PlayerData {
     } else if (card.VALUE_TYPE === "DISCOUNT") {
       this.buildDiscountCard(card);
     }
+    let message: string = `${this.username} built ${card.NAME}`;
+    if (coinCost > 0) message = message + ` for ${coinCost} coins`
+    addToFeed(this.username, 'build', message, {cardId})
     this.coins -= coinCost;
     this.executePurchase(purchaseOptions);
     return condData;
@@ -469,12 +473,15 @@ export class Player implements PlayerData {
   receivePay(cost: number, username: string) {
     this.coins += cost;
     console.log(`Player ${this.username} received ${cost} coins from ${username} and now has ${this.coins} coins`);
+    addToFeed(this.username, 'payment',`${this.username} received ${cost} coins from ${username}`)
   }
 
   discard(card: string) {
     game.gameData.discardPile.push(card);
+    const cardName = game.cards[card].NAME;
     this.coins += 3;
     console.log('coins: ' + this.coins);
+    addToFeed(this.username, 'discard', `${this.username} discarded ${cardName} and received 3 coins`, {cardId: card});
   }
 
   private executePurchase(purchaseOptions: PurchaseOptions) {
@@ -505,12 +512,12 @@ export class Player implements PlayerData {
     let result: ConditionData[] = [];
     resources.forEach((resource: [number, string]) => {
       if (resource[1]==='COIN') {
-        result.push({category: value[0], player: value[1], value: [resource]})
+        result.push({cardId: card.CARD_ID, category: value[0], player: value[1], value: [resource]})
       } else {
         newResources.push(resource);
       }
     })
-    const data: ConditionData = {category: value[0], player: value[1], value: newResources}
+    const data: ConditionData = {cardId: card.CARD_ID, category: value[0], player: value[1], value: newResources}
     this.conditionalResources.push(data);
     return result;
   }
@@ -557,6 +564,12 @@ export class Player implements PlayerData {
     this.addCoins(values.coins);
     this.addPoints(values.points);
     console.log(`Earned ${values.coins} coins and ${values.points} points`);
+    
+    let message: string;
+    if (values.coins > 0 && values.points > 0) message = `${this.username} earned ${values.coins} coins and ${values.points} points`;
+    else if (values.coins > 0) message = `${this.username} earned ${values.coins} coins`;
+    else message = `${this.username} earned ${values.points} points`;
+    addToFeed(this.username, 'condition', message, {cardId: `${conditionData.cardId}`})
   }
   
   private buildOrCard(card: Card) {

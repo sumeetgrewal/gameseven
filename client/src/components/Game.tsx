@@ -16,6 +16,7 @@ interface GameProps {
   playerData: {
     [username: string]: PlayerData
   },
+  gameFeed: any[],
   setGameStatus: (gameStatus: string) => Promise<void>
   setWaiting: (isWaiting: boolean) => Promise<void>
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
@@ -170,7 +171,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
     }
     return (
-      <div className='col-9 hand-container text-center d-flex flex-wrap-reverse justify-content-center align-items-center'>
+      <div className='col-12 col-md-9 hand-container text-center d-flex flex-wrap-reverse justify-content-center align-items-center'>
         {cardArray}
       </div>
     )
@@ -182,7 +183,7 @@ class Game extends React.Component<GameProps, GameState> {
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
-      <div className="col-3 card-info-container text-center d-flex justify-content-center align-items-center">
+      <div className="col-12 col-md-3 card-info-container text-center d-flex justify-content-center align-items-center">
         {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
@@ -272,6 +273,7 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
+  // TODO results animation
   renderResults() {
     const { myData, playerData, username } = this.props
     const results: any = [];
@@ -325,7 +327,7 @@ class Game extends React.Component<GameProps, GameState> {
           {myBoard &&  
             <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} cardCache={this.state.cache.cards} />
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />
           }
           <div className="container d-flex align-items-center justify-content-center">
             <div className='row'>
@@ -342,7 +344,7 @@ class Game extends React.Component<GameProps, GameState> {
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} />          
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={[]} />          
           }</>
         )
       }

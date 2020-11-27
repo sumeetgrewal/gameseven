@@ -50,6 +50,7 @@ export interface BuildOptions {
 }
 
 export interface ConditionData  {
+  cardId: number,
   category: any[],
   player: any[],
   value: any[],

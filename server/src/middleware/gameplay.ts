@@ -1,7 +1,10 @@
 import { pushUpdateToPlayers, shuffle } from "./util";
 import { game, serverData } from '../models/game.model';
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, ResourceList, MilitaryStats } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../models/playerData.model";
+import { handleMilitary } from "./military";
+import { calculatePoints } from "./points";
+import { sendFeedUpdate } from "./gameFeed";
 let conditionsToRedeem: {player: Player, condition: ConditionData[]}[] = [];
 
 // --------------------
@@ -51,58 +54,6 @@ function generateHands(numPlayers: number) {
 }
 
 // --------------------
-// MILITARY 
-// --------------------
-
-function handleMilitary() {
-  const allPlayerData = game.gameData.playerData;
-  const players = Object.entries(allPlayerData);
-  if (players.length >= 3) {
-    players.forEach((player: [string, Player]) => {
-      const leftBattle = militaryConflict(player[1], allPlayerData[player[1].playerLeft]);
-      game.gameData.playerData[player[1].playerLeft] = leftBattle[0];
-      game.gameData.playerData[player[0]] = leftBattle[1];
-    });
-  }
-
-  function militaryConflict(self: Player, opponent: Player): [Player, Player] {
-    if (opponent.shields > self.shields) {
-      self.military.loss += 1;
-      switch (game.metadata.age) {
-        case 1:
-          opponent.military.one += 1;
-          break;
-        case 2:
-          opponent.military.three += 1;
-          break;
-        case 3:
-          opponent.military.five += 1;
-          break;
-        default:
-          break;
-      }
-    }
-    else if (opponent.shields < self.shields) {
-      opponent.military.loss += 1;
-      switch (game.metadata.age) {
-        case 1:
-          self.military.one += 1;
-          break;
-        case 2:
-          self.military.three += 1;
-          break;
-        case 3:
-          self.military.five += 1;
-          break;
-        default:
-          break;
-      }
-    }
-    return [opponent, self];
-  }
-}
-
-// --------------------
 // GAME STATE MANAGEMENT
 // --------------------
 
@@ -124,6 +75,7 @@ function updateTurn() {
     }
     rotateHands(!(game.metadata.age === 2));
     sendTurnUpdate();
+    sendFeedUpdate();
 }
 
 function endGame() {
@@ -137,6 +89,7 @@ function endGame() {
     console.log(player[0] + " " + total)
     game.gameData.playerData[player[0]].score = total;
   })
+  sendFeedUpdate();
   sendPlayerData("", true);
   sendAllPlayerData();
 }
@@ -192,58 +145,10 @@ export function beginAge(): void {
     for (let i = 0; i < playerIDs.length; i++) {
       game.players[playerIDs[i]].handID = i;
     }
+    sendFeedUpdate();
     generateHands(playerIDs.length);
     sendTurnUpdate();
     sendAllPlayerData();
-}
-
-// --------------------
-// POINTS CALCULATION
-// --------------------
-
-export function calculatePoints(player: Player): number {
-  let points = player.points;
-  let coinPoints = Math.floor(player.coins/3)
-  let militaryPoints = calculateMilitaryPoints(player.military)
-
-  let scienceOptions: number = 0;
-  if (player.optionalResources) {
-    player.optionalResources.forEach((valueArray: [number, string][]) => {
-      const resource = valueArray[0][1].toLowerCase();
-      if (resource === 'gear' || resource === 'tablet' || resource === 'compass') {
-        scienceOptions++;
-      }
-    })
-  }
-  let sciencePoints = calculateSciencePoints(player.resources, scienceOptions);
-
-  let total = points + coinPoints + militaryPoints + sciencePoints;
-  return total;
-}
-
-export function calculateMilitaryPoints(military: MilitaryStats): number {
-  const { loss, one, three, five } = military;
-  return -1*(loss) + (one) + 3*(three) + 5*(five);
-}
-
-export function calculateSciencePoints(resources: ResourceList, options: number): number {
-  let sciencePoints = 0;
-  const {gear, tablet, compass} = resources;
-  sciencePoints += (gear*gear + tablet*tablet + compass*compass);
-  sciencePoints += Math.min(gear, tablet, compass)*7;
-
-  const addGear = {... resources, gear: gear + 1}
-  const addTablet = {... resources, tablet: tablet + 1}
-  const addCompass = {... resources, compass: compass + 1}
-  if (options > 0) {
-    sciencePoints = Math.max(
-      calculateSciencePoints(addGear, options-1),
-      calculateSciencePoints(addTablet, options-1),
-      calculateSciencePoints(addCompass, options-1),
-    )
-  }
-
-  return sciencePoints;
 }
 
 // --------------------
@@ -300,38 +205,4 @@ export function handleCardSelect(player: Player, username: string, card: string,
     sendPlayerData(username, true);
     sendAllPlayerData();
   }
-}
-
-// --------------------
-// GAME FEED
-// --------------------
-
-let gameFeed: logItem[] = [];
-
-type logItem = {
-  age: number,
-  turn: number,
-  playerName: string,
-  action: string,
-  cardId?: number,
-  message: string
-}
-
-export function addToFeed(playerName: string, action: string, message: string, age: number = game.metadata.age, turn: number = game.metadata.turn, cardId : number = 0) {
-  let item: logItem = {
-    age,
-    turn,
-    playerName,
-    action, // build
-    cardId,
-    message
-  }
-  gameFeed.push(item);
-}
-
-function sendFeedUpdate() {
-  serverData.clients.forEach((client: any) => {
-    pushUpdateToPlayers(JSON.stringify({gameFeed}), 'feedUpdate', [client]);
-  })
-  gameFeed = [];
 }

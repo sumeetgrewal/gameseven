@@ -21,6 +21,7 @@ interface BoardProps {
     isMyBoard: boolean,
     currentHand: string[],
     cardCache: {[index: string]: Card},
+    gameFeed: any[];
     viewPlayerBoard: (username: string) => void,
 }
 
@@ -143,6 +144,7 @@ export default function PlayerBoard (props: BoardProps) {
         )
     }
 
+    // TODO icons need key
     const renderMilitaryIcons = (stats: MilitaryStats) => {
         let losses: any = []
         let ones: any = []
@@ -242,7 +244,7 @@ export default function PlayerBoard (props: BoardProps) {
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="chains" value="chains" checked={currentView === "chains"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>CHAINS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="feed" value="feed" checked={currentView === "feed"} 
-                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled>FEED</ToggleButton>
+                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>FEED</ToggleButton>
                 </ButtonGroup>
                 {renderInfoPanel()}
             </div>
