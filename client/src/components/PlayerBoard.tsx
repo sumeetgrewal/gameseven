@@ -21,6 +21,7 @@ interface BoardProps {
     isMyBoard: boolean,
     currentHand: string[],
     cardCache: {[index: string]: Card},
+    gameFeed: any[];
     viewPlayerBoard: (username: string) => void,
 }
 
@@ -118,29 +119,30 @@ export default function PlayerBoard (props: BoardProps) {
     }
 
     const renderMilitary = () => {
-        const myStats = props.myData.military;
-        return (
-            <div className="container info-container text-white">
-                <div className="row">
-                    <div className="col-4 d-flex align-items-center flex-column">
-                        {(props.myData.playerLeft) 
-                            && <h3>{props.myData.playerLeft}</h3>}
-                        {(props.myData.playerLeft)
-                            && renderMilitaryIcons(props.playerData[props.myData.playerLeft].military)}
-                    </div>
-                    <div className="col-4 d-flex align-items-center flex-column">
-                        {(props.isMyBoard) ? <h3>ME</h3> : <h3>{props.myData.username}</h3>}
-                        {renderMilitaryIcons(myStats)}
-                    </div>
-                    <div className="col-4 d-flex align-items-center flex-column">
-                        {(props.myData.playerRight) 
-                            && <h3>{props.myData.playerRight}</h3>}
-                        {(props.myData.playerRight) 
-                            && renderMilitaryIcons(props.playerData[props.myData.playerRight].military)}
-                    </div>
+        return (<div className="container info-container text-white">
+            <div className="row military-row">
+                <div className="col-4 military-col">
+                    {(props.myData.playerLeft) && <h5>{props.myData.playerLeft}</h5>}
+                </div>
+                <div className="col-4 military-col">
+                    {(props.isMyBoard) ? <h5>ME</h5> : <h5>{props.myData.username}</h5>}
+                </div>
+                <div className="col-4 military-col">
+                    {(props.myData.playerRight) && <h5>{props.myData.playerRight}</h5>}
                 </div>
             </div>
-        )
+            <div className="row military-row border-0">
+                <div className="col-4 military-col">
+                    {(props.myData.playerLeft) && renderMilitaryIcons(props.playerData[props.myData.playerLeft].military)}
+                </div>
+                <div className="col-4 military-col">
+                    {renderMilitaryIcons(props.myData.military)}
+                </div>
+                <div className="col-4 military-col">
+                    {(props.myData.playerRight) && renderMilitaryIcons(props.playerData[props.myData.playerRight].military)}
+                </div>
+            </div>
+        </div>)
     }
 
     const renderMilitaryIcons = (stats: MilitaryStats) => {
@@ -161,22 +163,78 @@ export default function PlayerBoard (props: BoardProps) {
             fives.push(<img className="military-icon" src={iconImages['fivemilitary.png']} alt="military-icon" key={`five-military-${i}`}/>)
         }
         return [
-            <div>{losses}</div>,
-            <div>{ones}</div>,
-            <div>{threes}</div>,
-            <div>{fives}</div>
+            <div key="losses">{losses}</div>,
+            <div key="ones">{ones}</div>,
+            <div key="threes">{threes}</div>,
+            <div key="fives">{fives}</div>
         ]
     }
-    
-    // TODO GS-53 Game Feed
-    const renderFeed = () => {
+
+    const createFeedItem = (update: any, age: any, turn: any) => {
+        let image: any = <div className="feed-item-image"></div>
+        
+        if (update.action === 'build' || update.action==='condition') {
+            const {cardId} = update.additionalParams;
+            image = <img className={"feed-card"} src={cardImages[cardId + '.png']} alt="card"/>
+        } else if (update.action === 'military') {
+            const icon = (age === 1) ? "onemilitary.png" : (age === 2) ? "threemilitary.png" : "fivemilitary.png";
+            image = <img className={"feed-icon"} src={iconImages[icon]} alt="military-icon"/>
+        } else if (update.action === 'payment') {
+            image = <img className={"feed-coin"} src={iconImages["coin.png"]} alt="coin-icon"/>
+        } else if (update.action === 'stage') {
+            const {stage} = update.additionalParams;
+            const icon = (stage === 1) ? "threepoints.png" : (stage === 2) ? "fivepoints.png" : "sevenpoints.png";
+            image = <img className={"feed-icon"} src={iconImages[icon]} alt="points-icon"/>
+        }
         return (
-            <div className="container info-container text-white">
+            <div className="feed-item" key={`${age}-${turn}-${update.playerName}-${update.action}`}>
+                <div className="feed-item-image">{image}</div>
+                <div className="feed-message">{update.message}</div>
             </div>
         )
     }
     
-    const renderInfoPanel = () => {
+    // TODO GS-53 Game Feed
+    const renderFeed = () => {
+        const {gameFeed} = props;
+        const ageContainer = [];
+        for (let age = props.metadata.age; age >= 1; age--) {
+            const turnContainer = [];
+            for (let turn = 6; turn >= 1; turn--) {
+                const updateContainer: any[] = [];
+                gameFeed[age][turn].forEach((update: any) => {
+                    updateContainer.push(createFeedItem(update, age, turn))
+                })
+                if (updateContainer.length > 0) {
+                    turnContainer.push(<div key={`${age}-${turn}`} className="row feed-turn" tabIndex={0}>
+                        <div className="sticky-wrapper col-12 col-md-2 ml-0 pl-0">
+                            <h5 className="feed-heading">{`TURN ${turn}`}</h5>
+                        </div>
+                        <div className="col-12 col-md-10">
+                            {updateContainer}
+                        </div>
+                    </div>)
+                }
+            }
+            if (turnContainer.length > 0) {
+                ageContainer.push(<div key={`age-${age}`} className="row feed-age">
+                    <div className="sticky-wrapper col-12 col-md-2">
+                        <h5 className="feed-heading">{`AGE ${age}`}</h5>
+                    </div>
+                    <div className="col-12 col-md-10">
+                        {turnContainer}
+                    </div>
+                </div>)
+            }
+        }
+        return (
+            <div className="container info-container text-white feed-container">
+                {ageContainer}
+            </div>
+        )
+    }
+    
+    const handleCurrentView = () => {
         let result: any;
         switch (currentView) {
             case "cards":
@@ -242,9 +300,9 @@ export default function PlayerBoard (props: BoardProps) {
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="chains" value="chains" checked={currentView === "chains"} 
                         onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>CHAINS</ToggleButton>
                     <ToggleButton type="radio" variant="dark" className="view-btn py-2" key="feed" value="feed" checked={currentView === "feed"} 
-                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled>FEED</ToggleButton>
+                        onChange={(e) => setCurrentView(e.currentTarget.value)} disabled={!props.isMyBoard}>FEED</ToggleButton>
                 </ButtonGroup>
-                {renderInfoPanel()}
+                {handleCurrentView()}
             </div>
         </div>
     </>)   

@@ -25,6 +25,7 @@ interface MyState {
   playerData: {
     [username: string]: PlayerData
   },
+  gameFeed: any;
 } 
 
 class App extends React.Component<{}, MyState> {
@@ -70,6 +71,11 @@ class App extends React.Component<{}, MyState> {
         shields : 0,
         points : 0,
         score : -1,
+      },
+      gameFeed: {
+        1: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+        2: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+        3: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
       },
     }
     this.setGameStatus = this.setGameStatus.bind(this);
@@ -144,8 +150,7 @@ class App extends React.Component<{}, MyState> {
       source.addEventListener('playerDataUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
         console.log('playerDataUpdate', parsedData);
-        const myData = parsedData.myData;
-        this.setState({myData}, () => console.log(this.state.myData));
+        this.setState({myData: parsedData.myData}, () => console.log(this.state.myData));
       })
 
       source.addEventListener('allPlayerDataUpdate', (event: any) => {
@@ -154,6 +159,16 @@ class App extends React.Component<{}, MyState> {
         const playerData = parsedData.playerData;
         delete playerData[this.state.username];
         this.setState({playerData});
+      })
+
+      source.addEventListener('feedUpdate', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        const updates = parsedData.gameFeed;
+        const gameFeed = this.state.gameFeed;
+        updates.forEach((update: any) => {
+          gameFeed[update.age][update.turn].push(update);
+        })
+        this.setState({gameFeed}, () => console.log('feedUpdate', this.state.gameFeed));
       })
 
         source.addEventListener('keepalive', (event: any) => {
@@ -198,7 +213,7 @@ class App extends React.Component<{}, MyState> {
   }
 
   renderGameStage() {
-    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening} = this.state;
+    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -232,6 +247,7 @@ class App extends React.Component<{}, MyState> {
         setCurrentHand={this.setCurrentHand}
         myData={myData}
         playerData={playerData}
+        gameFeed={gameFeed}
       />
     )
   }

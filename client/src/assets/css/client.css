@@ -393,6 +393,20 @@ GAME
     padding: 5px;
 }
 
+.military-row {
+    padding: 15px 0;
+    display: flex;
+    align-items:center;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.3);
+    margin: 0 !important;
+}
+
+.military-col {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
 .military-icon {
     height: 55px;
     width: 55px;
@@ -414,15 +428,18 @@ GAME
 }
 
 .card-chain {
-    padding: 20px 0;
+    padding: 15px 0;
     display: flex;
     align-items:center;
-    border-bottom: 1px solid rgba(158, 157, 157, 0.5);
+    border-bottom: 1px solid rgba(158, 157, 157, 0.3);
     margin: 0 !important;
+    scroll-snap-align: start none;
 }
 
 .chain-container {
     overflow: auto;
+    scroll-snap-type: y proximity;
+    scroll-padding: 10px;
 }
 
 @media (max-height:800px) {
@@ -624,4 +641,70 @@ GAME -> AGE TRANSITION
         filter: grayscale(100%);
 		transform: translateY(-50%) translateY(225px);	
 	}
+}
+
+/* =======================
+PLAYERBOARD -> FEED
+======================= */ 
+
+.sticky-wrapper {
+    position: relative;
+    padding: 0;
+}
+
+.feed-heading {
+    position: sticky;
+    top: 0;
+    padding: 15px 0;
+    margin: 0;
+    text-align: center;
+    font-weight: lighter;
+}
+
+.feed-message {
+    padding: 15px;
+    display: inline-block;
+}
+
+.feed-turn {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.3);
+}
+
+.feed-age {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.5);
+}
+
+.feed-container {
+    overflow: auto;
+    scroll-snap-type: y proximity;
+    scroll-padding: 20px;
+}
+
+.feed-item-image {
+    width: 110px;
+    padding: 10px 10px 10px 0;
+    display: inline-block;
+    text-align: center;
+}
+
+.feed-card {
+    width: 100px;
+    height: 42px;
+    margin: 5px 0;
+}
+
+.feed-coin {
+    height: 35px;
+}
+
+.feed-icon {
+    height: 70px;
+}
+.feed-item {
+    width: 100%;
+    scroll-snap-align: start none;
+    display: flex;
+    align-items: center;
 }
