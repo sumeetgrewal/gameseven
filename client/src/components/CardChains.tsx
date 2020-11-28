@@ -54,9 +54,9 @@ export default function CardChains (props: CardChainProps) {
         if (currentHand && currentHand.length > 0) {
             chainArray.push(
                 <div key={"card-chain-headings"} className="row card-chain">
-                        <h3 className={classes + (age===1 ? " font-weight-bold" : "")}>AGE 1</h3>
-                        <h3 className={classes + (age===2 ? " font-weight-bold" : "")}>AGE 2</h3>
-                        <h3 className={classes + (age===3 ? " font-weight-bold" : "")}>AGE 3</h3>
+                        <h5 className={classes + (age===1 ? " font-weight-bold" : "")}>AGE 1</h5>
+                        <h5 className={classes + (age===2 ? " font-weight-bold" : "")}>AGE 2</h5>
+                        <h5 className={classes + (age===3 ? " font-weight-bold" : "")}>AGE 3</h5>
                 </div>
             )
             currentHand.forEach((cardId: string) => {
@@ -85,7 +85,7 @@ export default function CardChains (props: CardChainProps) {
                         return (<img className={"built-card"} src={cardImages[card + '.png']} alt={"card-" + card} key={card + "-chain-three"}/>)
                     }) : [];
                     chainArray.push(
-                        <div key={"card-chain-container-"+cardId} className="row card-chain">
+                        <div key={"card-chain-container-"+cardId} className="row card-chain" tabIndex={0}>
                             <div className={classes}> {age1Cards}</div>
                             <div className={classes}> {age2Cards}</div>
                             <div className={classes}> {age3Cards}</div>

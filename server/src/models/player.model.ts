@@ -481,7 +481,7 @@ export class Player implements PlayerData {
     const cardName = game.cards[card].NAME;
     this.coins += 3;
     console.log('coins: ' + this.coins);
-    addToFeed(this.username, 'discard', `${this.username} discarded ${cardName} and received 3 coins`, {cardId: card});
+    addToFeed(this.username, 'discard', `${this.username} discarded ${cardName} and received 3 coins`);
   }
 
   private executePurchase(purchaseOptions: PurchaseOptions) {

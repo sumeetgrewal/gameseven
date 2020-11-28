@@ -215,7 +215,7 @@ class Game extends React.Component<GameProps, GameState> {
     }
 
     return (
-      <div className='col-3 card-info-container'>
+      <div className='col-12 col-md-3 card-info-container'>
         <Button className="action-btn" variant="outline-light" key={card.CARD_ID+"-discard"} value={card.CARD_ID}
           onClick={() => this.selectCard(cardID, "discard", age, turn)}>
           DISCARD
@@ -243,7 +243,6 @@ class Game extends React.Component<GameProps, GameState> {
     let result: any[] = [];
 
     if (purchaseCost === 0) {
-      // Just select card? Should user be presented with option anyway? 
       result = [(
         <Button variant="outline-warning" className="action-btn" 
           onClick={() => this.selectCard(cardID, action, age, turn)}
@@ -267,7 +266,7 @@ class Game extends React.Component<GameProps, GameState> {
     }
 
     return (
-      <div className='col-3 card-info-container'>
+      <div className='col-12 col-md-3 card-info-container'>
             {result}
       </div>
     )

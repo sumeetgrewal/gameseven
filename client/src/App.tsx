@@ -25,7 +25,7 @@ interface MyState {
   playerData: {
     [username: string]: PlayerData
   },
-  gameFeed: any[];
+  gameFeed: any;
 } 
 
 class App extends React.Component<{}, MyState> {
@@ -72,7 +72,11 @@ class App extends React.Component<{}, MyState> {
         points : 0,
         score : -1,
       },
-      gameFeed: [],
+      gameFeed: {
+        1: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+        2: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+        3: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+      },
     }
     this.setGameStatus = this.setGameStatus.bind(this);
     this.registerSSE = this.registerSSE.bind(this);
@@ -159,9 +163,12 @@ class App extends React.Component<{}, MyState> {
 
       source.addEventListener('feedUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
-        const gameFeed = this.state.gameFeed.concat(parsedData.gameFeed);
-        this.setState({gameFeed});
-        console.log('feedUpdate', this.state.gameFeed);
+        const updates = parsedData.gameFeed;
+        const gameFeed = this.state.gameFeed;
+        updates.forEach((update: any) => {
+          gameFeed[update.age][update.turn].push(update);
+        })
+        this.setState({gameFeed}, () => console.log('feedUpdate', this.state.gameFeed));
       })
 
         source.addEventListener('keepalive', (event: any) => {
