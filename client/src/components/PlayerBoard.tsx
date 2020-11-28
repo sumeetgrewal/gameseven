@@ -32,7 +32,7 @@ export default function PlayerBoard (props: BoardProps) {
 
     useEffect(() => {
         setCurrentView("cards");
-    }, [props]);
+    }, [props.metadata, props.isMyBoard, props.myData]);
 
     const renderMyCards = () => {
         let myCardArray: Array<any> = [];

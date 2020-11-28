@@ -429,7 +429,6 @@ export class Player implements PlayerData {
 
   buildStage(stageOptions: StageOptions, purchase: PurchaseOptions) {
     const data = this.stageData[stageOptions.stage];
-    console.log(`Building stage ${stageOptions.stage}. Will receive ${data.value}`); 
     addToFeed(this.username, 'stage', `${this.username} built stage ${stageOptions.stage}`, {stage: stageOptions.stage});
     data.value.forEach((value: [number, string]) => {
       if (value[1] === 'POINT') {
@@ -472,7 +471,6 @@ export class Player implements PlayerData {
 
   receivePay(cost: number, username: string) {
     this.coins += cost;
-    console.log(`Player ${this.username} received ${cost} coins from ${username} and now has ${this.coins} coins`);
     addToFeed(this.username, 'payment',`${this.username} received ${cost} coins from ${username}`)
   }
 
@@ -480,7 +478,6 @@ export class Player implements PlayerData {
     game.gameData.discardPile.push(card);
     const cardName = game.cards[card].NAME;
     this.coins += 3;
-    console.log('coins: ' + this.coins);
     addToFeed(this.username, 'discard', `${this.username} discarded ${cardName} and received 3 coins`);
   }
 
@@ -523,7 +520,6 @@ export class Player implements PlayerData {
   }
   
   redeemCondition(conditionData: ConditionData) {
-    console.log(conditionData);
     const values = {
       coins: 0,
       points: 0,
@@ -563,7 +559,6 @@ export class Player implements PlayerData {
     })
     this.addCoins(values.coins);
     this.addPoints(values.points);
-    console.log(`Earned ${values.coins} coins and ${values.points} points`);
     
     let message: string;
     if (values.coins > 0 && values.points > 0) message = `${this.username} earned ${values.coins} coins and ${values.points} points`;
@@ -575,11 +570,9 @@ export class Player implements PlayerData {
   private buildOrCard(card: Card) {
     if (card.CATEGORY === 'BROWN' || card.CATEGORY === 'GRAY' || card.CATEGORY === 'PURPLE') {
       this.optionalResources.push(card.VALUE);
-      console.log(this.optionalResources);
     }
     else {
       this.personalResources.push(card.VALUE);
-      console.log(this.personalResources);
     }
   } 
 
