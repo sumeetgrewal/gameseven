@@ -3,6 +3,7 @@ import JoinGame from './components/JoinGame';
 import GameLobby from './components/GameLobby';
 import Game from './components/Game';
 import { CardTypeList, GameMetadata, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
+import Animator from './components/Animator';
 
 interface MyState {
   gameStatus: string,
@@ -11,6 +12,9 @@ interface MyState {
   isListening: boolean,
   isLoading: boolean,
   metadata: GameMetadata,
+  //Animations
+  ageTransition: boolean,
+  militaryAnimation: boolean,
   //Setup Data
   boards: Array<string>,
   assignedBoards: Array<string>,
@@ -43,6 +47,9 @@ class App extends React.Component<{}, MyState> {
         age: 1, 
         turn: 1,
       },
+        //Animations
+      ageTransition: false,
+      militaryAnimation: false,
       // Setup Data
       boards: [],
       assignedBoards: [],
@@ -83,6 +90,8 @@ class App extends React.Component<{}, MyState> {
     this.setWaiting = this.setWaiting.bind(this);
     this.setCurrentHand = this.setCurrentHand.bind(this);
     this.setListening = this.setListening.bind(this);
+    this.setAgeTransition = this.setAgeTransition.bind(this);
+    this.setMilitaryAnimation = this.setMilitaryAnimation.bind(this);
   }
 
   registerSSE() : Promise<void> {
@@ -189,27 +198,27 @@ class App extends React.Component<{}, MyState> {
   }
 
   setGameStatus(gameStatus: string) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({gameStatus}, resolve);
-    })
+    return Promise.resolve(this.setState({gameStatus}))
   }
 
   setListening(isListening: boolean) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({isListening}, resolve)
-    })
+    return Promise.resolve(this.setState({isListening}))
   }
 
   setWaiting(isWaiting: boolean) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({isWaiting}, resolve)
-    })
+    return Promise.resolve(this.setState({isWaiting}))
   }
 
   setCurrentHand(currentHand: string[]) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({currentHand}, resolve)
-    })
+    return Promise.resolve(this.setState({currentHand}))
+  }
+
+  setAgeTransition(ageTransition: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({ageTransition}))
+  }
+
+  setMilitaryAnimation(militaryAnimation: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({militaryAnimation}))
   }
 
   renderGameStage() {
@@ -248,13 +257,25 @@ class App extends React.Component<{}, MyState> {
         myData={myData}
         playerData={playerData}
         gameFeed={gameFeed}
+        setAgeTransition={this.setAgeTransition}
+        setMilitaryAnimation={this.setMilitaryAnimation}
       />
     )
   }
 
   render() {
+    const {metadata, myData, playerData, ageTransition, militaryAnimation} = this.state;
     return (
       <div className="App">
+        <Animator 
+          metadata={metadata}
+          myData={myData}
+          playerData={playerData}
+          ageTransition={ageTransition}
+          militaryAnimation={militaryAnimation}
+          setAgeTransition={this.setAgeTransition}
+          setMilitaryAnimation={this.setMilitaryAnimation}
+        />
         {this.renderGameStage()}
       </div>
     );

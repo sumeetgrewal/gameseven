@@ -56,6 +56,38 @@ beforeAll(() => {
     })
 }, )
 
+
+describe('Smoke Tests', () => {
+
+    test('Game setup', () => {
+        expect(sampleGame.gameData.playerData['A'].coins === 3);
+    })    
+
+    test('A selects a card', () => {
+        A.selectCard('1', 0, emptyPO)
+        expect(A.cards.length).toEqual(1);
+    })
+    
+    test('A selects resource cards', () => {
+        [3, 9, 10].forEach((cardID: number) => A.selectCard(cardID.toString(), 0, emptyPO))
+        expect(A.resources.wood).toEqual(1);
+        expect(A.resources.stone).toEqual(1);
+        expect(A.optionalResources).toEqual([
+            [[1, 'WOOD'], [1, 'CLAY']],
+            [[1, 'STONE'], [1, 'CLAY']]
+        ])
+    })
+    
+    test('B selects cards: [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ]', () => {
+        B.coins = 9;
+        B.stagesBuilt = 2;
+        [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ].map((cardId: number) => {
+            B.selectCard(cardId.toString(), 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0});
+        })
+        expect(calculatePoints.calculatePoints(B)).toEqual(33);
+    })
+})
+
 describe('Purchase Options', () => {
     let left: Player,
         player: Player, 
@@ -269,39 +301,6 @@ describe('Purchase Options', () => {
     })
 
 })
-
-
-describe('Smoke Tests', () => {
-
-    test('Game setup', () => {
-        expect(sampleGame.gameData.playerData['A'].coins === 3);
-    })    
-    
-    test('A selects a card', () => {
-        A.selectCard('1', 0, emptyPO)
-        expect(A.cards.length).toEqual(1);
-    })
-    
-    test('A selects resource cards', () => {
-        [3, 9, 10].forEach((cardID: number) => A.selectCard(cardID.toString(), 0, emptyPO))
-        expect(A.resources.wood).toEqual(1);
-        expect(A.resources.stone).toEqual(1);
-        expect(A.optionalResources).toEqual([
-            [[1, 'WOOD'], [1, 'CLAY']],
-            [[1, 'STONE'], [1, 'CLAY']]
-        ])
-    })
-    
-    test('B selects cards: [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ]', () => {
-        B.coins = 9;
-        B.stagesBuilt = 2;
-        [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ].map((cardId: number) => {
-            B.selectCard(cardId.toString(), 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0});
-        })
-        expect(calculatePoints.calculatePoints(B)).toEqual(33);
-    })
-})
-
 
 describe('Calculate Science', () => {
     let resources: ResourceList

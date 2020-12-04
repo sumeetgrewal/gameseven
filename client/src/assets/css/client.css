@@ -546,7 +546,74 @@ GAME -> PLAYER NAV
 }
 
 /* =======================
-GAME -> AGE TRANSITION
+PLAYERBOARD -> FEED
+======================= */ 
+
+.sticky-wrapper {
+    position: relative;
+    padding: 0;
+}
+
+.feed-heading {
+    position: sticky;
+    top: 0;
+    padding: 15px 0;
+    margin: 0;
+    text-align: center;
+    font-weight: lighter;
+}
+
+.feed-message {
+    padding: 15px;
+    display: inline-block;
+}
+
+.feed-turn {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.3);
+}
+
+.feed-age {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(158, 157, 157, 0.5);
+}
+
+.feed-container {
+    overflow: auto;
+    scroll-snap-type: y proximity;
+    scroll-padding: 20px;
+}
+
+.feed-item-image {
+    width: 110px;
+    padding: 10px 10px 10px 0;
+    display: inline-block;
+    text-align: center;
+}
+
+.feed-card {
+    width: 100px;
+    height: 42px;
+    margin: 5px 0;
+}
+
+.feed-coin {
+    height: 35px;
+}
+
+.feed-icon {
+    height: 70px;
+}
+.feed-item {
+    width: 100%;
+    scroll-snap-align: start none;
+    display: flex;
+    align-items: center;
+}
+
+
+/* =======================
+ANIMATOR -> AGE TRANSITION
 ======================= */ 
 
 .title-card, .age-card, .spacer-card {
@@ -644,73 +711,71 @@ GAME -> AGE TRANSITION
 }
 
 /* =======================
-PLAYERBOARD -> FEED
+ANIMATOR -> MILITARY ANIMATION
 ======================= */ 
 
-.sticky-wrapper {
-    position: relative;
-    padding: 0;
-}
-
-.feed-heading {
-    position: sticky;
-    top: 0;
-    padding: 15px 0;
-    margin: 0;
-    text-align: center;
-    font-weight: lighter;
-}
-
-.feed-message {
-    padding: 15px;
-    display: inline-block;
-}
-
-.feed-turn {
-    margin: 0 !important;
-    border-bottom: 1px solid rgba(158, 157, 157, 0.3);
-}
-
-.feed-age {
-    margin: 0 !important;
-    border-bottom: 1px solid rgba(158, 157, 157, 0.5);
-}
-
-.feed-container {
-    overflow: auto;
-    scroll-snap-type: y proximity;
-    scroll-padding: 20px;
-}
-
-.feed-item-image {
-    width: 110px;
-    padding: 10px 10px 10px 0;
-    display: inline-block;
-    text-align: center;
-}
-
-.feed-card {
-    width: 100px;
-    height: 42px;
-    margin: 5px 0;
-}
-
-.feed-coin {
-    height: 35px;
-}
-
-.feed-icon {
-    height: 70px;
-}
-.feed-item {
-    width: 100%;
-    scroll-snap-align: start none;
+.military-left, .military-right, .military-title, .military-exit {
+    width: 250px; 
+    min-height: 300px;
+    height: 25%;
+    background-color: #1f1e1e;
+    color: white;
     display: flex;
+    justify-content:center;
     align-items: center;
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    z-index: 6;
 }
 
+.military-title {
+    transform: translateY(-50%) translateX(50%);
+    width: 550px;
+    animation: 
+        0.5s linear 0s 1 normal forwards fade-in,
+        0.5s linear 3s 1 reverse forwards fade-in;
+}
 
-/* =======================
-GAME -> MILITARY ANIMATION
-======================= */ 
+.military-left {
+    transform: translateY(-50%) translateX(50%) translateX(150px);
+    animation: 1s cubic-bezier(0.215, 0.610, 0.355, 1) 0s 1 normal forwards move-left; 
+}
 
+.military-right {
+    animation: 1s cubic-bezier(0.215, 0.610, 0.355, 1) 0s 1 normal forwards translate-from-right;
+}
+
+.military-exit {
+    animation: 1s cubic-bezier(0.215, 0.610, 0.355, 1) 0s 1 normal forwards translate-to-left;
+}
+
+.military-fade-out {
+    animation: 0.5s linear 0s 1 reverse forwards fade-in;
+}
+
+@keyframes translate-from-right {
+	0% {
+        transform: translateY(-50%) translateX(50vw) translateX(250px);
+	}
+	100% {
+        transform: translateY(-50%) translateX(50%) translateX(150px);
+	}
+}
+
+@keyframes translate-to-left {
+	0% {
+        transform: translateY(-50%) translateX(50%) translateX(-150px);
+	}
+	100% {
+        transform: translateY(-50%) translateX(-50vw);
+	}
+}
+
+@keyframes move-left {
+	0% {
+	}
+	100% {
+        transform: translateY(-50%) translateX(50%) translateX(-150px);
+	}
+}

@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GameMetadata, iconImages, PlayerData } from './GameAssets';
 
 interface MilitaryAnimationProps {
     metadata: GameMetadata,
-    myData: PlayerData, 
-    playerData: {
-        [username: string]: PlayerData,
-    }
+    militaryData: { [username: string]: PlayerData, }
     setMilitaryAnimation: (active: boolean) => void;
 }
 
-export default function AgeTransition (props: MilitaryAnimationProps) {
-    const [left, setLeft] = useState("");
-    const [right, setRight] = useState("");
-    const [count, setCount] = useState(0);
-    const [update, setUpdate] = useState(true);
-    
+interface MilitaryAnimationState {
+    finished: boolean,
+    left: string,
+    right: string,
+    count: number,
+    exit: any,
+}
+export default class MilitaryAnimation extends React.Component<MilitaryAnimationProps, MilitaryAnimationState> {
+    interval: any;
 
+    constructor(props: MilitaryAnimationProps) {
+        super(props);
+
+        this.state = {
+            finished: false,
+            left: this.props.metadata.playerOrder[0],
+            right: this.props.metadata.playerOrder[1],
+            count: 0,
+            exit: 0,
+        }
+
+        this.updateAnimation = this.updateAnimation.bind(this);
+    }
+    
     /*
     PLAYERORDER = [P0, ME, P2, P3];
     COUNT = 0; LEFT = P0; RIGHT = ME;
@@ -24,68 +38,60 @@ export default function AgeTransition (props: MilitaryAnimationProps) {
     COUNT = 2; LEFT = P2; RIGHT = P3;
     COUNT = 3; LEFT = P3; RIGHT = "";
     UNMOUNT */
-    const updateAnimation = () => {
-        const playerOrder = props.metadata.playerOrder;
-        if (count < playerOrder.length) {
-            setCount(count + 1);
-            if (left === "") {
-                setLeft(playerOrder[0]);
-                setRight(playerOrder[1]);
-            } else {    
-                let nextRight: string | undefined;
-                if (right === props.myData.username) {
-                    nextRight = props.myData.playerRight;
-                } else if (props.playerData[right]) {
-                    nextRight = props.playerData[right].playerRight;
-                }
-                setLeft(right);
-                setRight((nextRight) ? nextRight: "");
+
+    componentDidMount() {
+        this.interval = setInterval(() => this.updateAnimation(), 3000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+    
+    endAnimation() {
+        this.setState({finished: true}, () => {
+            setTimeout(() => this.props.setMilitaryAnimation(false), 500);
+        })
+    }
+
+    updateAnimation () {
+        const {count, left, right} = this.state;
+        const playerOrder = this.props.metadata.playerOrder; 
+
+        if (count === 0) {
+            this.setState({count: count + 1})   
+        } else if (count > playerOrder.length - 1) {
+            this.endAnimation()
+        } else {
+            let nextRight: string | undefined;
+            if (this.props.militaryData[right]) {
+                nextRight = this.props.militaryData[right].playerRight;
             }
-        } else {
-            setUpdate(false);
-            props.setMilitaryAnimation(false);
+            (!nextRight) ? this.endAnimation() : this.setState({
+                exit: left,
+                left: right,
+                right: nextRight,
+                count: count + 1,
+            })
         }
     }
 
-    const triggerUpdate = () => {
-        if (update) {
-            updateAnimation;
-            setTimeout(triggerUpdate, 4000);
-        }
-    }
-    setTimeout(() => { triggerUpdate }, 0)
+    render() { 
+        const {count, finished, left, right, exit} = this.state;
 
-    const renderLeftPlayer = () => {
-        if (left === props.myData.username) {
-
-        } else {
-
-        }
         return (
-            <div className="military-left">
-
+        <div className={`military-animation ${(finished) ? 'military-fade-out' : ''}`}>
+            <div  key={`military-title`} className="military-title">
+                <h3 className="military-card-title">MILITARY CONFLICT</h3>
             </div>
-        )
-    }
-
-    const renderRightPlayer = () => {
-        if (right === props.myData.username) {
-
-        } else {
-            
-        }
-        return (
-            <div className="military-right">
-
-            </div>
-        )
-    }
-
-    return (
-        <div className="military-animation">
-            {renderLeftPlayer}
-            {renderRightPlayer}
+            {(count > 0) && Object.entries({left, right, exit}).map((value: [string, string]) => {
+                const player = this.props.militaryData[value[1]];
+                return (player && 
+                    <div key={`${player.username}-${value[0]}-military`} className={`military-${value[0]}`}>
+                        <h5 className="military-card-title">{(player ? player.username: "")}</h5>
+                    </div>)
+                })
+            }
         </div>
-    )
-
+        )
+    }
 }

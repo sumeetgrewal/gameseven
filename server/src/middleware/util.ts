@@ -80,34 +80,25 @@ export function resetToLobby() {
 }
 
 function loadTable(tableName: string, id: string, params: {} = {}): Promise<void> {
-  return new Promise((resolve) => {
-    dbScan.tableScan(tableName, id, params)
-    .then((response: any) => {
-      game[tableName.toLowerCase()] = response;
-      resolve()
-    })
+  const tableScan = Promise.resolve(dbScan.tableScan(tableName, id, params));
+  return Promise.resolve(tableScan).then((response) => { 
+    game[tableName.toLowerCase()] = response;
   })
 }
 
 export function prepareGameAssets(playerCount: number): Promise<void> {
   return new Promise((resolve) => {
-    let numPlayers: string = (playerCount <= 3) ? '3' : playerCount.toString()
+    const numPlayers: string = (playerCount <= 3) ? '3' : playerCount.toString()
     const cardFilter = {
       FilterExpression: "#np <= :np",
-      ExpressionAttributeNames: {
-        "#np": "NUM_PLAYERS"
-      },
-      ExpressionAttributeValues: {
-        ":np": { N: numPlayers },
-      }
+      ExpressionAttributeNames: { "#np": "NUM_PLAYERS" },
+      ExpressionAttributeValues: { ":np": { N: numPlayers }}
     };
-    loadTable('BOARDS', 'BOARD_ID')
-      .then(() => {
-        loadTable('CARDS', 'CARD_ID', cardFilter)
-          .then(() => {
-            gameAssetsReady = true;
-            resolve();
-          });
-      });
+    const boards = Promise.resolve(loadTable('BOARDS', 'BOARD_ID'));
+    const cards = Promise.resolve(loadTable('CARDS', 'CARD_ID', cardFilter));
+    Promise.all([boards, cards]).then(() => {
+      gameAssetsReady = true;
+      resolve();
+    })
   })
 }

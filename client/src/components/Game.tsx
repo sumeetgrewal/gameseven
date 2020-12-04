@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard';
 import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, StageOptions, GameMetadata } from './GameAssets';
-import AgeTransition from './AgeTransition';
 import Button from 'react-bootstrap/esm/Button';
 
 interface GameProps {
@@ -20,6 +19,8 @@ interface GameProps {
   setGameStatus: (gameStatus: string) => Promise<void>
   setWaiting: (isWaiting: boolean) => Promise<void>
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
+  setAgeTransition: (ageTransition: boolean) => Promise<void>
+  setMilitaryAnimation: (militaryAnimation: boolean) => Promise<void>
 }
 
 interface GameState {
@@ -28,7 +29,6 @@ interface GameState {
     cards: {[index: string]: Card},
   },
   error: string,
-  ageTransition: boolean,
   isLoaded: boolean,
   selectedCard: string,
   viewPurchaseOptions: string; // "build" or "stage"
@@ -45,7 +45,6 @@ class Game extends React.Component<GameProps, GameState> {
         cards: {}
       },
       error: "", 
-      ageTransition: false,
       isLoaded: false,
       selectedCard: "",
       viewPurchaseOptions: "",
@@ -76,8 +75,8 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   startNewAge(): void {
-    this.setState({ageTransition: true});
-    setTimeout(() => this.setState({ageTransition: false}), 4000);
+    this.props.setMilitaryAnimation(true);
+    this.props.setAgeTransition(true);
   }
 
   cacheData(): Promise<void> {
@@ -320,9 +319,6 @@ class Game extends React.Component<GameProps, GameState> {
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
         return (<>
-          {(this.state.ageTransition) &&
-            <AgeTransition age={this.props.metadata.age} />
-          }
           {myBoard &&  
             <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
