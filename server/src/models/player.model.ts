@@ -476,9 +476,8 @@ export class Player implements PlayerData {
 
   discard(card: string) {
     game.gameData.discardPile.push(card);
-    const cardName = game.cards[card].NAME;
     this.coins += 3;
-    addToFeed(this.username, 'discard', `${this.username} discarded ${cardName} and received 3 coins`);
+    addToFeed(this.username, 'discard', `${this.username} discarded a card and received 3 coins`);
   }
 
   private executePurchase(purchaseOptions: PurchaseOptions) {
