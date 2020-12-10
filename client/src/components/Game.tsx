@@ -339,7 +339,7 @@ class Game extends React.Component<GameProps, GameState> {
           {(viewBoard) && 
             <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={[]} />          
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />          
           }</>
         )
       }

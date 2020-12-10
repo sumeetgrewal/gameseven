@@ -202,9 +202,11 @@ export default function PlayerBoard (props: BoardProps) {
             const turnContainer = [];
             for (let turn = 6; turn >= 1; turn--) {
                 const updateContainer: any[] = [];
-                gameFeed[age][turn].forEach((update: any) => {
-                    updateContainer.push(createFeedItem(update, age, turn))
-                })
+                if (gameFeed[age][turn]) {
+                    gameFeed[age][turn].forEach((update: any) => {
+                        updateContainer.push(createFeedItem(update, age, turn))
+                    })
+                }
                 if (updateContainer.length > 0) {
                     turnContainer.push(<div key={`${age}-${turn}`} className="row feed-turn" tabIndex={0}>
                         <div className="sticky-wrapper col-12 col-md-2 ml-0 pl-0">
