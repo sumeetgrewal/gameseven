@@ -16,11 +16,12 @@ interface GameProps {
     [username: string]: PlayerData
   },
   gameFeed: any[],
+  gameResults: boolean,
+  militaryAnimation: number,
   setGameStatus: (gameStatus: string) => Promise<void>
   setWaiting: (isWaiting: boolean) => Promise<void>
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
   setAgeTransition: (ageTransition: boolean) => Promise<void>
-  setMilitaryAnimation: (militaryAnimation: boolean) => Promise<void>
 }
 
 interface GameState {
@@ -75,7 +76,6 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   startNewAge(): void {
-    this.props.setMilitaryAnimation(true);
     this.props.setAgeTransition(true);
   }
 
@@ -298,7 +298,7 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   renderInfo() {
-    if (this.props.myData.score >= 0) {
+    if (this.props.gameResults && (this.props.militaryAnimation === 0)) {
       return this.renderResults()
     } else if (this.props.isWaiting) {
       return (<div className='col-12 hand-container justify-content-center align-items-center'>

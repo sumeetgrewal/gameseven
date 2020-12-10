@@ -14,7 +14,8 @@ interface MyState {
   metadata: GameMetadata,
   //Animations
   ageTransition: boolean,
-  militaryAnimation: boolean,
+  militaryAnimation: number,
+  gameResults: boolean,
   //Setup Data
   boards: Array<string>,
   assignedBoards: Array<string>,
@@ -49,7 +50,8 @@ class App extends React.Component<{}, MyState> {
       },
         //Animations
       ageTransition: false,
-      militaryAnimation: false,
+      militaryAnimation: 0,
+      gameResults: false,
       // Setup Data
       boards: [],
       assignedBoards: [],
@@ -147,6 +149,9 @@ class App extends React.Component<{}, MyState> {
           const parsedData = JSON.parse(event.data);
           console.log('new hand', parsedData);
           const {metadata, hand, handInfo, stageInfo} = parsedData;
+          if (this.state.metadata.turn === 6) {
+            this.setMilitaryAnimation(this.state.metadata.age)
+          }
           this.setState({
             metadata,
             currentHand: hand,
@@ -180,16 +185,22 @@ class App extends React.Component<{}, MyState> {
         this.setState({gameFeed}, () => console.log('feedUpdate', this.state.gameFeed));
       })
 
-        source.addEventListener('keepalive', (event: any) => {
-          console.log(event.data);
-        })
-        
-        source.addEventListener('error', (error: any) => {
-          console.log(error);
-          this.setState({isListening: true})
-        });
+      source.addEventListener('gameResults', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('gameResults', parsedData);
+        this.setState({militaryAnimation: 3, gameResults: true})
+      })
 
-        this.setState({isListening: true}, resolve);
+      source.addEventListener('keepalive', (event: any) => {
+        console.log(event.data);
+      })
+      
+      source.addEventListener('error', (error: any) => {
+        console.log(error);
+        this.setState({isListening: true})
+      });
+
+      this.setState({isListening: true}, resolve);
 
       } else {
         resolve()
@@ -217,12 +228,12 @@ class App extends React.Component<{}, MyState> {
     return Promise.resolve(this.setState({ageTransition}))
   }
 
-  setMilitaryAnimation(militaryAnimation: boolean) : Promise<void> {
+  setMilitaryAnimation(militaryAnimation: number) : Promise<void> {
     return Promise.resolve(this.setState({militaryAnimation}))
   }
 
   renderGameStage() {
-    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed} = this.state;
+    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed, gameResults, militaryAnimation} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -257,14 +268,15 @@ class App extends React.Component<{}, MyState> {
         myData={myData}
         playerData={playerData}
         gameFeed={gameFeed}
+        gameResults={gameResults}
+        militaryAnimation={militaryAnimation}
         setAgeTransition={this.setAgeTransition}
-        setMilitaryAnimation={this.setMilitaryAnimation}
       />
     )
   }
 
   render() {
-    const {metadata, myData, playerData, ageTransition, militaryAnimation} = this.state;
+    const {metadata, myData, playerData, ageTransition, militaryAnimation, gameResults} = this.state;
     return (
       <div className="App">
         <Animator 
@@ -273,6 +285,7 @@ class App extends React.Component<{}, MyState> {
           playerData={playerData}
           ageTransition={ageTransition}
           militaryAnimation={militaryAnimation}
+          gameResults={gameResults}
           setAgeTransition={this.setAgeTransition}
           setMilitaryAnimation={this.setMilitaryAnimation}
         />

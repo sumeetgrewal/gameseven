@@ -60,22 +60,22 @@ function generateHands(numPlayers: number) {
 function updateTurn() {
   if (game.metadata.turn === 6) {
     handleMilitary()
-      if (game.metadata.age === 3) {
-        return endGame()
-      }
-      else {
-        game.metadata.age++;
-        game.metadata.turn = 1;
-        console.log(game.gameData.playerData);
-        return beginAge();
-      }
+    if (game.metadata.age === 3) {
+      return endGame()
     }
     else {
-      game.metadata.turn++;
+      game.metadata.age++;
+      game.metadata.turn = 1;
+      console.log(game.gameData.playerData);
+      return beginAge();
     }
-    rotateHands(!(game.metadata.age === 2));
-    sendTurnUpdate();
-    sendFeedUpdate();
+  }
+  else {
+    game.metadata.turn++;
+  }
+  rotateHands(!(game.metadata.age === 2));
+  sendTurnUpdate();
+  sendFeedUpdate();
 }
 
 function endGame() {
@@ -89,6 +89,7 @@ function endGame() {
     console.log(player[0] + " " + total)
     game.gameData.playerData[player[0]].score = total;
   })
+  sendGameResults();
   sendFeedUpdate();
   sendPlayerData("", true);
   sendAllPlayerData();
@@ -138,6 +139,10 @@ export function sendPlayerData(username: string, sendToAll: boolean): void {
       pushUpdateToPlayers(JSON.stringify({ myData: game.gameData.playerData[client.id] }), 'playerDataUpdate', [client]);
     }
   });
+}
+
+export function sendGameResults(): void {
+    pushUpdateToPlayers(JSON.stringify({}), 'gameResults', serverData.clients);
 }
 
 export function beginAge(): void {

@@ -3,9 +3,10 @@ import FlipCard from './FlipCard';
 import { GameMetadata, iconImages, PlayerData } from './GameAssets';
 
 interface MilitaryAnimationProps {
+    age: number,
     metadata: GameMetadata,
     militaryData: { [username: string]: PlayerData, }
-    setMilitaryAnimation: (active: boolean) => void;
+    setMilitaryAnimation: (age: number) => void;
 }
 
 interface MilitaryAnimationState {
@@ -63,7 +64,7 @@ export default class MilitaryAnimation extends React.Component<MilitaryAnimation
     
     endAnimation() {
         this.setState({finished: true}, () => {
-            setTimeout(() => this.props.setMilitaryAnimation(false), 500);
+            setTimeout(() => this.props.setMilitaryAnimation(0), 500);
         })
     }
 
@@ -94,8 +95,8 @@ export default class MilitaryAnimation extends React.Component<MilitaryAnimation
     updateResults() {
         const rightPlayer = this.props.militaryData[this.state.right],
             leftPlayer = this.props.militaryData[this.state.left]
-        const right = (rightPlayer) ? rightPlayer.shields : 0,
-            left = (leftPlayer) ? rightPlayer.shields : 0;
+        const right = (typeof rightPlayer === "undefined") ? 0 : rightPlayer.shields,
+            left = (typeof leftPlayer === "undefined") ? 0 : leftPlayer.shields;
         let rightResult: string, leftResult: string;
 
         if (right === left) {
@@ -113,7 +114,7 @@ export default class MilitaryAnimation extends React.Component<MilitaryAnimation
     }
 
     renderCardContent(player: PlayerData, position: string) {
-        const { age } = this.props.metadata;
+        const { age } = this.props;
         const result: string = (position === 'left') ? this.state.leftResult
             : (position==='right') ? this.state.rightResult
             : (position==='exit') ? this.state.exitResult
@@ -126,8 +127,10 @@ export default class MilitaryAnimation extends React.Component<MilitaryAnimation
 
         const frontChildren = (
             <div className="military-flip-content" key="content">
-                {player.shields} 
-                <img className="flip-card-icon-small" src={iconImages['shield.png']} alt="shield-icon"/>
+                <h3> 
+                    {player.shields} 
+                    <img className="flip-card-icon-small" src={iconImages['shield.png']} alt="shield-icon"/>
+                </h3>
             </div>
         )
         const backChildren = (
@@ -170,7 +173,7 @@ export default class MilitaryAnimation extends React.Component<MilitaryAnimation
         return (
         <div className={`military-animation ${(finished) && 'military-fade-out'}`}>
             <div  key={`military-title`} className="military-title">
-                <h3 className="military-card-title">{`AGE ${this.props.metadata.age} MILITARY CONFLICT`}</h3>
+                <h3 className="military-card-title">{`AGE ${this.props.age} MILITARY CONFLICT`}</h3>
             </div>
             { (count > 0) && this.renderPlayerCards() }
         </div>

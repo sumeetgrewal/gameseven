@@ -10,28 +10,31 @@ interface AnimatorProps {
         [username: string]: PlayerData,
     }
     ageTransition: boolean,
-    militaryAnimation: boolean,
+    militaryAnimation: number,
+    gameResults: boolean,
     setAgeTransition: (ageTransition: boolean) => Promise<void>
-    setMilitaryAnimation: (active: boolean) => void;
+    setMilitaryAnimation: (age: number) => void;
 }
 
 export default function Animator (props: AnimatorProps) {  
     
     const handleAnimations = () => {
-        if (props.militaryAnimation /*&& (props.metadata.playerOrder.length > 2)*/) {
+        if (props.militaryAnimation > 0 && (props.metadata.playerOrder.length > 2)) {
             let militaryData = {...props.playerData};
             militaryData[props.myData.username] = props.myData;
             return (
                 <MilitaryAnimation 
+                    age={props.militaryAnimation}
                     metadata={props.metadata} 
                     militaryData={militaryData}
                     setMilitaryAnimation={props.setMilitaryAnimation}
                 />
             )
-        } 
-        else if (props.ageTransition) {
+        } else if (props.ageTransition) {
             setTimeout(() => props.setAgeTransition(false), 4000);
             return (<AgeTransition age={props.metadata.age} />);
+        } else if (props.gameResults) {
+            // Render Game Results
         }
     }
 
