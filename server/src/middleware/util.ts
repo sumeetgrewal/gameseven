@@ -43,6 +43,7 @@ export function cleanupGame() {
     playerData: {},
     discardPile: []
   }
+  game.gameFeed = [];
   if (serverData.gameCountdown) {
     clearTimeout(serverData.gameCountdown);
   }
@@ -73,6 +74,8 @@ export function resetToLobby() {
     playerData: {},
     discardPile: []
   }
+  game.gameFeed = [];
+
   if (serverData.gameCountdown) {
     clearTimeout(serverData.gameCountdown);
   }

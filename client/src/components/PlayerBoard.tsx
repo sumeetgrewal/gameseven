@@ -260,7 +260,7 @@ export default function PlayerBoard (props: BoardProps) {
         }
         return (<div className='col-12 p-0'>{result}</div>);
     }
-    
+
     return (<>
         <div 
             className="my-board m-0 full-height" 

@@ -22,6 +22,7 @@ interface GameProps {
   setWaiting: (isWaiting: boolean) => Promise<void>
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
   setAgeTransition: (ageTransition: boolean) => Promise<void>
+  setGameResults: (gameResults: boolean) => Promise<void>
 }
 
 interface GameState {
@@ -73,6 +74,10 @@ class Game extends React.Component<GameProps, GameState> {
     if (oldProps.metadata.age !== this.props.metadata.age) {
       this.startNewAge()
     }
+  }
+
+  componentWillUnmount() {
+    this.props.setGameResults(false);
   }
 
   startNewAge(): void {

@@ -161,4 +161,19 @@ export interface gameModel {
     };
     discardPile: string[],
   };
+  gameFeed: feedItem[]
 }
+
+
+export type feedItem = {
+  playerName: string;
+  age: number;
+  turn: number;
+  action: string; // build / discard / stage / condition / payment / military
+  message: string;
+  additionalParams: {
+    cardId?: string;
+    opponent?: string;
+    stage?: number;
+  };
+};

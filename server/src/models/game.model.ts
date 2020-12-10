@@ -25,7 +25,8 @@ export let game: gameModel = {
       // username : Player
     },
     discardPile: [],
-  }
+  },
+  gameFeed: []
 }
 
 export let serverData: any = {

@@ -87,6 +87,7 @@ class App extends React.Component<{}, MyState> {
         3: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
       },
     }
+    this.setGameResults = this.setGameResults.bind(this);
     this.setGameStatus = this.setGameStatus.bind(this);
     this.registerSSE = this.registerSSE.bind(this);
     this.setWaiting = this.setWaiting.bind(this);
@@ -139,10 +140,8 @@ class App extends React.Component<{}, MyState> {
         source.addEventListener('gameUpdate', (event: any) => {
           const parsedData = JSON.parse(event.data);
           console.log('gameUpdate', parsedData);
-          this.setState({
-            players: parsedData.players, 
-            gameStatus: parsedData.metadata.gameStatus,
-          })
+          const { players, gameStatus } = parsedData;
+          this.setState({ players, gameStatus})
         })
 
         source.addEventListener('turnUpdate', (event: any) =>  {
@@ -232,6 +231,10 @@ class App extends React.Component<{}, MyState> {
     return Promise.resolve(this.setState({militaryAnimation}))
   }
 
+  setGameResults(gameResults: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({gameResults}))
+  }
+
   renderGameStage() {
     const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed, gameResults, militaryAnimation} = this.state;
     if (gameStatus === "join") return (
@@ -271,6 +274,7 @@ class App extends React.Component<{}, MyState> {
         gameResults={gameResults}
         militaryAnimation={militaryAnimation}
         setAgeTransition={this.setAgeTransition}
+        setGameResults={this.setGameResults}
       />
     )
   }
