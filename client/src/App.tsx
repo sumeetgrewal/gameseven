@@ -148,7 +148,7 @@ class App extends React.Component<{}, MyState> {
           const parsedData = JSON.parse(event.data);
           console.log('new hand', parsedData);
           const {metadata, hand, handInfo, stageInfo} = parsedData;
-          if (this.state.metadata.turn === 6) {
+          if (this.state.metadata.turn === 6 && this.state.playerOrder.length > 2) {
             this.setMilitaryAnimation(this.state.metadata.age)
           }
           this.setState({
