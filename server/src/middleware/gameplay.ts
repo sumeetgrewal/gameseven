@@ -5,7 +5,9 @@ import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../m
 import { handleMilitary } from "./military";
 import { calculatePoints } from "./points";
 import { sendFeedUpdate } from "./gameFeed";
+import { Validator } from"../models/validator.model"
 let conditionsToRedeem: {player: Player, condition: ConditionData[]}[] = [];
+const validator = new Validator();
 
 // --------------------
 // CARD MANAGEMENT
@@ -103,7 +105,7 @@ function sendTurnUpdate() {
     if (hand) {
       const handInfo: any = {};
       hand.forEach((cardID: any) => {
-        const buildOptions: BuildOptions = player.canBuild(cardID);
+        const buildOptions: BuildOptions = validator.canBuild(cardID, player);
         handInfo[cardID] = buildOptions;
       });
       let stageInfo: StageOptions;
@@ -120,7 +122,7 @@ function sendTurnUpdate() {
           stage: player.stagesBuilt + 1,
           cost: player.stageData[player.stagesBuilt + 1].cost,
           value: player.stageData[player.stagesBuilt + 1].value,
-          options: player.canStage(),
+          options: validator.canStage(player),
         };
       game.players[client.id].handInfo = handInfo;
       game.players[client.id].stageInfo = stageInfo;

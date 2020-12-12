@@ -1,5 +1,5 @@
 import React from 'react';
-import { iconImages} from './GameAssets';
+import { iconImages} from '../GameAssets';
 
 interface AgeTransitionProps {
     age: number

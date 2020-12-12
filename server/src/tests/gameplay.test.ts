@@ -4,6 +4,7 @@ import { game } from '../models/game.model'
 import { gameModel, ResourceList, PurchaseOptions } from '../models/playerData.model';
 import { cleanupGame, prepareGameAssets } from '../middleware/util';
 import { Player } from '../models/player.model';
+import { Validator } from '../models/validator.model';
 
 let A = new Player('A');
 let B = new Player('B');
@@ -13,46 +14,44 @@ let E = new Player('E');
 let F = new Player('F');
 let G = new Player('G');
 
+let validator = new Validator();
+
 let sampleGame: gameModel = game;
 const emptyPO: PurchaseOptions = {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0}
 
 beforeAll(() => {
-    return new Promise((resolve) => {
-        cleanupGame();
-        prepareGameAssets(7)
-        .then(() => {
-            sampleGame.metadata = {
-                gameStatus: 'game',
-                playerOrder: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-                age: 3,
-                turn: 1,
-            }
-            sampleGame.players = {
-                'A': {},
-                'B': {},
-                'C': {},
-                'D': {},
-                'E': {},
-                'F': {},
-                'G': {},
-            }
-            sampleGame.selections = {}
-            sampleGame.boards = game.boards;
-            sampleGame.cards = game.cards;
-            sampleGame.gameData = {
-                playerData: {
-                    'A': A,
-                    'B': B,
-                    'C': C,
-                    'D': D,
-                    'E': E,
-                    'F': F,
-                    'G': G,
-                },
-                discardPile: []
-            }
-            resolve();
-        })
+    cleanupGame();
+    return Promise.resolve(prepareGameAssets(7)).then(() => {
+        sampleGame.metadata = {
+            gameStatus: 'game',
+            playerOrder: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            age: 3,
+            turn: 1,
+        }
+        sampleGame.players = {
+            'A': {},
+            'B': {},
+            'C': {},
+            'D': {},
+            'E': {},
+            'F': {},
+            'G': {},
+        }
+        sampleGame.selections = {}
+        sampleGame.boards = game.boards;
+        sampleGame.cards = game.cards;
+        sampleGame.gameData = {
+            playerData: {
+                'A': A,
+                'B': B,
+                'C': C,
+                'D': D,
+                'E': E,
+                'F': F,
+                'G': G,
+            },
+            discardPile: []
+        }
     })
 }, )
 
@@ -116,7 +115,7 @@ describe('Purchase Options', () => {
         right.resources = new ResourceList(1);
 
         // ResourceCost = 1 Wood and 1 Papyrus
-        const result = player.canBuild('97');
+        const result = validator.canBuild('97', player);
 
         expect(result.purchaseOptions.length).toEqual(3);
         expect(result.purchaseOptions).toEqual( 
@@ -154,7 +153,7 @@ describe('Purchase Options', () => {
         left.resources.stone = 3;
         
         // ResourceCost = 3 Stone
-        const result = player.canBuild('82')
+        const result = validator.canBuild('82', player)
         
         expect(result.purchaseOptions.length).toEqual(2);
         expect(result.purchaseOptions).toEqual( 
@@ -189,7 +188,7 @@ describe('Purchase Options', () => {
         left.resources.stone = 3;
 
         // ResourceCost = 3 Stone
-        const result = player.canBuild('82')
+        const result = validator.canBuild('82', player)
         
         expect(result.purchaseOptions.length).toEqual(1);
         expect(result.purchaseOptions).toEqual( 
@@ -214,7 +213,7 @@ describe('Purchase Options', () => {
         left.resources.papyrus = 0;
 
         // ResourceCost = 1 Wood, 1 Papyrus, 1 Loom
-        const result = player.canBuild('137');
+        const result = validator.canBuild('137', player);
 
         expect(result.purchaseOptions.length).toEqual(1);
         expect(result.purchaseOptions).toEqual( 
@@ -241,7 +240,7 @@ describe('Purchase Options', () => {
         left.selectCard('52', 0, emptyPO);
 
         // ResourceCost = 3 Stone
-        const result = player.canBuild('82')
+        const result = validator.canBuild('82', player)
 
         expect(result.purchaseOptions.length).toEqual(1);
         expect(result.purchaseOptions).toEqual( 
@@ -277,7 +276,7 @@ describe('Purchase Options', () => {
         player.selectCard('75', 0, emptyPO);
 
         // ResourceCost = 1 of everything (PALACE)
-        const result = player.canBuild('106')
+        const result = validator.canBuild('106', player)
         console.log(result);
         console.log(result.purchaseOptions[0].purchaseLeft)
         console.log(result.purchaseOptions[0].purchaseRight)

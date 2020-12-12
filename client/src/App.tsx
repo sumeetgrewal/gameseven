@@ -3,7 +3,7 @@ import JoinGame from './components/JoinGame';
 import GameLobby from './components/GameLobby';
 import Game from './components/Game';
 import { CardTypeList, GameMetadata, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
-import Animator from './components/Animator';
+import Animator from './components/Animator/Animator';
 
 interface MyState {
   gameStatus: string,

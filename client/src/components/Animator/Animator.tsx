@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameMetadata, PlayerData } from './GameAssets';
+import { GameMetadata, PlayerData } from '../GameAssets';
 import AgeTransition from './AgeTransition';
 import MilitaryAnimation from './MilitaryAnimation';
 

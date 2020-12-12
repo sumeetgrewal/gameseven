@@ -1,6 +1,6 @@
 import React from 'react';
-import FlipCard from './FlipCard';
-import { GameMetadata, iconImages, PlayerData } from './GameAssets';
+import FlipCard from '../FlipCard';
+import { GameMetadata, iconImages, PlayerData } from '../GameAssets';
 
 interface MilitaryAnimationProps {
     age: number,
