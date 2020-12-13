@@ -1,5 +1,5 @@
-import { cleanupGame, pushUpdateToPlayers, resetToLobby } from '../middleware/util';
-import { game, serverData } from '../models/game.model';
+import { cleanupGame, resetToLobby } from '../middleware/gameplay';
+import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 
 let JWTHandlers = require('../middleware/jwt.authorization');
 const router = require('express').Router(); 

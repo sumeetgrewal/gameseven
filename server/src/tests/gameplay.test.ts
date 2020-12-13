@@ -1,8 +1,8 @@
-import * as gp from '../middleware/gameplay'
 import * as calculatePoints from "../middleware/points";
 import { game } from '../models/game.model'
 import { gameModel, ResourceList, PurchaseOptions } from '../models/playerData.model';
-import { cleanupGame, prepareGameAssets } from '../middleware/util';
+import { cleanupGame } from '../middleware/gameplay';
+import { prepareGameAssets } from "../middleware/data";
 import { Player } from '../models/player.model';
 import { Validator } from '../models/validator.model';
 
@@ -277,12 +277,8 @@ describe('Purchase Options', () => {
 
         // ResourceCost = 1 of everything (PALACE)
         const result = validator.canBuild('106', player)
-        console.log(result);
-        console.log(result.purchaseOptions[0].purchaseLeft)
-        console.log(result.purchaseOptions[0].purchaseRight)
-
+        
         expect(result.purchaseOptions.length).toEqual(1);
-
         expect(result.purchaseOptions).toEqual( 
             expect.arrayContaining([      
                 expect.objectContaining({  

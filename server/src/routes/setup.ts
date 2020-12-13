@@ -1,6 +1,6 @@
-import { beginAge, sendPlayerData } from "../middleware/gameplay";
-import { pushUpdateToPlayers, shuffle, prepareGameAssets, gameAssetsReady } from "../middleware/util";
-import { game, serverData } from '../models/game.model'
+import { beginAge, sendPlayerData, shuffle } from "../middleware/gameplay";
+import { prepareGameAssets } from "../middleware/data";
+import { game, serverData, pushUpdateToPlayers } from '../models/game.model'
 import { Player } from '../models/player.model'
 
 
@@ -46,8 +46,6 @@ function startGame(){
 
 function assignBoards(): string[] {
   let assignedBoards: string[] = [];
-  while (!gameAssetsReady) {
-  }
   const boardIndices = shuffle(Array.from(Array(7).keys()))
   for (let i = 0; i < 7; i++) {
     let index: string = (boardIndices[i] + 1).toString();

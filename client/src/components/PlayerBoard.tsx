@@ -193,8 +193,7 @@ export default function PlayerBoard (props: BoardProps) {
             </div>
         )
     }
-    
-    // TODO GS-53 Game Feed
+
     const renderFeed = () => {
         const {gameFeed} = props;
         const ageContainer = [];

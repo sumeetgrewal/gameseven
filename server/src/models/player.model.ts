@@ -1,7 +1,6 @@
-import { Board, CardTypeList, ResourceList, MilitaryStats, PlayerData, BuildOptions, ConditionData, PurchaseOptions, Card, StageOptions } from './playerData.model';
+import { Board, CardTypeList, ResourceList, MilitaryStats, PlayerData, ConditionData, PurchaseOptions, Card, StageOptions } from './playerData.model';
 import { game } from './game.model'
 import { addToFeed } from '../middleware/gameFeed';
-import { Validator } from './validator.model';
 
 export class Player implements PlayerData {
   username: string;
@@ -91,7 +90,6 @@ export class Player implements PlayerData {
     : (card.VALUE_TYPE === "CONDITION") ? condData = this.buildConditionCard(card)
     : (card.VALUE_TYPE === "DISCOUNT") ? this.buildDiscountCard(card) : '';
 
-    console.log(condData)
     let message = `${this.username} built ${card.NAME} ${coinCost > 0 ? `for ${coinCost} coins` : ''}`;
     addToFeed(this.username, 'build', message, {cardId})
     this.coins -= coinCost;
@@ -184,7 +182,7 @@ export class Player implements PlayerData {
     })
     this.addCoins(values.coins);
     this.addPoints(values.points);
-    console.log({total});
+
     const cardName = game.cards[conditionData.cardId].NAME;
     let message = (values.coins > 0 && values.points > 0) ? 
         `${this.username} earned ${values.coins} coins and ${values.points} points from ${cardName}`
@@ -224,21 +222,20 @@ export class Player implements PlayerData {
       const resource: string = value[1].toLowerCase();
       this.resources[resource] += value[0];
     })
-    console.log(this.resources);
   }
 
   private addShields(numShields: number) {
     this.shields += numShields;
-    console.log('shields: ' + this.shields)
+    console.log(`${this.username} shields: ${this.shields}`)
   }
 
   private addPoints(numPoints: number) {
     this.points += numPoints;
-    console.log('points: ' + this.points)
+    console.log(`${this.username} points: ${this.points}`)
   }
 
   private addCoins(numCoins: number) {
     this.coins += numCoins;
-    console.log('coins: ' + this.coins)
+    console.log(`${this.username} coins: ${this.coins}`)
   }
 }

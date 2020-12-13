@@ -1,5 +1,4 @@
-import { pushUpdateToPlayers, shuffle } from "./util";
-import { game, serverData } from '../models/game.model';
+import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 import { Player } from "../models/player.model";
 import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../models/playerData.model";
 import { handleMilitary } from "./military";
@@ -45,6 +44,14 @@ function filterCardsByAge(age: number, numPlayers: number) {
   return selectedCards;
 }
 
+export function shuffle(a: number[]) {
+  for (let i: number = a.length - 1; i > 0; i--) {
+      const j: number = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateHands(numPlayers: number) {
   const cards = filterCardsByAge(game.metadata.age, numPlayers);
   const shuffledArray = shuffle(cards);
@@ -68,7 +75,6 @@ function updateTurn() {
     else {
       game.metadata.age++;
       game.metadata.turn = 1;
-      console.log(game.gameData.playerData);
       return beginAge();
     }
   }
@@ -87,8 +93,9 @@ function endGame() {
     conditions.forEach((condition: ConditionData) => {
       game.gameData.playerData[player[0]].redeemCondition(condition)
     })
+    // TODO points calculation
     const total = calculatePoints(player[1]);
-    console.log(player[0] + " " + total)
+    console.log(`${player[0]} ${total}`)
     game.gameData.playerData[player[0]].score = total;
   })
   sendGameResults();
@@ -157,6 +164,54 @@ export function beginAge(): void {
     sendTurnUpdate();
     sendAllPlayerData();
 }
+
+export function cleanupGame() {
+  game.metadata = {
+    gameStatus: 'lobby',
+    playerOrder: [],
+    age: 1,
+    turn: 1,
+  };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
+  game.players = {},
+  game.selections = { 1: {}, 2: {}, 3: {}, },
+  game.gameData = { playerData: {}, discardPile: [], }
+  game.gameFeed = [];
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Cleanup");
+}
+
+export function resetToLobby() {
+  for (const username in game.players) {
+    game.players[username] = { status: 'pending' };
+  }
+  game.metadata = {
+    gameStatus: 'lobby',
+    playerOrder: [],
+    age: 1,
+    turn: 1,
+  };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
+  game.selections = { 1: {}, 2: {}, 3: {}, }
+  game.gameData = { playerData: {}, discardPile: [], }
+  game.gameFeed = [];
+
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Reset to Lobby")
+}
+
 
 // --------------------
 // BUILD MANAGEMENT
