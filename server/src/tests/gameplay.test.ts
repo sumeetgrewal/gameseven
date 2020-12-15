@@ -1,6 +1,6 @@
-import * as calculatePoints from "../middleware/points";
+import * as points from "../middleware/points";
 import { game } from '../models/game.model'
-import { gameModel, ResourceList, PurchaseOptions } from '../models/playerData.model';
+import { gameModel, ResourceList, PurchaseOptions, GameScore } from '../models/playerData.model';
 import { cleanupGame } from '../middleware/gameplay';
 import { prepareGameAssets } from "../middleware/data";
 import { Player } from '../models/player.model';
@@ -83,7 +83,8 @@ describe('Smoke Tests', () => {
         [ 12, 5, 19, 42, 48, 97, 62, 95, 54, 127, 146, 133, 101, 110 ].map((cardId: number) => {
             B.selectCard(cardId.toString(), 0, {purchaseLeft: [], purchaseRight: [], costLeft: 0, costRight: 0});
         })
-        expect(calculatePoints.calculatePoints(B)).toEqual(33);
+        const score: GameScore = points.calculatePoints(B);
+        expect(score.total).toEqual(33);
     })
 })
 
@@ -306,34 +307,34 @@ describe('Calculate Science', () => {
     describe('w/o optional resources', () => {
         test('1', () => {
             resources.gear = 1;
-            expect(calculatePoints.calculateSciencePoints(resources, 0)).toEqual(1)
+            expect(points.optimizeScience(resources, 0)).toEqual(1)
         })
         
         test('2', () => {
             resources.gear = 1;
             resources.tablet = 2;
-            expect(calculatePoints.calculateSciencePoints(resources, 0)).toEqual(5)
+            expect(points.optimizeScience(resources, 0)).toEqual(5)
         })
         
         test('3', () => {
             resources.gear = 1;
             resources.tablet = 2;
             resources.compass = 3;
-            expect(calculatePoints.calculateSciencePoints(resources, 0)).toEqual(9+4+1+7)
+            expect(points.optimizeScience(resources, 0)).toEqual(9+4+1+7)
         })
         
         test('4', () => {
             resources.gear = 3;
             resources.tablet = 2;
             resources.compass = 3;
-            expect(calculatePoints.calculateSciencePoints(resources, 0)).toEqual(9+4+9+14)
+            expect(points.optimizeScience(resources, 0)).toEqual(9+4+9+14)
         })
         
         test('5', () => {
             resources.gear = 3;
             resources.tablet = 2;
             resources.compass = 3;
-            expect(calculatePoints.calculateSciencePoints(resources, 0)).toEqual(9+4+9+14)
+            expect(points.optimizeScience(resources, 0)).toEqual(9+4+9+14)
         })
     })
 
@@ -353,31 +354,31 @@ describe('Calculate Science', () => {
             resources.gear = 1;
             resources.tablet = 2;
             resources.compass = 3;
-            expect(calculatePoints.calculateSciencePoints(resources, 1)).toEqual(9+4+4+7+7)
+            expect(points.optimizeScience(resources, 1)).toEqual(9+4+4+7+7)
         })
         test('7', () => {
             resources.gear = 1;
             resources.tablet = 2;
             resources.compass = 5;
-            expect(calculatePoints.calculateSciencePoints(resources, 1)).toEqual(36+4+1+7)
+            expect(points.optimizeScience(resources, 1)).toEqual(36+4+1+7)
         })
         test('8', () => {
             resources.gear = 1;
             resources.tablet = 3;
             resources.compass = 3;
-            expect(calculatePoints.calculateSciencePoints(resources, 1)).toEqual(4+9+9+7+7)
+            expect(points.optimizeScience(resources, 1)).toEqual(4+9+9+7+7)
         })
         test('9', () => {
             resources.gear = 1;
             resources.tablet = 1;
             resources.compass = 1;
-            expect(calculatePoints.calculateSciencePoints(resources, 2)).toEqual(9+1+1+7)
+            expect(points.optimizeScience(resources, 2)).toEqual(9+1+1+7)
         })
         test('10', () => {
             resources.gear = 1;
             resources.tablet = 1;
             resources.compass = 2;
-            expect(calculatePoints.calculateSciencePoints(resources, 2)).toEqual(4+4+4+7+7)
+            expect(points.optimizeScience(resources, 2)).toEqual(4+4+4+7+7)
         })
     })
 })

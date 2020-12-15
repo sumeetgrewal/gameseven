@@ -1,6 +1,6 @@
 import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, GameScore } from "../models/playerData.model";
 import { handleMilitary } from "./military";
 import { calculatePoints } from "./points";
 import { sendFeedUpdate } from "./gameFeed";
@@ -93,7 +93,6 @@ function endGame() {
     conditions.forEach((condition: ConditionData) => {
       game.gameData.playerData[player[0]].redeemCondition(condition)
     })
-    // TODO points calculation
     const total = calculatePoints(player[1]);
     console.log(`${player[0]} ${total}`)
     game.gameData.playerData[player[0]].score = total;
@@ -151,7 +150,11 @@ export function sendPlayerData(username: string, sendToAll: boolean): void {
 }
 
 export function sendGameResults(): void {
-    pushUpdateToPlayers(JSON.stringify({}), 'gameResults', serverData.clients);
+  let results: {[index: string]: GameScore} = {};
+  Object.entries(game.gameData.playerData).forEach((player: [string, Player]) => {
+    results[player[0]] = player[1].score;
+  })
+  pushUpdateToPlayers(JSON.stringify(results), 'gameResults', serverData.clients);
 }
 
 export function beginAge(): void {

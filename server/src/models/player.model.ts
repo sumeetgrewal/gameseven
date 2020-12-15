@@ -1,4 +1,4 @@
-import { Board, CardTypeList, ResourceList, MilitaryStats, PlayerData, ConditionData, PurchaseOptions, Card, StageOptions } from './playerData.model';
+import { Board, CardTypeList, ResourceList, MilitaryStats, PlayerData, ConditionData, PurchaseOptions, Card, StageOptions, GameScore } from './playerData.model';
 import { game } from './game.model'
 import { addToFeed } from '../middleware/gameFeed';
 
@@ -10,7 +10,6 @@ export class Player implements PlayerData {
   resources: ResourceList;
   coins: number;
   shields: number;
-  points: number;
   optionalResources?: Array<any>;
   personalResources?: Array<any>;
   conditionalResources?: Array<any>;
@@ -23,7 +22,11 @@ export class Player implements PlayerData {
     playerRight: ResourceList;
   }
   stageData?: {[id: number] : {cost: any, value: any}};
-  score: number;
+  score: GameScore;
+  stagePoints: number;
+  civilianPoints: number;
+  commercialPoints: number;
+  guildPoints: number;
 
   constructor(username: string, board: Board | undefined = undefined) {
     this.username = username;
@@ -33,7 +36,10 @@ export class Player implements PlayerData {
     this.resources = new ResourceList(0)
     this.coins = 3;
     this.shields = 0;
-    this.points = 0;
+    this.stagePoints = 0;
+    this.civilianPoints = 0;
+    this.guildPoints = 0;
+    this.commercialPoints = 0;
     this.optionalResources = [];
     this.personalResources = [];
     this.conditionalResources = [];
@@ -43,7 +49,7 @@ export class Player implements PlayerData {
         three: 0,
         five: 0,
     }
-    this.score = -1;
+    this.score = new GameScore(),
     this.stagesBuilt = 0;
     this.purchaseCosts = {
       playerLeft : new ResourceList(2),
@@ -67,7 +73,7 @@ export class Player implements PlayerData {
     const data = this.stageData[stageOptions.stage];
     addToFeed(this.username, 'stage', `${this.username} built stage ${stageOptions.stage}`, {stage: stageOptions.stage});
     data.value.forEach((value: [number, string]) => {
-      (value[1] === 'POINT') ? this.addPoints(value[0]) 
+      (value[1] === 'POINT') ? this.addPoints(value[0], 'stage') 
       : (value[1] === 'COIN') ? this.addCoins(value[0])
       : (value[1] === 'SHIELD') ? this.addShields(value[0])
       : (Object.keys(this.resources).includes(value[1].toLowerCase())) ? this.addResources([value])
@@ -147,6 +153,7 @@ export class Player implements PlayerData {
       coins: 0,
       points: 0,
     }
+    const cardCategory = game.cards[conditionData.cardId].CATEGORY;
     let total: number = 0;
     conditionData.player.forEach((player) =>  {
       let playerData: PlayerData;
@@ -181,7 +188,7 @@ export class Player implements PlayerData {
       }
     })
     this.addCoins(values.coins);
-    this.addPoints(values.points);
+    this.addPoints(values.points, cardCategory);
 
     const cardName = game.cards[conditionData.cardId].NAME;
     let message = (values.coins > 0 && values.points > 0) ? 
@@ -194,26 +201,25 @@ export class Player implements PlayerData {
   }
   
   private buildOrCard(card: Card) {
-    if (card.CATEGORY === 'BROWN' || card.CATEGORY === 'GRAY' || card.CATEGORY === 'PURPLE') {
+    if (['BROWN', 'GRAY', 'PURPLE'].includes(card.CATEGORY)) {
       this.optionalResources.push(card.VALUE);
-    }
-    else {
+    } else {
       this.personalResources.push(card.VALUE);
     }
   } 
 
   private buildAndCard(card: Card) {
-    if (['BROWN', 'GRAY', 'GREEN'].includes(card.CATEGORY)) {
-      this.addResources(card.VALUE);
-    }
-    else if (card.CATEGORY === 'RED') {
-      this.addShields(card.VALUE[0][0]);
-    }
-    else if (card.CATEGORY === 'BLUE') {
-      this.addPoints(card.VALUE[0][0]);
-    }
-    else if (card.CATEGORY === 'YELLOW') {
-      this.addCoins(card.VALUE[0][0]);
+    switch(card.CATEGORY) {
+      case "BROWN": 
+      case "GRAY": 
+      case "GREEN": 
+        return this.addResources(card.VALUE);
+      case "RED": 
+        return this.addShields(card.VALUE[0][0]);
+      case "BLUE":
+        return this.addPoints(card.VALUE[0][0], 'blue');
+      case "YELLOW":
+        return this.addCoins(card.VALUE[0][0]);
     }
   }
 
@@ -229,9 +235,14 @@ export class Player implements PlayerData {
     console.log(`${this.username} shields: ${this.shields}`)
   }
 
-  private addPoints(numPoints: number) {
-    this.points += numPoints;
-    console.log(`${this.username} points: ${this.points}`)
+  private addPoints(numPoints: number, type: string) {
+      switch(type.toLowerCase()) {
+        case "stage": return this.stagePoints += numPoints;
+        case "blue": return this.civilianPoints += numPoints;
+        case "purple": return this.guildPoints += numPoints; 
+        case "yellow": return this.commercialPoints += numPoints;
+    }
+    console.log(`${this.username} received ${numPoints} points`)
   }
 
   private addCoins(numCoins: number) {

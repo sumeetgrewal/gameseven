@@ -123,11 +123,10 @@ export interface PlayerData {
   stagesBuilt: number;
   coins: number,
   shields: number,
-  points?: number,
   stageData?: {[id: number] : {cost: any, value: any}};
   playerLeft?: string;
   playerRight?: string;
-  score: number;
+  score: GameScore;
 }
 
 export interface GameMetadata {
@@ -135,4 +134,26 @@ export interface GameMetadata {
   playerOrder: string[];
   age: number;
   turn: number;
+}
+
+export class GameScore {
+  [index: string]: number;
+  military: number;
+  coins: number;
+  stages: number;
+  civilian: number;
+  commercial: number;
+  guilds: number;
+  scientific: number;
+  total: number;
+  constructor() {
+    this.military = 0;
+    this.coins = 0;
+    this.stages = 0;
+    this.civilian = 0;
+    this.commercial = 0;
+    this.guilds = 0;
+    this.scientific = 0;
+    this.total = 0;
+  }
 }

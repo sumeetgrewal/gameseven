@@ -2,7 +2,7 @@ import * as React from 'react';
 import JoinGame from './components/JoinGame';
 import GameLobby from './components/GameLobby';
 import Game from './components/Game';
-import { CardTypeList, GameMetadata, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
+import { CardTypeList, GameMetadata, GameScore, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
 import Animator from './components/Animator/Animator';
 
 interface MyState {
@@ -78,8 +78,7 @@ class App extends React.Component<{}, MyState> {
         stagesBuilt: 0,
         coins : 3,
         shields : 0,
-        points : 0,
-        score : -1,
+        score : new GameScore(),
       },
       gameFeed: {
         1: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
@@ -177,7 +176,7 @@ class App extends React.Component<{}, MyState> {
       source.addEventListener('feedUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
         const updates = parsedData.gameFeed;
-        const gameFeed = this.state.gameFeed;
+        const { gameFeed } = this.state;
         updates.forEach((update: any) => {
           gameFeed[update.age][update.turn].push(update);
         })
@@ -190,9 +189,7 @@ class App extends React.Component<{}, MyState> {
         this.setState({militaryAnimation: 3, gameResults: true})
       })
 
-      source.addEventListener('keepalive', (event: any) => {
-        console.log(event.data);
-      })
+      source.addEventListener('keepalive', ()=> {})
       
       source.addEventListener('error', (error: any) => {
         console.log(error);
