@@ -1,5 +1,5 @@
-import { cleanupGame, pushUpdateToPlayers, resetToLobby } from '../middleware/util';
-import { game, serverData } from '../models/game.model';
+import { cleanupGame, resetToLobby } from '../middleware/gameplay';
+import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 
 let JWTHandlers = require('../middleware/jwt.authorization');
 const router = require('express').Router(); 
@@ -48,6 +48,20 @@ router.route('/').delete((req: any, res: any) => {
   }
 });
 
+router.route('/').post((req: any, res: any) => {
+  const decodedToken: any = JWTHandlers.checkToken(req);
+  if (!decodedToken) { 
+    res.status(400).json({ status: 'Error', message: 'Invalid token'});
+  } else {
+    if (game.metadata.gameStatus === 'game') {
+      replayGame();
+      res.json({status: 'success'});
+    } else {
+      res.status(400).json({status: 'Error', message: "Game hasn't started"});
+    }
+  }
+})
+
 function addClient(username: string, res: any) {
   serverData.clients = serverData.clients.filter((client: any) => client.id !== username);
   const newClient: any = {
@@ -83,6 +97,13 @@ function removeClient(username: string) {
     pushUpdateToPlayers(JSON.stringify({players: game.players}), 'playerupdate', clients);
     pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, setupData: game.setupData}), 'setupUpdate', clients);
   }
+}
+
+function replayGame() {
+  const {clients} = serverData;
+  resetToLobby();
+  pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, players: game.players}), 'gameUpdate', clients);
+  pushUpdateToPlayers(JSON.stringify({metadata: game.metadata, setupData: game.setupData}), 'setupUpdate', clients);
 }
 
 module.exports = router;

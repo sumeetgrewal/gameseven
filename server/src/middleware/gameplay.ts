@@ -1,11 +1,12 @@
-import { pushUpdateToPlayers, shuffle } from "./util";
-import { game, serverData } from '../models/game.model';
+import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions, ConditionData, StageOptions } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, } from "../models/playerData.model";
 import { handleMilitary } from "./military";
 import { calculatePoints } from "./points";
 import { sendFeedUpdate } from "./gameFeed";
+import { Validator } from"../models/validator.model"
 let conditionsToRedeem: {player: Player, condition: ConditionData[]}[] = [];
+const validator = new Validator();
 
 // --------------------
 // CARD MANAGEMENT
@@ -43,6 +44,14 @@ function filterCardsByAge(age: number, numPlayers: number) {
   return selectedCards;
 }
 
+export function shuffle(a: number[]) {
+  for (let i: number = a.length - 1; i > 0; i--) {
+      const j: number = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateHands(numPlayers: number) {
   const cards = filterCardsByAge(game.metadata.age, numPlayers);
   const shuffledArray = shuffle(cards);
@@ -60,22 +69,22 @@ function generateHands(numPlayers: number) {
 function updateTurn() {
   if (game.metadata.turn === 6) {
     handleMilitary()
-      if (game.metadata.age === 3) {
-        return endGame()
-      }
-      else {
-        game.metadata.age++;
-        game.metadata.turn = 1;
-        console.log(game.gameData.playerData);
-        return beginAge();
-      }
+    if (game.metadata.age === 3) {
+      return endGame()
     }
     else {
-      game.metadata.turn++;
+      game.metadata.age++;
+      game.metadata.turn = 1;
+      return beginAge();
     }
-    rotateHands(!(game.metadata.age === 2));
-    sendTurnUpdate();
-    sendFeedUpdate();
+  }
+  else {
+    game.metadata.turn++;
+  }
+  rotateHands(!(game.metadata.age === 2));
+  sendTurnUpdate();
+  sendFeedUpdate();
+  updatePlayerStatus(Object.keys(game.players),'waiting');
 }
 
 function endGame() {
@@ -86,12 +95,13 @@ function endGame() {
       game.gameData.playerData[player[0]].redeemCondition(condition)
     })
     const total = calculatePoints(player[1]);
-    console.log(player[0] + " " + total)
+    console.log(`${player[0]} ${total}`)
     game.gameData.playerData[player[0]].score = total;
   })
   sendFeedUpdate();
   sendPlayerData("", true);
   sendAllPlayerData();
+  sendGameResults();
 }
 
 function sendTurnUpdate() {
@@ -102,7 +112,7 @@ function sendTurnUpdate() {
     if (hand) {
       const handInfo: any = {};
       hand.forEach((cardID: any) => {
-        const buildOptions: BuildOptions = player.canBuild(cardID);
+        const buildOptions: BuildOptions = validator.canBuild(cardID, player);
         handInfo[cardID] = buildOptions;
       });
       let stageInfo: StageOptions;
@@ -119,7 +129,7 @@ function sendTurnUpdate() {
           stage: player.stagesBuilt + 1,
           cost: player.stageData[player.stagesBuilt + 1].cost,
           value: player.stageData[player.stagesBuilt + 1].value,
-          options: player.canStage(),
+          options: validator.canStage(player),
         };
       game.players[client.id].handInfo = handInfo;
       game.players[client.id].stageInfo = stageInfo;
@@ -140,6 +150,10 @@ export function sendPlayerData(username: string, sendToAll: boolean): void {
   });
 }
 
+export function sendGameResults(): void {
+  pushUpdateToPlayers(JSON.stringify({}), 'gameResults', serverData.clients);
+}
+
 export function beginAge(): void {
     const playerIDs = Object.keys(game.players);
     for (let i = 0; i < playerIDs.length; i++) {
@@ -149,7 +163,56 @@ export function beginAge(): void {
     generateHands(playerIDs.length);
     sendTurnUpdate();
     sendAllPlayerData();
+    updatePlayerStatus(Object.keys(game.players),'waiting');
 }
+
+export function cleanupGame() {
+  game.metadata = {
+    gameStatus: 'lobby',
+    playerOrder: [],
+    age: 1,
+    turn: 1,
+  };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
+  game.players = {},
+  game.selections = { 1: {}, 2: {}, 3: {}, },
+  game.gameData = { playerData: {}, discardPile: [], }
+  game.gameFeed = [];
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Cleanup");
+}
+
+export function resetToLobby() {
+  for (const username in game.players) {
+    game.players[username] = { status: 'pending' };
+  }
+  game.metadata = {
+    gameStatus: 'lobby',
+    playerOrder: [],
+    age: 1,
+    turn: 1,
+  };
+  game.setupData = {
+    boards: [],
+    assignedBoards: [],
+    turnToChoose: -1,
+  }
+  game.selections = { 1: {}, 2: {}, 3: {}, }
+  game.gameData = { playerData: {}, discardPile: [], }
+  game.gameFeed = [];
+
+  if (serverData.gameCountdown) {
+    clearTimeout(serverData.gameCountdown);
+  }
+  console.log("Game Reset to Lobby")
+}
+
 
 // --------------------
 // BUILD MANAGEMENT
@@ -191,7 +254,7 @@ export function handleCardSelect(player: Player, username: string, card: string,
     player.buildStage(stageOptions, purchase);
   }
   removeCardFromHand(username, card);
-
+  updatePlayerStatus([username], "ready");
   if (ageSelectedCards[turn].length === numPlayers) {
     console.log("All players have selected cards");
     while (conditionsToRedeem.length > 0) {
@@ -205,4 +268,14 @@ export function handleCardSelect(player: Player, username: string, card: string,
     sendPlayerData(username, true);
     sendAllPlayerData();
   }
+}
+
+function updatePlayerStatus(names: string[], status: string) {
+  const { players } = game;
+  names.forEach((name: string) => {
+    if (players[name]) {
+      players[name].status = status;
+    }
+  })
+  pushUpdateToPlayers(JSON.stringify({players: game.players}), 'statusUpdate', serverData.clients);
 }

@@ -15,6 +15,7 @@ interface BoardProps {
         turn: number,
     },
     myData: PlayerData,
+    players: any,
     playerData: {
     [username: string]: PlayerData
     },
@@ -26,13 +27,14 @@ interface BoardProps {
 }
 
 export default function PlayerBoard (props: BoardProps) {
-    const boardImage = boardImages[props.board.BOARD_ID + ".jpg"];
     const numStages = props.myData.stagesBuilt;
     const [currentView, setCurrentView] = useState("cards")
 
     useEffect(() => {
         setCurrentView("cards");
-    }, [props.metadata, props.isMyBoard, props.myData]);
+        let root = document.documentElement;
+        root.style.setProperty('--background-image', `url(${boardImages[props.board.BOARD_ID + ".jpg"]}`);
+    }, [props.metadata, props.isMyBoard, props.myData, props.board.BOARD_ID]);
 
     const renderMyCards = () => {
         let myCardArray: Array<any> = [];
@@ -193,8 +195,7 @@ export default function PlayerBoard (props: BoardProps) {
             </div>
         )
     }
-    
-    // TODO GS-53 Game Feed
+
     const renderFeed = () => {
         const {gameFeed} = props;
         const ageContainer = [];
@@ -202,9 +203,11 @@ export default function PlayerBoard (props: BoardProps) {
             const turnContainer = [];
             for (let turn = 6; turn >= 1; turn--) {
                 const updateContainer: any[] = [];
-                gameFeed[age][turn].forEach((update: any) => {
-                    updateContainer.push(createFeedItem(update, age, turn))
-                })
+                if (gameFeed[age][turn]) {
+                    gameFeed[age][turn].forEach((update: any) => {
+                        updateContainer.push(createFeedItem(update, age, turn))
+                    })
+                }
                 if (updateContainer.length > 0) {
                     turnContainer.push(<div key={`${age}-${turn}`} className="row feed-turn" tabIndex={0}>
                         <div className="sticky-wrapper col-12 col-md-2 ml-0 pl-0">
@@ -258,29 +261,26 @@ export default function PlayerBoard (props: BoardProps) {
         }
         return (<div className='col-12 p-0'>{result}</div>);
     }
-    
+
     return (<>
-        <div 
-            className="my-board m-0 full-height" 
-            style={{backgroundImage: `url(${boardImage})`}}
-        >
+        <div className="my-board m-0 full-height" >
             <div className="gradient-top" />
-        <div className="gradient-bottom" />
+            <div className="gradient-bottom" />
         </div>
         <div className="container-fluid board-header">
             <div className="row">
                 <div className="col-12 col-sm-4 d-flex justify-content-start p-4">
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>AGE</h3><h4>{props.metadata.age}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>TURN</h3><h4>{props.metadata.turn}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>COINS</h3><h4>{props.myData.coins}</h4>
                     </div>
                 </div>
-                <div className="col-12 col-sm-4 d-flex justify-content-center align-items-center text-white">
+                <div className="col-12 col-sm-4 centered-flex text-white">
                     {renderStageInfo()}
                 </div>
                 <div className="col-12 col-sm-4 col-md-4 d-flex justify-content-end flex-column align-items-end flex-wrap p-4 text-white">
@@ -289,7 +289,7 @@ export default function PlayerBoard (props: BoardProps) {
                 </div>
             </div>
         </div>
-        <PlayerNav playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
+        <PlayerNav players={props.players} playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
         <div className="container d-flex justify-content-center">
             <div className="row">
                 <ButtonGroup toggle className="col-12 view-options p-0" aria-label="view-options">

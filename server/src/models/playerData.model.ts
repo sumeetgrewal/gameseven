@@ -40,6 +40,10 @@ export interface PlayerData {
   coins: number;
   shields: number;
   points?: number;
+  stagePoints: number;
+  civilianPoints: number;
+  commercialPoints: number;
+  guildPoints: number;
 }
 export type Resource = "wood" | "ore" | "stone" | "clay" | "glass" | "papyrus" | "loom" | "compass" | "tablet" | "gear";
 
@@ -161,4 +165,41 @@ export interface gameModel {
     };
     discardPile: string[],
   };
+  gameFeed: feedItem[]
+}
+
+
+export type feedItem = {
+  playerName: string;
+  age: number;
+  turn: number;
+  action: string; // build / discard / stage / condition / payment / military
+  message: string;
+  additionalParams: {
+    cardId?: string;
+    opponent?: string;
+    stage?: number;
+  };
+};
+
+export class GameScore {
+  [index: string]: number;
+  military: number;
+  coins: number;
+  stages: number;
+  civilian: number;
+  commercial: number;
+  guilds: number;
+  scientific: number;
+  total: number;
+  constructor() {
+    this.military = 0;
+    this.coins = 0;
+    this.stages = 0;
+    this.civilian = 0;
+    this.commercial = 0;
+    this.guilds = 0;
+    this.scientific = 0;
+    this.total = 0;
+  }
 }

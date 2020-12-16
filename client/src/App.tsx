@@ -2,7 +2,9 @@ import * as React from 'react';
 import JoinGame from './components/JoinGame';
 import GameLobby from './components/GameLobby';
 import Game from './components/Game';
-import { CardTypeList, GameMetadata, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
+import { CardTypeList, GameMetadata, GameScore, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
+import Animator from './components/Animator/Animator';
+import {backgroundImages} from './components/GameAssets'
 
 interface MyState {
   gameStatus: string,
@@ -11,6 +13,11 @@ interface MyState {
   isListening: boolean,
   isLoading: boolean,
   metadata: GameMetadata,
+  //Animations
+  ageTransition: boolean,
+  militaryAnimation: number,
+  gameResults: boolean,
+  resultsViewed: boolean,
   //Setup Data
   boards: Array<string>,
   assignedBoards: Array<string>,
@@ -43,6 +50,11 @@ class App extends React.Component<{}, MyState> {
         age: 1, 
         turn: 1,
       },
+        //Animations
+      ageTransition: false,
+      militaryAnimation: 0,
+      gameResults: false,
+      resultsViewed: false,
       // Setup Data
       boards: [],
       assignedBoards: [],
@@ -69,8 +81,7 @@ class App extends React.Component<{}, MyState> {
         stagesBuilt: 0,
         coins : 3,
         shields : 0,
-        points : 0,
-        score : -1,
+        score : new GameScore(),
       },
       gameFeed: {
         1: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
@@ -78,11 +89,16 @@ class App extends React.Component<{}, MyState> {
         3: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
       },
     }
+    this.setGameResults = this.setGameResults.bind(this);
     this.setGameStatus = this.setGameStatus.bind(this);
     this.registerSSE = this.registerSSE.bind(this);
     this.setWaiting = this.setWaiting.bind(this);
     this.setCurrentHand = this.setCurrentHand.bind(this);
     this.setListening = this.setListening.bind(this);
+    this.setAgeTransition = this.setAgeTransition.bind(this);
+    this.setMilitaryAnimation = this.setMilitaryAnimation.bind(this);
+    this.setResultsViewed = this.setResultsViewed.bind(this);
+    this.resetGame = this.resetGame.bind(this);
   }
 
   registerSSE() : Promise<void> {
@@ -122,22 +138,23 @@ class App extends React.Component<{}, MyState> {
               assignedBoards
             })
           }
-          this.setState({gameStatus})
+          this.setState({gameStatus}, () => this.setBackground())
         });
 
         source.addEventListener('gameUpdate', (event: any) => {
           const parsedData = JSON.parse(event.data);
           console.log('gameUpdate', parsedData);
-          this.setState({
-            players: parsedData.players, 
-            gameStatus: parsedData.metadata.gameStatus,
-          })
+          const { players, gameStatus } = parsedData;
+          this.setState({ players, gameStatus}, () => this.setBackground())
         })
 
         source.addEventListener('turnUpdate', (event: any) =>  {
           const parsedData = JSON.parse(event.data);
           console.log('new hand', parsedData);
           const {metadata, hand, handInfo, stageInfo} = parsedData;
+          if (this.state.metadata.turn === 6 && this.state.playerOrder.length > 2) {
+            this.setMilitaryAnimation(this.state.metadata.age)
+          }
           this.setState({
             metadata,
             currentHand: hand,
@@ -164,23 +181,32 @@ class App extends React.Component<{}, MyState> {
       source.addEventListener('feedUpdate', (event: any) => {
         const parsedData = JSON.parse(event.data);
         const updates = parsedData.gameFeed;
-        const gameFeed = this.state.gameFeed;
+        const { gameFeed } = this.state;
         updates.forEach((update: any) => {
           gameFeed[update.age][update.turn].push(update);
         })
         this.setState({gameFeed}, () => console.log('feedUpdate', this.state.gameFeed));
       })
 
-        source.addEventListener('keepalive', (event: any) => {
-          console.log(event.data);
-        })
-        
-        source.addEventListener('error', (error: any) => {
-          console.log(error);
-          this.setState({isListening: true})
-        });
+      source.addEventListener('statusUpdate', (event: any) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('statusUpdate', parsedData);
+        this.setState({players: parsedData.players})
+      })
 
-        this.setState({isListening: true}, resolve);
+      source.addEventListener('gameResults', () => {
+        console.log('gameResults');
+        this.setState({militaryAnimation: 3, gameResults: true})
+      })
+
+      source.addEventListener('keepalive', ()=> {})
+      
+      source.addEventListener('error', (error: any) => {
+        console.log(error);
+        this.setState({isListening: true})
+      });
+
+      this.setState({isListening: true}, resolve);
 
       } else {
         resolve()
@@ -188,32 +214,69 @@ class App extends React.Component<{}, MyState> {
     })
   }
 
+  setBackground() {
+    if (this.state.gameStatus === 'lobby') {
+      let root = document.documentElement;
+      root.style.setProperty('--background-image', `url(${backgroundImages['background.jpg']})`);
+    }
+  }
+
   setGameStatus(gameStatus: string) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({gameStatus}, resolve);
-    })
+    this.setBackground();
+    return Promise.resolve(this.setState({gameStatus}))
   }
 
   setListening(isListening: boolean) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({isListening}, resolve)
-    })
+    return Promise.resolve(this.setState({isListening}))
   }
 
   setWaiting(isWaiting: boolean) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({isWaiting}, resolve)
-    })
+    return Promise.resolve(this.setState({isWaiting}))
   }
 
   setCurrentHand(currentHand: string[]) : Promise<void> {
-    return new Promise((resolve) => {
-      this.setState({currentHand}, resolve)
-    })
+    return Promise.resolve(this.setState({currentHand}))
+  }
+
+  setAgeTransition(ageTransition: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({ageTransition}))
+  }
+
+  setMilitaryAnimation(militaryAnimation: number) : Promise<void> {
+    return Promise.resolve(this.setState({militaryAnimation}))
+  }
+
+  setGameResults(gameResults: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({gameResults}))
+  }
+
+  setResultsViewed(resultsViewed: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({resultsViewed}))
+  }
+
+  resetGame(): Promise<void> {
+      return new Promise((resolve, reject) => {
+        fetch("/game/connect", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then((res: any) => {
+          res.json()
+          .then((result: any) => {
+              if (res.status === 200) {
+                this.setBackground()
+                resolve()
+              } else {
+                reject(res.status + " " + result.message);
+              }
+          })
+        })
+        .catch((error: Error) => reject(error.message))
+      })
   }
 
   renderGameStage() {
-    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed} = this.state;
+    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed, gameResults, militaryAnimation, resultsViewed} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -248,13 +311,34 @@ class App extends React.Component<{}, MyState> {
         myData={myData}
         playerData={playerData}
         gameFeed={gameFeed}
+        gameResults={gameResults}
+        militaryAnimation={militaryAnimation}
+        setAgeTransition={this.setAgeTransition}
+        setGameResults={this.setGameResults}
+        resetGame={this.resetGame}
+        resultsViewed={resultsViewed}
       />
     )
   }
 
   render() {
+    const {metadata, myData, playerData, ageTransition, militaryAnimation, gameResults, resultsViewed} = this.state;
     return (
       <div className="App">
+        <Animator 
+          metadata={metadata}
+          myData={myData}
+          playerData={playerData}
+          ageTransition={ageTransition}
+          militaryAnimation={militaryAnimation}
+          gameResults={gameResults}
+          setAgeTransition={this.setAgeTransition}
+          setMilitaryAnimation={this.setMilitaryAnimation}
+          setGameResults={this.setGameResults}
+          resetGame={this.resetGame}
+          resultsViewed={resultsViewed}
+          setResultsViewed={this.setResultsViewed}
+        />
         {this.renderGameStage()}
       </div>
     );

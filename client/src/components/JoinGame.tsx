@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from 'react-bootstrap/esm/Button';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
@@ -80,7 +81,7 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
   render() {
     const { username, password, error } = this.state;
     return (
-      <div className="container d-flex align-items-center text-center justify-content-center full-height">
+      <div className="container centered-flex text-center full-height">
         <div>
           {(error !== "") && <div className="error text-white"> {error} </div>}
           <form onSubmit={(e) => this.joinGame(e)}>
@@ -94,12 +95,9 @@ class JoinGame extends React.Component<JoinGameProps, JoinGameState> {
                 <input type="password" value={password} name="password" id="password-prompt" onChange={this.handleInputChange}/>
               </label>
             </div>
-            <button 
-              type="submit" 
-              disabled={(username === "") || (password === "") ? true : false}
-              className="btn join-btn">
-              JOIN GAME
-            </button>
+            <Button variant="outline-light" className="action-btn btn-lg p-3 font-weight-bold opacity-4 shadow" type="submit" 
+              disabled={(username === "") || (password === "") ? true : false}>JOIN GAME
+            </Button>
           </form>
         </div>
       </div>

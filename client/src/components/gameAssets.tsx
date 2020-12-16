@@ -1,6 +1,7 @@
 export const boardImages = importAll(require.context('../assets/images/boards', false, /\.jpg|png$/));
 export const cardImages = importAll(require.context('../assets/images/cards', false, /\.jpg|png$/));
 export const iconImages = importAll(require.context('../assets/images/icons', false, /\.jpg|png$/));
+export const backgroundImages = importAll(require.context('../assets/images', false, /\.jpg|png$/));
 
 function importAll(r: any) {
   let images: any = {};
@@ -123,11 +124,10 @@ export interface PlayerData {
   stagesBuilt: number;
   coins: number,
   shields: number,
-  points?: number,
   stageData?: {[id: number] : {cost: any, value: any}};
   playerLeft?: string;
   playerRight?: string;
-  score: number;
+  score: GameScore;
 }
 
 export interface GameMetadata {
@@ -135,4 +135,26 @@ export interface GameMetadata {
   playerOrder: string[];
   age: number;
   turn: number;
+}
+
+export class GameScore {
+  [index: string]: number;
+  military: number;
+  coins: number;
+  stages: number;
+  civilian: number;
+  commercial: number;
+  guilds: number;
+  scientific: number;
+  total: number;
+  constructor() {
+    this.military = 0;
+    this.coins = 0;
+    this.stages = 0;
+    this.civilian = 0;
+    this.commercial = 0;
+    this.guilds = 0;
+    this.scientific = 0;
+    this.total = 0;
+  }
 }

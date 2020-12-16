@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PlayerBoard  from './PlayerBoard';
 import { cardImages, Card, Board, PlayerData, BuildOptions, PurchaseOptions, StageOptions, GameMetadata } from './GameAssets';
-import AgeTransition from './AgeTransition';
 import Button from 'react-bootstrap/esm/Button';
 
 interface GameProps {
@@ -17,9 +16,15 @@ interface GameProps {
     [username: string]: PlayerData
   },
   gameFeed: any[],
+  gameResults: boolean,
+  militaryAnimation: number,
+  resultsViewed: boolean,
   setGameStatus: (gameStatus: string) => Promise<void>
   setWaiting: (isWaiting: boolean) => Promise<void>
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
+  setAgeTransition: (ageTransition: boolean) => Promise<void>
+  setGameResults: (gameResults: boolean) => Promise<void>
+  resetGame: () => Promise<void>,
 }
 
 interface GameState {
@@ -28,7 +33,6 @@ interface GameState {
     cards: {[index: string]: Card},
   },
   error: string,
-  ageTransition: boolean,
   isLoaded: boolean,
   selectedCard: string,
   viewPurchaseOptions: string; // "build" or "stage"
@@ -45,7 +49,6 @@ class Game extends React.Component<GameProps, GameState> {
         cards: {}
       },
       error: "", 
-      ageTransition: false,
       isLoaded: false,
       selectedCard: "",
       viewPurchaseOptions: "",
@@ -75,9 +78,12 @@ class Game extends React.Component<GameProps, GameState> {
     }
   }
 
+  componentWillUnmount() {
+    this.props.setGameResults(false);
+  }
+
   startNewAge(): void {
-    this.setState({ageTransition: true});
-    setTimeout(() => this.setState({ageTransition: false}), 4000);
+    this.props.setAgeTransition(true);
   }
 
   cacheData(): Promise<void> {
@@ -171,7 +177,7 @@ class Game extends React.Component<GameProps, GameState> {
       })
     }
     return (
-      <div className='col-12 col-md-9 hand-container text-center d-flex flex-wrap-reverse justify-content-center align-items-center'>
+      <div className='col-12 col-md-9 hand-container text-center centered-flex flex-wrap-reverse'>
         {cardArray}
       </div>
     )
@@ -183,7 +189,7 @@ class Game extends React.Component<GameProps, GameState> {
     const card = this.state.cache.cards[selectedCard];
     if (selectedCard === "") {
       return (
-      <div className="col-12 col-md-3 card-info-container text-center d-flex justify-content-center align-items-center">
+      <div className="col-12 col-md-3 card-info-container text-center centered-flex">
         {(this.props.currentHand && this.props.currentHand.length > 0) && <h4 className="text-white">SELECT A CARD</h4>}
       </div>
       )
@@ -272,39 +278,33 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
-  // TODO results animation
   renderResults() {
-    const { myData, playerData, username } = this.props
-    const results: any = [];
-    const players: [string, PlayerData][] = Object.entries(playerData);
-    players.push([username, myData]);
-    players.sort((a: [string, PlayerData], b: [string, PlayerData]) => {
-      return ((a[1].score > b[1].score) ? 1 : -1)
-    })
-    
-    for(let i= 0; i < players.length; i++) {
-      results.push(
-        <div className={"player-box w-100 text-white" + ((i===players.length - 1) ? " player-ready" : "")}>
-          <h4>{players[i][0] + " : " + players[i][1].score}</h4>
-        </div>
-      )
-    }
-
+    const resultsButton = (
+        <Button variant="outline-light" className="action-btn w-100 p-3 m-3" onClick={() => this.props.setGameResults(true)} value="results" key="view-results">
+            VIEW RESULTS
+        </Button>
+    )
+    const replayButton = (
+        <Button variant="outline-light" className="action-btn w-100 p-3 m-3" onClick={() => this.props.resetGame()} value="replay" key="replay">
+            REPLAY
+        </Button>
+    )
     return (
-      <div className='col-12 hand-container text-center d-flex flex-column align-items-center justify-content-center '>
-          <h4 className="text-white">RESULTS</h4>
-          {results}
+      <div className='col-12 hand-container text-center flex-column centered-flex'>
+          {resultsButton}
+          {replayButton}
       </div>
     )
   }
 
   renderInfo() {
-    if (this.props.myData.score >= 0) {
-      return this.renderResults()
-    } else if (this.props.isWaiting) {
-      return (<div className='col-12 hand-container justify-content-center align-items-center'>
-            <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
-        </div>)
+    const { isWaiting, resultsViewed, gameResults } = this.props;
+    if (resultsViewed && !gameResults) {
+      return this.renderResults();
+  } else if (isWaiting) {
+      return (<div className='col-12 hand-container centered-flex'>
+          <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
+      </div>)
     } else {
       return (<>
         {this.renderHand()}
@@ -314,21 +314,18 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   render() {
-    const { myData, playerData } = this.props;
+    const { myData, playerData, players } = this.props;
     const myBoard = (myData) ? myData.board : undefined;
     const viewingMyBoard = (this.state.currentView === this.props.username);
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
         return (<>
-          {(this.state.ageTransition) &&
-            <AgeTransition age={this.props.metadata.age} />
-          }
           {myBoard &&  
-            <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
+            <PlayerBoard  players={players} playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
               viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />
           }
-          <div className="container d-flex align-items-center justify-content-center">
+          <div className="container centered-flex">
             <div className='row'>
               {(this.state.error !== "") && <div className="error text-white mb-3"> {this.state.error} </div>}
               {this.renderInfo()}
@@ -337,19 +334,19 @@ class Game extends React.Component<GameProps, GameState> {
         </>)
       } else {
         const viewBoard = (playerData[this.state.currentView].board)
-        const players = {...playerData};
-        players[this.props.username] = myData
+        const allPlayerData = {...playerData};
+        allPlayerData[this.props.username] = myData
         return (<>
           {(viewBoard) && 
-            <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
+            <PlayerBoard players={players} playerData={allPlayerData} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
-              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={[]} />          
+              viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />          
           }</>
         )
       }
     } else {
       return (
-        <div className="container d-flex align-items-center justify-content-center full-height">
+        <div className="container centered-flex full-height">
           <div className="row">
             <div className="col-12 game dialog"> 
               <h1 className="m-3">
