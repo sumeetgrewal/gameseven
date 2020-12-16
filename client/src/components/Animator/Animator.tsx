@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GameMetadata, GameScore, PlayerData } from '../GameAssets';
 import AgeTransition from './AgeTransition';
 import MilitaryAnimation from './MilitaryAnimation';
 import GameResults from './GameResults';
 import Button from 'react-bootstrap/esm/Button';
+import '../../assets/css/animator.css';
 
 interface AnimatorProps {  
     metadata: GameMetadata,
@@ -14,14 +15,15 @@ interface AnimatorProps {
     ageTransition: boolean,
     militaryAnimation: number,
     gameResults: boolean,
+    resultsViewed: boolean,
     setAgeTransition: (ageTransition: boolean) => Promise<void>,
-    setMilitaryAnimation: (age: number) => void,
+    setMilitaryAnimation: (age: number) => Promise<void>,
     setGameResults: (gameResults: boolean) => void,
+    setResultsViewed: (resultsViewed: boolean) => Promise<void>,
     resetGame: () => Promise<void>,
 }
 
 export default function Animator (props: AnimatorProps) {  
-    const [resultsViewed, setViewed] = useState(false);
         
     const handleAnimations = () => {
         const allPlayerData = {...props.playerData}
@@ -53,8 +55,8 @@ export default function Animator (props: AnimatorProps) {
             // Unmounted by view board && replay buttons
             return <GameResults 
                 results={results} 
-                resultsViewed={resultsViewed} 
-                setViewed={setViewed}
+                resultsViewed={props.resultsViewed} 
+                setResultsViewed={props.setResultsViewed}
             />
         }
     }
@@ -74,7 +76,7 @@ export default function Animator (props: AnimatorProps) {
             </Button>
         )
         
-        if (resultsViewed && props.gameResults) {
+        if (props.resultsViewed && props.gameResults) {
             return (
                 <div className="options-wrapper centered-flex">
                     {exitButton}

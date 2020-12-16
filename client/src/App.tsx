@@ -17,6 +17,7 @@ interface MyState {
   ageTransition: boolean,
   militaryAnimation: number,
   gameResults: boolean,
+  resultsViewed: boolean,
   //Setup Data
   boards: Array<string>,
   assignedBoards: Array<string>,
@@ -53,6 +54,7 @@ class App extends React.Component<{}, MyState> {
       ageTransition: false,
       militaryAnimation: 0,
       gameResults: false,
+      resultsViewed: false,
       // Setup Data
       boards: [],
       assignedBoards: [],
@@ -95,6 +97,7 @@ class App extends React.Component<{}, MyState> {
     this.setListening = this.setListening.bind(this);
     this.setAgeTransition = this.setAgeTransition.bind(this);
     this.setMilitaryAnimation = this.setMilitaryAnimation.bind(this);
+    this.setResultsViewed = this.setResultsViewed.bind(this);
     this.resetGame = this.resetGame.bind(this);
   }
 
@@ -247,6 +250,10 @@ class App extends React.Component<{}, MyState> {
     return Promise.resolve(this.setState({gameResults}))
   }
 
+  setResultsViewed(resultsViewed: boolean) : Promise<void> {
+    return Promise.resolve(this.setState({resultsViewed}))
+  }
+
   resetGame(): Promise<void> {
       return new Promise((resolve, reject) => {
         fetch("/game/connect", {
@@ -269,7 +276,7 @@ class App extends React.Component<{}, MyState> {
   }
 
   renderGameStage() {
-    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed, gameResults, militaryAnimation} = this.state;
+    const {gameStatus, username, players, isLoading, metadata, boards, assignedBoards, playerOrder, turnToChoose, currentHand, handInfo, stageInfo, isWaiting, myData, playerData, isListening, gameFeed, gameResults, militaryAnimation, resultsViewed} = this.state;
     if (gameStatus === "join") return (
       <JoinGame setGameStatus={this.setGameStatus} />
     ); 
@@ -309,12 +316,13 @@ class App extends React.Component<{}, MyState> {
         setAgeTransition={this.setAgeTransition}
         setGameResults={this.setGameResults}
         resetGame={this.resetGame}
+        resultsViewed={resultsViewed}
       />
     )
   }
 
   render() {
-    const {metadata, myData, playerData, ageTransition, militaryAnimation, gameResults} = this.state;
+    const {metadata, myData, playerData, ageTransition, militaryAnimation, gameResults, resultsViewed} = this.state;
     return (
       <div className="App">
         <Animator 
@@ -328,6 +336,8 @@ class App extends React.Component<{}, MyState> {
           setMilitaryAnimation={this.setMilitaryAnimation}
           setGameResults={this.setGameResults}
           resetGame={this.resetGame}
+          resultsViewed={resultsViewed}
+          setResultsViewed={this.setResultsViewed}
         />
         {this.renderGameStage()}
       </div>

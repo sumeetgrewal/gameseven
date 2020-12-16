@@ -270,17 +270,17 @@ export default function PlayerBoard (props: BoardProps) {
         <div className="container-fluid board-header">
             <div className="row">
                 <div className="col-12 col-sm-4 d-flex justify-content-start p-4">
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>AGE</h3><h4>{props.metadata.age}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>TURN</h3><h4>{props.metadata.turn}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>COINS</h3><h4>{props.myData.coins}</h4>
                     </div>
                 </div>
-                <div className="col-12 col-sm-4 d-flex justify-content-center align-items-center text-white">
+                <div className="col-12 col-sm-4 centered-flex text-white">
                     {renderStageInfo()}
                 </div>
                 <div className="col-12 col-sm-4 col-md-4 d-flex justify-content-end flex-column align-items-end flex-wrap p-4 text-white">
