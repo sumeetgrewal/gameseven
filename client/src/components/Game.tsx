@@ -276,39 +276,35 @@ class Game extends React.Component<GameProps, GameState> {
     )
   }
 
-  // TODO results animation
   renderResults() {
-    const { myData, playerData, username } = this.props
-    const results: any = [];
-    const players: [string, PlayerData][] = Object.entries(playerData);
-    players.push([username, myData]);
-    players.sort((a: [string, PlayerData], b: [string, PlayerData]) => {
-      return ((a[1].score > b[1].score) ? 1 : -1)
-    })
-    
-    for(let i= 0; i < players.length; i++) {
-      results.push(
-        <div className={"player-box w-100 text-white" + ((i===players.length - 1) ? " player-ready" : "")}>
-          <h4>{players[i][0] + " : " + players[i][1].score}</h4>
-        </div>
-      )
-    }
-
+    const resultsButton = (
+        <Button variant="light-outline" className="action-btn w-100 p-3 m-3" onClick={() => this.props.setGameResults(true)} value="results" key="view-results">
+            VIEW RESULTS
+        </Button>
+    )
+    const replayButton = (
+        <Button variant="light-outline" className="action-btn w-100 p-3 m-3" onClick={() => console.log("replay")} value="replay" key="replay">
+            REPLAY
+        </Button>
+    )
     return (
-      <div className='col-12 hand-container text-center d-flex flex-column align-items-center justify-content-center '>
-          <h4 className="text-white">RESULTS</h4>
-          {results}
+      <div className='col-12 hand-container text-center flex-column centered-flex'>
+          {resultsButton}
+          {replayButton}
       </div>
     )
   }
 
   renderInfo() {
-    if (this.props.gameResults && (this.props.militaryAnimation === 0)) {
-      return this.renderResults()
-    } else if (this.props.isWaiting) {
-      return (<div className='col-12 hand-container justify-content-center align-items-center'>
+    const { isWaiting, militaryAnimation, metadata } = this.props;
+    if (isWaiting) {
+      if (metadata.age === 3 && metadata.turn === 6 && militaryAnimation === 0) {
+        return this.renderResults();
+      } else {
+        return (<div className='col-12 hand-container justify-content-center align-items-center'>
             <h4 className="text-white"> WAITING FOR YOUR TURN </h4>
         </div>)
+      }
     } else {
       return (<>
         {this.renderHand()}

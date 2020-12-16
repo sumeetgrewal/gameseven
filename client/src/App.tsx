@@ -288,6 +288,7 @@ class App extends React.Component<{}, MyState> {
           gameResults={gameResults}
           setAgeTransition={this.setAgeTransition}
           setMilitaryAnimation={this.setMilitaryAnimation}
+          setGameResults={this.setGameResults}
         />
         {this.renderGameStage()}
       </div>

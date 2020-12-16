@@ -916,19 +916,19 @@ GAME RESULTS
     display: grid;
     grid-template-columns: 200px repeat(var(--numPlayers), 1fr);
     grid-template-rows: 80px repeat(7, 50px) 80px;
-    /* grid-auto-flow: column; */
     gap: 0;
     background-color: white;
     color: white;
     z-index: 5;
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-60%);
     padding: 0;
     height: auto;
     text-align: center;
     animation: 1s fade-in;
     box-shadow: var(--shadow);
+    margin-bottom: 50px;
 }
 
 .stages-result {
@@ -961,13 +961,13 @@ GAME RESULTS
     background-color: #1F4F35;
 }
 
-.commercial-result, .stages-result, .coins-result, .military-result, .civilian-result, .guilds-result, .scientific-result, .total-result { 
-    animation: 0.5s fade-in normal forwards;
+.commercial-result, .stages-result, .coins-result, .military-result, .civilian-result, .guilds-result, .scientific-result, .total-result, .header-result { 
+    animation: 0.5s dark-fade-in normal forwards;
 }
 
 .light {
     animation: 0.5s light-fade-in normal forwards;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow);
     transition: all 0.5s;
 }
 
@@ -975,7 +975,6 @@ GAME RESULTS
     background-color: #393939;
     opacity: 1;
     box-shadow: var(--shadow);
-    animation: 0.3 fade-in;
 }
 
 @keyframes light-fade-in {
@@ -984,8 +983,22 @@ GAME RESULTS
     }
 }
 
+@keyframes dark-fade-in {
+    100% {
+        opacity: 1;
+    }
+}
+
 .light:hover {
     opacity: 1 !important;
     box-shadow: var(--shadow);
     transition: all 0.5s ease-in-out;
+}
+
+.options-wrapper {
+    position: absolute;
+    min-width: 50%;
+    bottom: 5%;
+    z-index: 8;
+    transform: translateX(50%);
 }

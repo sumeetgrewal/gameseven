@@ -4,10 +4,13 @@ import { GameScore } from '../GameAssets';
 
 interface GameResultsProps {
     results: {[index: string]: GameScore},
+    resultsViewed: boolean,
+    setViewed: (loaded: boolean) => void,
 }
 
 export default function GameResults (props: GameResultsProps) {
-    const [ count , set ] = useState(1);
+    const [ count , set ] = useState(0);
+    const {setViewed} = props;
 
     const emptyCategory = (name: string) => {
         const result = [];
@@ -17,10 +20,15 @@ export default function GameResults (props: GameResultsProps) {
             </div>
         )
         Object.keys(props.results).forEach((key: string) => {
+            const classes = `centered-flex m-0 p-0 score ${name==='total' ? 'total-result' : 'header-result'}`
             result.push(
-            <CountUp key={`${key + name}-count-empty`} start={0} end={0} delay={0}>
+            <CountUp 
+            key={`${key} ${name}-count-empty`} 
+            start={0} 
+            end={0} 
+            delay={0}>
                 {({ countUpRef }) => (
-                    <div className={`centered-flex m-0 p-0 score header-result`}>
+                    <div className={classes}>
                         <span ref={countUpRef} />
                     </div>
                 )}
@@ -46,23 +54,33 @@ export default function GameResults (props: GameResultsProps) {
             </div>
         )
         Object.entries(props.results).forEach((value: [string, GameScore]) => {
-            if (name === 'total') { 
+            if (name==='total') {
                 result.push(  
-                    <CountUp key={`${value[0] + name}-count`} start={0} end={value[1][name]} delay={0} duration={3.5}>
+                    <CountUp 
+                    key={`${value[0]} ${name}-count`} 
+                    start={0} 
+                    end={value[1][name]+0.1} 
+                    delay={0} 
+                    duration={3.5}>
                         {({ countUpRef }) => (
-                        <div className={`centered-flex m-0 p-0 score ${name}-result light`}>
-                                <h2 className="m-0"><span ref={countUpRef} /></h2>
-                        </div>
+                            <div className={`centered-flex m-0 p-0 score ${name}-result`}>
+                                    <h2 className="m-0"><span ref={countUpRef} /></h2>
+                            </div>
                         )}
                     </CountUp>
                 )
             } else {
                 result.push(  
-                    <CountUp key={`${value[0] + name}-count`} start={0} end={value[1][name]} delay={0} duration={2}>
+                    <CountUp 
+                    key={`${value[0]} ${name}-count`} 
+                    start={0} 
+                    end={value[1][name]} 
+                    delay={0} 
+                    duration={2}>
                         {({ countUpRef }) => (
-                        <div className={`centered-flex m-0 p-0 score ${name}-result light`}>
+                            <div className={`centered-flex m-0 p-0 score ${name}-result light`}>
                                 <h4 className="m-0"><span ref={countUpRef} /></h4>
-                        </div>
+                            </div>
                         )}
                     </CountUp>
                 )
@@ -72,34 +90,55 @@ export default function GameResults (props: GameResultsProps) {
     }, [props.results])
 
     const update = useCallback(() => {
-        if (count < 8) {
+        if (count <= 8) {
             set(count + 1);   
-        }
-        switch (count) {
-            case 1: return setStages(renderCategory('stages'));
-            case 2: return setCoins(renderCategory('coins'));
-            case 3: return setMilitary(renderCategory('military'));
-            case 4: return setCivilian(renderCategory('civilian'));
-            case 5: return setCommercial(renderCategory('commercial'));
-            case 6: return setGuilds(renderCategory('guilds'));
-            case 7: return setScientific(renderCategory('scientific'));
-            case 8: return setTotal(renderCategory('total'));
+            switch (count) {
+                case 1: return setStages(renderCategory('stages'));
+                case 2: return setCoins(renderCategory('coins'));
+                case 3: return setMilitary(renderCategory('military'));
+                case 4: return setCivilian(renderCategory('civilian'));
+                case 5: return setCommercial(renderCategory('commercial'));
+                case 6: return setGuilds(renderCategory('guilds'));
+                case 7: return setScientific(renderCategory('scientific'));
+                case 8: return setTotal(renderCategory('total'));
+            }
+        } else {setViewed(true)}
+    }, [count, renderCategory, setViewed])
+
+    const loadAll = useCallback(() => {
+        if (count <= 1) {
+            setStages(renderCategory('stages'));
+            setCoins(renderCategory('coins'));
+            setMilitary(renderCategory('military'));
+            setCivilian(renderCategory('civilian'));
+            setCommercial(renderCategory('commercial'));
+            setGuilds(renderCategory('guilds'));
+            setScientific(renderCategory('scientific'));
+            setTotal(renderCategory('total'));
         }
     }, [count, renderCategory])
 
     useEffect(() => {
-        setInterval(() => update(), 2000)
-    }, [update])
-
+        let timer: any;
+        if (!props.resultsViewed) {
+            timer = setInterval(() => update(), 2000)
+        } else { // If results have already been viewed and component is remounted: 
+            loadAll()
+        }
+        return () => {
+            clearInterval(timer);
+        };
+    }, [update, props.resultsViewed, loadAll])
 
     const renderNames = () => {
         const result: any = [];
         result.push(<div key={"blank"} className='header-result'/>)
         Object.entries(props.results).forEach((value: [string, GameScore]) => {
-        result.push(
-            <div key={value[0]} className='centered-flex m-0 p-0 header-result' > 
-                <h3 className="m-0">{value[0]}</h3>
-            </div>)
+            result.push(
+                <div key={value[0]} className='centered-flex m-0 p-0 header-result' > 
+                    <h3 className="m-0">{value[0]}</h3>
+                </div>
+            )
         })
         return (result)
     }
