@@ -183,9 +183,8 @@ class App extends React.Component<{}, MyState> {
         this.setState({gameFeed}, () => console.log('feedUpdate', this.state.gameFeed));
       })
 
-      source.addEventListener('gameResults', (event: any) => {
-        const parsedData = JSON.parse(event.data);
-        console.log('gameResults', parsedData);
+      source.addEventListener('gameResults', () => {
+        console.log('gameResults');
         this.setState({militaryAnimation: 3, gameResults: true})
       })
 

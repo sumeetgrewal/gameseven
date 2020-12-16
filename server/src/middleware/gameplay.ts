@@ -97,10 +97,10 @@ function endGame() {
     console.log(`${player[0]} ${total}`)
     game.gameData.playerData[player[0]].score = total;
   })
-  sendGameResults();
   sendFeedUpdate();
   sendPlayerData("", true);
   sendAllPlayerData();
+  sendGameResults();
 }
 
 function sendTurnUpdate() {
@@ -150,11 +150,7 @@ export function sendPlayerData(username: string, sendToAll: boolean): void {
 }
 
 export function sendGameResults(): void {
-  let results: {[index: string]: GameScore} = {};
-  Object.entries(game.gameData.playerData).forEach((player: [string, Player]) => {
-    results[player[0]] = player[1].score;
-  })
-  pushUpdateToPlayers(JSON.stringify(results), 'gameResults', serverData.clients);
+  pushUpdateToPlayers(JSON.stringify({}), 'gameResults', serverData.clients);
 }
 
 export function beginAge(): void {

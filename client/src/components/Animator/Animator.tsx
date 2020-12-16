@@ -1,7 +1,8 @@
 import React from 'react';
-import { GameMetadata, PlayerData } from '../GameAssets';
+import { GameMetadata, GameScore, PlayerData } from '../GameAssets';
 import AgeTransition from './AgeTransition';
 import MilitaryAnimation from './MilitaryAnimation';
+import GameResults from './GameResults';
 
 interface AnimatorProps {  
     metadata: GameMetadata,
@@ -19,14 +20,15 @@ interface AnimatorProps {
 export default function Animator (props: AnimatorProps) {  
     
     const handleAnimations = () => {
+        const allPlayerData = {...props.playerData}
+        allPlayerData[props.myData.username] = props.myData;
         if (props.militaryAnimation > 0 && (props.metadata.playerOrder.length > 2)) {
-            let militaryData = {...props.playerData};
-            militaryData[props.myData.username] = props.myData;
+
             return (
                 <MilitaryAnimation 
                     age={props.militaryAnimation}
                     metadata={props.metadata} 
-                    militaryData={militaryData}
+                    militaryData={allPlayerData}
                     setMilitaryAnimation={props.setMilitaryAnimation}
                 />
             )
@@ -34,7 +36,11 @@ export default function Animator (props: AnimatorProps) {
             setTimeout(() => props.setAgeTransition(false), 4000);
             return (<AgeTransition age={props.metadata.age} />);
         } else if (props.gameResults) {
-            // Render Game Results
+            let results: {[index: string]: GameScore} = {};
+            Object.entries(allPlayerData).forEach((player: [string, PlayerData]) => {
+              results[player[0]] = player[1].score;
+            })
+            return <GameResults results={results}/>
         }
     }
 
