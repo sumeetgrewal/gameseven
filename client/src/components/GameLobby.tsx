@@ -36,8 +36,8 @@ export default function GameLobby (props: GameLobbyProps) {
         throw new Error(result.message);
       } else {
         console.log(result);
-        props.setListening(false);
         props.setGameStatus("join");
+        props.setListening(false);
       }
     } catch (err) {
       console.log(err);
