@@ -15,6 +15,7 @@ interface BoardProps {
         turn: number,
     },
     myData: PlayerData,
+    players: any,
     playerData: {
     [username: string]: PlayerData
     },
@@ -288,7 +289,7 @@ export default function PlayerBoard (props: BoardProps) {
                 </div>
             </div>
         </div>
-        <PlayerNav playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
+        <PlayerNav players={props.players} playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
         <div className="container d-flex justify-content-center">
             <div className="row">
                 <ButtonGroup toggle className="col-12 view-options p-0" aria-label="view-options">

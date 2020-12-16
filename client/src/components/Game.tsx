@@ -315,14 +315,14 @@ class Game extends React.Component<GameProps, GameState> {
   }
 
   render() {
-    const { myData, playerData } = this.props;
+    const { myData, playerData, players } = this.props;
     const myBoard = (myData) ? myData.board : undefined;
     const viewingMyBoard = (this.state.currentView === this.props.username);
     if (this.state.isLoaded && (myBoard !== undefined)) {
       if (viewingMyBoard) {
         return (<>
           {myBoard &&  
-            <PlayerBoard playerData={playerData} board={myBoard} username={this.props.username}
+            <PlayerBoard  players={players} playerData={playerData} board={myBoard} username={this.props.username}
               metadata={this.props.metadata} myData={myData} isMyBoard={true}
               viewPlayerBoard={this.viewPlayerBoard} currentHand={this.props.currentHand} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />
           }
@@ -335,11 +335,11 @@ class Game extends React.Component<GameProps, GameState> {
         </>)
       } else {
         const viewBoard = (playerData[this.state.currentView].board)
-        const players = {...playerData};
-        players[this.props.username] = myData
+        const allPlayerData = {...playerData};
+        allPlayerData[this.props.username] = myData
         return (<>
           {(viewBoard) && 
-            <PlayerBoard playerData={players} board={viewBoard} username={this.props.username}
+            <PlayerBoard players={players} playerData={allPlayerData} board={viewBoard} username={this.props.username}
               metadata={this.props.metadata} myData={playerData[this.state.currentView]} isMyBoard={false}
               viewPlayerBoard={this.viewPlayerBoard} currentHand={[]} cardCache={this.state.cache.cards} gameFeed={this.props.gameFeed} />          
           }</>
