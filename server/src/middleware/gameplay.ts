@@ -84,6 +84,7 @@ function updateTurn() {
   rotateHands(!(game.metadata.age === 2));
   sendTurnUpdate();
   sendFeedUpdate();
+  updatePlayerStatus(Object.keys(game.players),'waiting');
 }
 
 function endGame() {
@@ -162,6 +163,7 @@ export function beginAge(): void {
     generateHands(playerIDs.length);
     sendTurnUpdate();
     sendAllPlayerData();
+    updatePlayerStatus(Object.keys(game.players),'waiting');
 }
 
 export function cleanupGame() {
@@ -252,7 +254,7 @@ export function handleCardSelect(player: Player, username: string, card: string,
     player.buildStage(stageOptions, purchase);
   }
   removeCardFromHand(username, card);
-
+  updatePlayerStatus([username], "ready");
   if (ageSelectedCards[turn].length === numPlayers) {
     console.log("All players have selected cards");
     while (conditionsToRedeem.length > 0) {
@@ -266,4 +268,14 @@ export function handleCardSelect(player: Player, username: string, card: string,
     sendPlayerData(username, true);
     sendAllPlayerData();
   }
+}
+
+function updatePlayerStatus(names: string[], status: string) {
+  const { players } = game;
+  names.forEach((name: string) => {
+    if (players[name]) {
+      players[name].status = status;
+    }
+  })
+  pushUpdateToPlayers(JSON.stringify({players: game.players}), 'statusUpdate', serverData.clients);
 }

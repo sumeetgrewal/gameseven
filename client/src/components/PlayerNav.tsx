@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/esm/Button';
 import { cardImages, iconImages, PlayerData } from './GameAssets';
 
 interface PlayerNavProps {
+    players: any,
     playerData: {
         [username: string]: PlayerData,
     },
@@ -14,13 +15,11 @@ interface PlayerNavProps {
 
 export default function PlayerNav (props: PlayerNavProps) {
     
-    // TODO GS-53 Player Ready Status - game feed SSE GS-?? 
-
     const renderHoverableTile = (player: [string, PlayerData]) => {
         const playerName = player[0];
         const selCards = player[1].cards;
         return (
-            <div key={playerName} className={"player-tile hoverable-tile"}>
+            <div key={playerName} className={`player-tile hoverable-tile ${getPlayerStatus(playerName)}`}>
                 <Button className="view-btn player-view" variant="outline-light" onClick={() => props.viewPlayerBoard(player[0])}>
                     VIEW
                 </Button>
@@ -41,6 +40,12 @@ export default function PlayerNav (props: PlayerNavProps) {
         )
     }
 
+    const getPlayerStatus = (name: string) => {
+        return (props.players[name] && props.players[name].status==="ready") 
+            ? 'player-tile-ready'
+            : 'player-tile-waiting';
+    }
+
     const renderBackButton = () => {
         return (
             <Button className="view-btn player-view" variant="outline-light" onClick={() => props.viewPlayerBoard(props.username)}>
@@ -51,7 +56,7 @@ export default function PlayerNav (props: PlayerNavProps) {
 
     const renderMyTile = () => {
         return (
-            <div key={props.username} className="player-tile">
+            <div key={props.username} className={`player-tile ${getPlayerStatus(props.username)}`}>
                 <div className="player-name">
                     <h3>ME</h3>
                 </div>

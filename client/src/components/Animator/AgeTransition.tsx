@@ -14,20 +14,20 @@ export default function AgeTransition (props: AgeTransitionProps) {
     }
     return (
         <div className="age-transition">
-            <div className="title-card">
+            <div className="title-card centered-flex">
                 <h1>AGE</h1>
             </div> 
-            <div className="age-card age-card-a">
-                <img className="age-card-icon" alt="age-card-icon" src={images[props.age]}></img>
+            <div className="age-card age-card-a centered-flex">
+                <img className="h-100 w-100 m-0 p-0" alt="age-card-icon" src={images[props.age]}></img>
             </div> 
             {(props.age > 1) ?
-                <div className="age-card age-card-b">
-                    <img className="age-card-icon" alt="age-card-icon" src={images[props.age-1]}></img>
+                <div className="age-card age-card-b centered-flex">
+                    <img className="h-100 w-100 m-0 p-0" alt="age-card-icon" src={images[props.age-1]}></img>
                 </div> 
             : 
                 <div /> 
             }
-            <div className="spacer-card" />
+            <div className="spacer-card centered-flex" />
         </div>
     )
 }

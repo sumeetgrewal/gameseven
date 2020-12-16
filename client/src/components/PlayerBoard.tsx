@@ -15,6 +15,7 @@ interface BoardProps {
         turn: number,
     },
     myData: PlayerData,
+    players: any,
     playerData: {
     [username: string]: PlayerData
     },
@@ -269,17 +270,17 @@ export default function PlayerBoard (props: BoardProps) {
         <div className="container-fluid board-header">
             <div className="row">
                 <div className="col-12 col-sm-4 d-flex justify-content-start p-4">
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>AGE</h3><h4>{props.metadata.age}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>TURN</h3><h4>{props.metadata.turn}</h4>
                     </div>
-                    <div className="text-white d-flex flex-column flex-wrap justify-content-center align-items-center px-2">
+                    <div className="text-white centered-flex flex-column flex-wrap px-2">
                         <h3>COINS</h3><h4>{props.myData.coins}</h4>
                     </div>
                 </div>
-                <div className="col-12 col-sm-4 d-flex justify-content-center align-items-center text-white">
+                <div className="col-12 col-sm-4 centered-flex text-white">
                     {renderStageInfo()}
                 </div>
                 <div className="col-12 col-sm-4 col-md-4 d-flex justify-content-end flex-column align-items-end flex-wrap p-4 text-white">
@@ -288,7 +289,7 @@ export default function PlayerBoard (props: BoardProps) {
                 </div>
             </div>
         </div>
-        <PlayerNav playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
+        <PlayerNav players={props.players} playerData={props.playerData} myData={props.myData} isMyBoard={props.isMyBoard} username={props.username} viewPlayerBoard={props.viewPlayerBoard}/>
         <div className="container d-flex justify-content-center">
             <div className="row">
                 <ButtonGroup toggle className="col-12 view-options p-0" aria-label="view-options">

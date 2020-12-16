@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import Button from 'react-bootstrap/esm/Button';
 import BoardSelector from './BoardSelector';
 
 interface GameLobbyProps {
@@ -36,8 +37,8 @@ export default function GameLobby (props: GameLobbyProps) {
         throw new Error(result.message);
       } else {
         console.log(result);
-        props.setListening(false);
         props.setGameStatus("join");
+        props.setListening(false);
       }
     } catch (err) {
       console.log(err);
@@ -67,7 +68,7 @@ export default function GameLobby (props: GameLobbyProps) {
     let players = props.players;
     const playersList = Object.keys(players).map((player: any, index: number) => {
       const status = players[player]["status"];
-      const customClass = "mx-1 player-box " + ((status==="ready") ? "player-ready" : "" )
+      const customClass = "mx-1 centered-flex player-box " + ((status==="ready") ? "player-ready" : "" )
       return (
         <div className="col-6 col-md-4" key={index}>
           <div className={customClass} key={index}>
@@ -90,21 +91,21 @@ export default function GameLobby (props: GameLobbyProps) {
 
   if (props.isLoading) {
     return (
-      <div className="container d-flex align-items-center justify-content-center full-height">
+      <div className="container centered-flex full-height">
         <h3 className="text-white">Connecting to game...</h3>
       </div>
     )
   } else {
     return (
-      <div className="container d-flex align-items-center justify-content-center full-height">
+      <div className="container centered-flex full-height">
         {props.gameStatus === 'lobby' ? 
           <div className="row">
             <div className="col-12 dialog"> 
               {renderPlayers()}
             </div>
-            <div className="col-12 d-flex justify-content-center">
-              <button className="btn join-btn" onClick={exitGame}>EXIT</button> 
-              <button className="btn join-btn" onClick={setReady} autoFocus={true}>I'M READY</button> 
+            <div className="col-12 p-0 centered-flex">
+            <Button variant="outline-light" onClick={exitGame} className="action-btn mr-3 btn p-3 font-weight-bold shadow">EXIT</Button>
+            <Button variant="outline-light" onClick={setReady} autoFocus={true} className="action-btn ml-3 btn p-3 font-weight-bold shadow">I'M READY</Button>
             </div>
           </div>
         :

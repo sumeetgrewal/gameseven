@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from 'react-bootstrap/esm/Button';
 import boardCard from '../assets/images/board-card.jpg';
 
 interface BoardSelectorProps {
@@ -44,7 +45,7 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
         this.setState({myTurn: (playerOrder[turnToChoose] === username)});
     }
 
-    putSelectedBoard(i: number) {
+    putSelectedBoard(i: number): Promise<void> {
         console.log("Selected board " + i)
         return new Promise((resolve) => {
             fetch('/game/setup', {
@@ -95,19 +96,19 @@ class BoardSelector extends React.Component<BoardSelectorProps, BoardSelectorSta
                         <img alt="card-back" className="card-img" src={boardCard}></img>
                     </div>
                     {!(boards[i]) ? 
-                        <button className="mx-1 btn small-btn" 
+                        <Button variant="outline-dark" className="my-3 mx-0 p-3 btn shadow" 
                         onClick={() => this.putSelectedBoard(i)} 
                         key={'board-label-' + i}
                         disabled={!(myTurn && !myBoard)}>
                             CHOOSE
-                        </button>
+                        </Button>
                     :
-                        <div className={"mx-1 player-box" + (assignedBoards[0] ? " player-ready" : "")} key={'board-label-' + i}>
+                        <div className={"mx-1 centered-flex player-box" + (assignedBoards[0] ? " player-ready" : "")} key={'board-label-' + i}>
                             {boards[i]}
                         </div>
                     }
                     {(assignedBoards[0]) &&  
-                        <div className="mx-1 player-box board-name" key={'board-name-' + i}>
+                        <div className="mx-1 centered-flex player-box board-name" key={'board-name-' + i}>
                             {assignedBoards[i]}
                         </div>
                     }

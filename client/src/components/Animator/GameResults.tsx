@@ -5,12 +5,12 @@ import { GameScore } from '../GameAssets';
 interface GameResultsProps {
     results: {[index: string]: GameScore},
     resultsViewed: boolean,
-    setViewed: (loaded: boolean) => void,
+    setResultsViewed: (loaded: boolean) => Promise<void>,
 }
 
 export default function GameResults (props: GameResultsProps) {
-    const [ count , set ] = useState(0);
-    const {setViewed} = props;
+    const [ count , set ] = useState(0)
+    const {setResultsViewed} = props;
 
     const emptyCategory = (name: string) => {
         const result = [];
@@ -102,8 +102,8 @@ export default function GameResults (props: GameResultsProps) {
                 case 7: return setScientific(renderCategory('scientific'));
                 case 8: return setTotal(renderCategory('total'));
             }
-        } else {setViewed(true)}
-    }, [count, renderCategory, setViewed])
+        } else {setResultsViewed(true)}
+    }, [count, renderCategory, setResultsViewed])
 
     const loadAll = useCallback(() => {
         if (count <= 1) {
