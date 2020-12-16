@@ -26,13 +26,14 @@ interface BoardProps {
 }
 
 export default function PlayerBoard (props: BoardProps) {
-    const boardImage = boardImages[props.board.BOARD_ID + ".jpg"];
     const numStages = props.myData.stagesBuilt;
     const [currentView, setCurrentView] = useState("cards")
 
     useEffect(() => {
         setCurrentView("cards");
-    }, [props.metadata, props.isMyBoard, props.myData]);
+        let root = document.documentElement;
+        root.style.setProperty('--background-image', `url(${boardImages[props.board.BOARD_ID + ".jpg"]}`);
+    }, [props.metadata, props.isMyBoard, props.myData, props.board.BOARD_ID]);
 
     const renderMyCards = () => {
         let myCardArray: Array<any> = [];
@@ -261,12 +262,9 @@ export default function PlayerBoard (props: BoardProps) {
     }
 
     return (<>
-        <div 
-            className="my-board m-0 full-height" 
-            style={{backgroundImage: `url(${boardImage})`}}
-        >
+        <div className="my-board m-0 full-height" >
             <div className="gradient-top" />
-        <div className="gradient-bottom" />
+            <div className="gradient-bottom" />
         </div>
         <div className="container-fluid board-header">
             <div className="row">

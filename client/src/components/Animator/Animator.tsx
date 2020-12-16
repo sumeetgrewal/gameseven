@@ -17,6 +17,7 @@ interface AnimatorProps {
     setAgeTransition: (ageTransition: boolean) => Promise<void>,
     setMilitaryAnimation: (age: number) => void,
     setGameResults: (gameResults: boolean) => void,
+    resetGame: () => Promise<void>,
 }
 
 export default function Animator (props: AnimatorProps) {  
@@ -68,7 +69,7 @@ export default function Animator (props: AnimatorProps) {
         
         // Replay button -> Reset to lobby somehow
         const replayButton = (
-            <Button variant="light" className="action-btn w-40 p-3 mx-3" onClick={() => console.log("replay")} value="replay" key="replay">
+            <Button variant="light" className="action-btn w-40 p-3 mx-3" onClick={() => props.resetGame()} value="replay" key="replay">
                 REPLAY
             </Button>
         )

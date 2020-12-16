@@ -1,6 +1,7 @@
 export const boardImages = importAll(require.context('../assets/images/boards', false, /\.jpg|png$/));
 export const cardImages = importAll(require.context('../assets/images/cards', false, /\.jpg|png$/));
 export const iconImages = importAll(require.context('../assets/images/icons', false, /\.jpg|png$/));
+export const backgroundImages = importAll(require.context('../assets/images', false, /\.jpg|png$/));
 
 function importAll(r: any) {
   let images: any = {};

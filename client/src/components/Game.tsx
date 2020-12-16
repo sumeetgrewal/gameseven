@@ -23,6 +23,7 @@ interface GameProps {
   setCurrentHand: (currentHand: Array<string>) => Promise<void>
   setAgeTransition: (ageTransition: boolean) => Promise<void>
   setGameResults: (gameResults: boolean) => Promise<void>
+  resetGame: () => Promise<void>,
 }
 
 interface GameState {
@@ -278,12 +279,12 @@ class Game extends React.Component<GameProps, GameState> {
 
   renderResults() {
     const resultsButton = (
-        <Button variant="light-outline" className="action-btn w-100 p-3 m-3" onClick={() => this.props.setGameResults(true)} value="results" key="view-results">
+        <Button variant="outline-light" className="action-btn w-100 p-3 m-3" onClick={() => this.props.setGameResults(true)} value="results" key="view-results">
             VIEW RESULTS
         </Button>
     )
     const replayButton = (
-        <Button variant="light-outline" className="action-btn w-100 p-3 m-3" onClick={() => console.log("replay")} value="replay" key="replay">
+        <Button variant="outline-light" className="action-btn w-100 p-3 m-3" onClick={() => this.props.resetGame} value="replay" key="replay">
             REPLAY
         </Button>
     )

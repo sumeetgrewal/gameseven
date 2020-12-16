@@ -4,6 +4,7 @@ import GameLobby from './components/GameLobby';
 import Game from './components/Game';
 import { CardTypeList, GameMetadata, GameScore, PlayerData, ResourceList, StageOptions } from './components/GameAssets';
 import Animator from './components/Animator/Animator';
+import {backgroundImages} from './components/GameAssets'
 
 interface MyState {
   gameStatus: string,
@@ -94,6 +95,7 @@ class App extends React.Component<{}, MyState> {
     this.setListening = this.setListening.bind(this);
     this.setAgeTransition = this.setAgeTransition.bind(this);
     this.setMilitaryAnimation = this.setMilitaryAnimation.bind(this);
+    this.resetGame = this.resetGame.bind(this);
   }
 
   registerSSE() : Promise<void> {
@@ -133,14 +135,14 @@ class App extends React.Component<{}, MyState> {
               assignedBoards
             })
           }
-          this.setState({gameStatus})
+          this.setState({gameStatus}, () => this.setBackground())
         });
 
         source.addEventListener('gameUpdate', (event: any) => {
           const parsedData = JSON.parse(event.data);
           console.log('gameUpdate', parsedData);
           const { players, gameStatus } = parsedData;
-          this.setState({ players, gameStatus})
+          this.setState({ players, gameStatus}, () => this.setBackground())
         })
 
         source.addEventListener('turnUpdate', (event: any) =>  {
@@ -203,7 +205,15 @@ class App extends React.Component<{}, MyState> {
     })
   }
 
+  setBackground() {
+    if (this.state.gameStatus === 'lobby') {
+      let root = document.documentElement;
+      root.style.setProperty('--background-image', `url(${backgroundImages['background.jpg']})`);
+    }
+  }
+
   setGameStatus(gameStatus: string) : Promise<void> {
+    this.setBackground();
     return Promise.resolve(this.setState({gameStatus}))
   }
 
@@ -229,6 +239,27 @@ class App extends React.Component<{}, MyState> {
 
   setGameResults(gameResults: boolean) : Promise<void> {
     return Promise.resolve(this.setState({gameResults}))
+  }
+
+  resetGame(): Promise<void> {
+      return new Promise((resolve, reject) => {
+        fetch("/game/connect", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then((res: any) => {
+          res.json()
+          .then((result: any) => {
+              if (res.status === 200) {
+                this.setBackground()
+                resolve()
+              } else {
+                reject(res.status + " " + result.message);
+              }
+          })
+        })
+        .catch((error: Error) => reject(error.message))
+      })
   }
 
   renderGameStage() {
@@ -271,6 +302,7 @@ class App extends React.Component<{}, MyState> {
         militaryAnimation={militaryAnimation}
         setAgeTransition={this.setAgeTransition}
         setGameResults={this.setGameResults}
+        resetGame={this.resetGame}
       />
     )
   }
@@ -289,6 +321,7 @@ class App extends React.Component<{}, MyState> {
           setAgeTransition={this.setAgeTransition}
           setMilitaryAnimation={this.setMilitaryAnimation}
           setGameResults={this.setGameResults}
+          resetGame={this.resetGame}
         />
         {this.renderGameStage()}
       </div>

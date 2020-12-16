@@ -1,6 +1,6 @@
 import { game, serverData, pushUpdateToPlayers } from '../models/game.model';
 import { Player } from "../models/player.model";
-import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, GameScore } from "../models/playerData.model";
+import { BuildOptions, PurchaseOptions, ConditionData, StageOptions, } from "../models/playerData.model";
 import { handleMilitary } from "./military";
 import { calculatePoints } from "./points";
 import { sendFeedUpdate } from "./gameFeed";
